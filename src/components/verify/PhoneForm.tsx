@@ -2,10 +2,8 @@
 
 import { useState, FormEvent } from 'react';
 
-const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-
 interface Props {
-  onSuccess: (phone: string) => void;
+  onSuccess: (phone: string, mock?: boolean) => void;
 }
 
 export default function PhoneForm({ onSuccess }: Props) {
@@ -31,7 +29,7 @@ export default function PhoneForm({ onSuccess }: Props) {
         return;
       }
 
-      onSuccess(phone);
+      onSuccess(phone, data.mock === true);
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -47,12 +45,6 @@ export default function PhoneForm({ onSuccess }: Props) {
       <p className="text-sm text-stone-500 text-center mb-8">
         Enter your WhatsApp number to receive your invitation code.
       </p>
-
-      {MOCK_MODE && (
-        <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700 text-center">
-          <span className="font-semibold">Mock mode</span> — enter any number
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>

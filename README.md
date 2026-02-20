@@ -32,8 +32,8 @@ cp .env.example .env.local
 ```
 Fill in `.env.local`. To run in mock mode (no external services needed), set:
 ```
-MOCK_MODE=true
-NEXT_PUBLIC_MOCK_MODE=true
+MOCK_SHEETS=true
+MOCK_TWILIO=true
 ```
 See the [External Services](#external-services) section for real credentials.
 
@@ -45,11 +45,15 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Mock Mode
 
-Mock mode bypasses Google Sheets and Twilio entirely — useful for development and previewing the UI without any credentials.
+Each external service can be mocked independently — useful for development, previewing the UI, or integration testing against one real service at a time.
 
-When enabled, the verify flow accepts any phone number and uses `000000` as the OTP code. Configure the mock guest and event details via the `MOCK_GUEST_*` and `MOCK_EVENT_*` vars in `.env.local`.
+| Flag | Effect |
+|------|--------|
+| `MOCK_SHEETS=true` | Bypasses Google Sheets — any phone is accepted, RSVP writes log to console |
+| `MOCK_TWILIO=true` | Bypasses Twilio OTP — any 6-digit code is accepted |
+| `MOCK_SHEETS_GUEST_NAME=` | Guest name shown when `MOCK_SHEETS=true` |
 
-To disable mock mode and use real integrations, set `MOCK_MODE=false` and `NEXT_PUBLIC_MOCK_MODE=false` in `.env.local` and fill in the credentials below.
+Set both flags together for a fully credential-free local flow. To use real integrations, remove (or set to `false`) the relevant flag and fill in the credentials below.
 
 ## External Services
 

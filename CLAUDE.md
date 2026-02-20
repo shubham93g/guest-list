@@ -96,23 +96,26 @@ curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \
 
 ## Mock Mode
 
-Mock mode bypasses all external integrations (Google Sheets, Twilio) so the full UX flow can be tested without credentials.
+Each external service can be mocked independently, allowing integration testing against one real service while bypassing the other.
 
-**Toggle in `.env.local`:**
+**Flags in `.env.local`:**
 ```bash
-MOCK_MODE=true               # server-side: skips Sheets + Twilio
-NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
+MOCK_SHEETS=true             # bypass Google Sheets: skip allowlist check, RSVP writes log to console
+MOCK_TWILIO=true             # bypass Twilio OTP: any 6-digit code is accepted
+MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHEETS=true
 ```
 
 **Mock flow behaviour:**
-- Any phone number is accepted on `/verify`
-- OTP code is always `000000`
-- `/welcome` shows the guest configured via `MOCK_GUEST_NAME` env var
-- RSVP submit logs to the console instead of writing to Sheets
+- `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/welcome` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
+- `MOCK_TWILIO=true` — no WhatsApp message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
+- Both flags can be set together for a fully credential-free local flow
 
-**Mock mode only covers guest lookup and WhatsApp OTP** — event details (couple names, date, venue) are always read from env vars and are never mocked. `mock.ts` reads from `MOCK_GUEST_NAME` for the guest name. See `.env.example` for the full list.
+**Mock mode design principles:**
+- **Server-side only.** Mock configuration lives in server env vars — no `NEXT_PUBLIC_MOCK_*` vars. The client never reads mock state from the environment.
+- **API-driven UI hints.** When a mock flag is active, the relevant API response includes `mock: true`. The client uses this field to show a simple indicator — no hardcoded values or debug logic in the UI.
+- **Single source of truth.** The server owns mock state; the client reflects it.
 
-**Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_MODE`. Every new API route or server action that calls an external service must short-circuit cleanly when `MOCK_MODE=true`. This ensures the UX can always be previewed and developed without live credentials.
+**Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_SHEETS` or `MOCK_TWILIO` as appropriate. Every new API route or server action that calls an external service must short-circuit cleanly when the relevant mock flag is set.
 
 ## PR Workflow
 
