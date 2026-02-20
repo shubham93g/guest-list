@@ -7,12 +7,16 @@ import RSVPForm from '@/components/welcome/RSVPForm';
 
 export default async function WelcomePage() {
   const session = await getSession();
-  if (!session) redirect('/verify');
+  if (!session) {
+    redirect('/verify');
+  }
 
   const guest = await findGuestByPhone(session.phone);
   const event = getEventDetails();
 
-  if (!guest) redirect('/verify');
+  if (!guest) {
+    redirect('/verify');
+  }
 
   return (
     <main className="min-h-screen bg-stone-50">

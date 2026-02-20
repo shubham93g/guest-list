@@ -16,7 +16,9 @@ export default function RSVPForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!status) return;
+    if (!status) {
+      return;
+    }
     setFormState('loading');
     setErrorMsg('');
 
@@ -128,7 +130,7 @@ export default function RSVPForm() {
             {/* Additional notes */}
             <div>
               <label className="block text-xs text-stone-500 mb-1.5 pl-1">
-                Anything else you'd like us to know? (optional)
+                Anything else you&apos;d like us to know? (optional)
               </label>
               <textarea
                 placeholder="Message for the couple…"

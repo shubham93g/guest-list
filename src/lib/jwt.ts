@@ -4,7 +4,9 @@ import { SESSION_EXPIRY_DAYS } from './constants';
 
 function getJWTSecret() {
   const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
   return new TextEncoder().encode(secret);
 }
 

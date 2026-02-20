@@ -118,6 +118,20 @@ NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
 
 `TODO.md` tracks outstanding fixes and planned work. Always check it when opening or reviewing a PR — reference relevant items in the PR description or review comments.
 
+## Code Style
+
+- **Always use curly braces for `if`/`else` blocks**, even single-line bodies. The body goes on the next line.
+  ```typescript
+  // correct
+  if (!token) {
+    return null;
+  }
+
+  // wrong
+  if (!token) return null;
+  ```
+  This is enforced by the `curly: ['error', 'all']` ESLint rule in `eslint.config.mjs`.
+
 ## Important Patterns
 
 - **sheets.ts auth client**: uses a factory function `getAuthClient()` — not a module-level singleton — to be safe in serverless environments.

@@ -28,10 +28,14 @@ async function getAllGuestRows(): Promise<string[][]> {
 }
 
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
-  if (MOCK_MODE) return { ...MOCK_GUEST, phone };
+  if (MOCK_MODE) {
+    return { ...MOCK_GUEST, phone };
+  }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => r[GUEST_COLS.PHONE]?.trim() === phone.trim());
-  if (!row) return null;
+  if (!row) {
+    return null;
+  }
   return rowToGuest(row);
 }
 
@@ -56,10 +60,15 @@ function rowToGuest(row: string[]): Guest {
 
 
 export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<void> {
-  if (MOCK_MODE) { console.log('[mock] RSVP submitted', { phone, ...data }); return; }
+  if (MOCK_MODE) {
+    console.log('[mock] RSVP submitted', { phone, ...data });
+    return;
+  }
   const rows = await getAllGuestRows();
   const rowIndex = rows.findIndex((r) => r[GUEST_COLS.PHONE]?.trim() === phone.trim());
-  if (rowIndex === -1) throw new Error(`Guest with phone ${phone} not found`);
+  if (rowIndex === -1) {
+    throw new Error(`Guest with phone ${phone} not found`);
+  }
 
   const sheetRow = rowIndex + 2; // +1 for 1-indexing, +1 for header row
   const sheets = await getSheetsClient();
