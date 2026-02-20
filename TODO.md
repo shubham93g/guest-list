@@ -11,12 +11,6 @@
   Replace `as unknown as SessionPayload` double-cast with a proper type guard
   that checks `typeof payload.phone === 'string'` and `typeof payload.name === 'string'`
 
-- [ ] **`mock: true` flag in `send-otp` response** — `src/app/api/auth/send-otp/route.ts`
-  Currently `mock: true` is returned when `MOCK_SHEETS || MOCK_TWILIO`. But the OTP form only
-  cares whether Twilio is mocked — if Sheets is mocked but Twilio is real, a genuine OTP was
-  sent and the client shouldn't show "Mock mode active." Fix: return `mock: true` only when
-  `MOCK_TWILIO=true`.
-
 ### Should Fix (before real guests)
 
 - [ ] **Rate limiting on `send-otp`** — `src/app/api/auth/send-otp/route.ts`
