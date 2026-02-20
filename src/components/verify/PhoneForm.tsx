@@ -17,6 +17,8 @@ export default function PhoneForm({ onSuccess }: Props) {
     setError('');
     setLoading(true);
 
+    // + prefix is required by Twilio (E.164 format). Sheets stores digits-only,
+    // so sheets.ts normalises by stripping + before comparing.
     const phone = `+${countryCode}${phoneNumber}`;
 
     try {
