@@ -27,6 +27,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/` — Public save-the-date hero (Server Component)
 - `/verify` — Phone entry + OTP flow (Client Component, 2-step state machine)
 - `/welcome` — Personalized save-the-date + RSVP form (Server Component, protected)
+- `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
 - `/api/auth/send-otp` — POST: check allowlist → send WhatsApp OTP via Twilio Verify
 - `/api/auth/verify-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
