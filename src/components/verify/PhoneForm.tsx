@@ -7,7 +7,8 @@ interface Props {
 }
 
 export default function PhoneForm({ onSuccess }: Props) {
-  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -15,6 +16,10 @@ export default function PhoneForm({ onSuccess }: Props) {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // + prefix is required by Twilio (E.164 format). Sheets stores digits-only,
+    // so sheets.ts normalises by stripping + before comparing.
+    const phone = `+${countryCode}${phoneNumber}`;
 
     try {
       const res = await fetch('/api/auth/send-otp', {
@@ -47,25 +52,35 @@ export default function PhoneForm({ onSuccess }: Props) {
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center h-12 px-3 border border-stone-300 rounded-xl bg-stone-50 text-stone-500 text-base select-none shrink-0">
+            +
+          </div>
           <input
-            type="tel"
-            inputMode="tel"
-            placeholder="+91 98765 43210"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            type="text"
+            inputMode="numeric"
+            placeholder="65"
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
             disabled={loading}
             required
-            className="w-full h-12 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
+            className="w-16 h-12 px-3 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base text-center focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
           />
-          <p className="mt-1.5 text-xs text-stone-400 pl-1">
-            Include country code, e.g. +91
-          </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="98765 43210"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+            disabled={loading}
+            required
+            className="flex-1 h-12 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
+          />
         </div>
 
         <button
           type="submit"
-          disabled={loading || !phone}
+          disabled={loading || !countryCode || !phoneNumber}
           className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
         >
           {loading ? 'Sending code…' : 'Send Code via WhatsApp'}

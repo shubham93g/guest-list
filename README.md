@@ -96,7 +96,7 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 | Col | Header | Notes |
 |-----|--------|-------|
 | A | `name` | Admin fills before launch |
-| B | `phone` | E.164 format e.g. `+919876543210` — used as auth identifier |
+| B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Sheets strips `+` even in Plain Text cells, so omit it. The API normalises before comparing. |
 | C | `rsvp_status` | Written by API: `attending` / `declined` |
 | D | `rsvp_submitted_at` | ISO 8601 timestamp |
 | E | `dietary_notes` | |
