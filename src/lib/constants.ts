@@ -19,4 +19,4 @@ export const GUEST_COLS = {
 } as const;
 
 export const SESSION_COOKIE = 'session';
-export const SESSION_EXPIRY_DAYS = 30;
+export const SESSION_EXPIRY_DAYS = 1;

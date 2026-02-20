@@ -2,23 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { verifyOTP, signJWT } from '@/lib/auth';
 import { findGuestByPhone } from '@/lib/sheets';
-import { SESSION_COOKIE, SESSION_EXPIRY_DAYS } from '@/lib/constants';
+import { setSessionCookie } from '@/lib/session';
 
 const schema = z.object({
   phone: z.string().min(8, 'Please enter a valid phone number'),
   code: z.string().length(6, 'Code must be 6 digits'),
 });
-
-function setSessionCookie(res: NextResponse, token: string): NextResponse {
-  res.cookies.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,
-    path: '/',
-  });
-  return res;
-}
 
 export async function POST(req: NextRequest) {
   try {
