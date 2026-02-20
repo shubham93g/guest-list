@@ -8,6 +8,12 @@
   Prevent endpoint spam that burns Twilio credits. Options: Vercel rate limiting,
   or a simple IP-based check middleware.
 
+- [ ] **Cache guest list to reduce Sheets reads** — `src/lib/sheets.ts`
+  `findGuestByPhone` fetches all rows on every call. Cache the guest list in
+  memory (or via Next.js `unstable_cache`) with a short TTL (e.g. 5 min) so
+  repeated OTP attempts and page loads don't hammer the Sheets API.
+  Invalidate on `updateGuestRSVP` to avoid serving stale RSVP status.
+
 ---
 
 ## Tests to Write
