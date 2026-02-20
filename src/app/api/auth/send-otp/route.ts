@@ -4,7 +4,7 @@ import { findGuestByPhone } from '@/lib/sheets';
 import { sendOTP } from '@/lib/auth';
 
 const schema = z.object({
-  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Please enter a valid phone number in international format e.g. +919876543210'),
+  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Please enter a valid phone number.'),
 });
 
 export async function POST(req: NextRequest) {
