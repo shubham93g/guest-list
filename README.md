@@ -101,3 +101,18 @@ npm run dev      # Start development server
 npm run build    # Production build
 npm run lint     # ESLint (runs eslint src/)
 ```
+
+## Claude Code Skills
+
+If you use [Claude Code](https://claude.ai/code), the following slash commands are available:
+
+| Command | Description |
+|---------|-------------|
+| `/restart-server` | Kill port 3000 and start the Next.js dev server |
+| `/stop-server` | Kill the process on port 3000 |
+| `/tail-logs` | Print the last 50 lines of dev server logs |
+
+The dev server logs to `/tmp/nextjs-dev.log`. For live streaming in a terminal:
+```bash
+tail -f /tmp/nextjs-dev.log
+```
