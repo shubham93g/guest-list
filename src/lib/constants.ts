@@ -2,7 +2,6 @@ export const SHEET_ID = process.env.GOOGLE_SHEET_ID!;
 
 export const SHEETS = {
   GUESTS: 'Guests',
-  EVENT: 'EventDetails',
 } as const;
 
 // 0-indexed column positions in the Guests sheet
