@@ -21,7 +21,10 @@ export async function signJWT(payload: SessionPayload): Promise<string> {
 export async function verifyJWT(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getJWTSecret());
-    return payload as unknown as SessionPayload;
+    if (typeof payload.phone !== 'string' || typeof payload.name !== 'string') {
+      return null;
+    }
+    return { phone: payload.phone, name: payload.name };
   } catch {
     return null;
   }
