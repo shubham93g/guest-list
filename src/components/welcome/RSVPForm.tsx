@@ -5,6 +5,8 @@ import type { RSVPStatus } from '@/types';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
+const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];
+
 export default function RSVPForm() {
   const [status, setStatus] = useState<RSVPStatus | ''>('');
   const [dietaryNotes, setDietaryNotes] = useState('');
@@ -72,7 +74,7 @@ export default function RSVPForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Attending or not */}
         <div className="grid grid-cols-2 gap-3">
-          {(['attending', 'declined'] as const).map((opt) => (
+          {RSVP_OPTIONS.map((opt) => (
             <button
               key={opt}
               type="button"

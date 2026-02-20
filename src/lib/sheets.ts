@@ -64,7 +64,7 @@ function rowToGuest(row: string[]): Guest {
     name: row[GUEST_COLS.NAME] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
     rsvpStatus: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
-    rsvpSubmittedAt: row[GUEST_COLS.RSVP_SUBMITTED_AT] || null,
+    rsvpSubmittedAt: row[GUEST_COLS.RSVP_SUBMITTED_AT] ?? null,
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
     plusOneAttending: row[GUEST_COLS.PLUS_ONE_ATTENDING] === 'yes',
     plusOneName: row[GUEST_COLS.PLUS_ONE_NAME] ?? '',

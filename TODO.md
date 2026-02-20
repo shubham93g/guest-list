@@ -4,10 +4,10 @@
 
 ### Must Fix (bugs)
 
-- [ ] **Phone validation** — `src/app/api/auth/send-otp/route.ts`
+- [x] **Phone validation** — `src/app/api/auth/send-otp/route.ts`
   Replace `min(8)` with E.164 regex: `/^\+[1-9]\d{7,14}$/`
 
-- [ ] **JWT payload type safety** — `src/lib/jwt.ts:22`
+- [x] **JWT payload type safety** — `src/lib/jwt.ts:22`
   Replace `as unknown as SessionPayload` double-cast with a proper type guard
   that checks `typeof payload.phone === 'string'` and `typeof payload.name === 'string'`
 
@@ -17,15 +17,15 @@
   Prevent endpoint spam that burns Twilio credits. Options: Vercel rate limiting,
   or a simple IP-based check middleware.
 
-- [ ] **Typo: `Unauthorised` → `Unauthorized`** — `src/app/api/rsvp/submit/route.ts:18`
+- [x] **Typo: `Unauthorised` → `Unauthorized`** — `src/app/api/rsvp/submit/route.ts:18`
 
 ### Cleanup (nitpicks)
 
-- [ ] **RSVP status constants** — `src/components/welcome/RSVPForm.tsx`
+- [x] **RSVP status constants** — `src/components/welcome/RSVPForm.tsx`
   Replace hardcoded `'attending'`/`'declined'` strings:
   `const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];`
 
-- [ ] **Consistent nullish handling in `sheets.ts`** — `src/lib/sheets.ts:44–54`
+- [x] **Consistent nullish handling in `sheets.ts`** — `src/lib/sheets.ts:44–54`
   `rsvpSubmittedAt` uses `|| null`, rest uses `?? ''`. Pick one.
 
 ---
