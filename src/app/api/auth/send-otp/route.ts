@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { findGuestByPhone } from '@/lib/sheets';
 import { sendOTP } from '@/lib/auth';
-import { MOCK_SHEETS, MOCK_TWILIO } from '@/lib/mock';
 
 const schema = z.object({
   phone: z.string().min(8, 'Please enter a valid phone number'),
@@ -22,22 +21,16 @@ export async function POST(req: NextRequest) {
 
     const { phone } = parsed.data;
 
-    if (!MOCK_SHEETS) {
-      const guest = await findGuestByPhone(phone);
-
-      if (!guest) {
-        return NextResponse.json(
-          { error: "We couldn't find your number on our guest list. Please double-check or reach out to us directly." },
-          { status: 404 }
-        );
-      }
+    const guest = await findGuestByPhone(phone);
+    if (!guest) {
+      return NextResponse.json(
+        { error: "We couldn't find your number on our guest list. Please double-check or reach out to us directly." },
+        { status: 404 }
+      );
     }
 
-    if (!MOCK_TWILIO) {
-      await sendOTP(phone);
-    }
-
-    return NextResponse.json({ sent: true, ...(MOCK_TWILIO && { mock: true }) });
+    const { mock } = await sendOTP(phone);
+    return NextResponse.json({ ...(mock && { mock: true }) });
   } catch (err) {
     console.error('[send-otp]', err);
     return NextResponse.json(

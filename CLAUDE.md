@@ -37,9 +37,9 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 | File | Purpose |
 |------|---------|
-| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. |
+| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Owns `MOCK_SHEETS` flag and mock behaviour. Guest data only — no event details. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
-| `src/lib/auth.ts` | Twilio Verify OTP send/check. Re-exports JWT functions from `jwt.ts`. |
+| `src/lib/auth.ts` | Twilio Verify OTP send/check. Owns `MOCK_TWILIO` flag and mock behaviour. Re-exports JWT functions from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
@@ -115,7 +115,7 @@ MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHE
 - **API-driven UI hints.** When a mock flag is active, the relevant API response includes `mock: true`. The client uses this field to show a simple indicator — no hardcoded values or debug logic in the UI.
 - **Single source of truth.** The server owns mock state; the client reflects it.
 
-**Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_SHEETS` or `MOCK_TWILIO` as appropriate. Every new API route or server action that calls an external service must short-circuit cleanly when the relevant mock flag is set.
+**Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future integrations), add mock handling inside the relevant service module (`sheets.ts` for Sheets, `auth.ts` for Twilio). API routes should never contain mock flag checks — mock behaviour is encapsulated in the service layer.
 
 ## PR Workflow
 
@@ -133,6 +133,37 @@ Never commit directly to `main`.
 `TODO.md` tracks outstanding fixes and planned work. Always check it when opening or reviewing a PR — reference relevant items in the PR description or review comments.
 
 ## Code Style
+
+- **Prefer early returns** to reduce nesting and keep the happy path unindented. Return or throw as soon as a condition is known; don't wrap the rest of the function in an `else`.
+  ```typescript
+  // correct
+  if (!guest) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  // ... continue with guest
+
+  // wrong
+  if (guest) {
+    // ... everything indented inside
+  }
+  ```
+
+- **Mock paths use early returns.** Mock handling lives in service modules (`auth.ts`, `sheets.ts`). Check `if (MOCK_X)` first and return from the mock path before the real implementation.
+  ```typescript
+  // correct — inside auth.ts
+  export async function verifyOTP(phone: string, code: string): Promise<boolean> {
+    if (MOCK_TWILIO) {
+      return true;
+    }
+    // real Twilio call
+  }
+
+  // wrong — mock logic leaking into routes
+  if (!MOCK_TWILIO) {
+    const approved = await verifyOTP(phone, code);
+    // ...
+  }
+  ```
 
 - **Always use curly braces for `if`/`else` blocks**, even single-line bodies. The body goes on the next line.
   ```typescript

@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { verifyOTP, signJWT } from '@/lib/auth';
 import { findGuestByPhone } from '@/lib/sheets';
 import { SESSION_COOKIE, SESSION_EXPIRY_DAYS } from '@/lib/constants';
-import { MOCK_TWILIO } from '@/lib/mock';
 
 const schema = z.object({
   phone: z.string().min(8, 'Please enter a valid phone number'),
@@ -35,15 +34,12 @@ export async function POST(req: NextRequest) {
 
     const { phone, code } = parsed.data;
 
-    if (!MOCK_TWILIO) {
-      const approved = await verifyOTP(phone, code);
-
-      if (!approved) {
-        return NextResponse.json(
-          { error: 'Incorrect code. Please try again.' },
-          { status: 400 }
-        );
-      }
+    const approved = await verifyOTP(phone, code);
+    if (!approved) {
+      return NextResponse.json(
+        { error: 'Incorrect code. Please try again.' },
+        { status: 400 }
+      );
     }
 
     const guest = await findGuestByPhone(phone);
