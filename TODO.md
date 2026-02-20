@@ -2,31 +2,11 @@
 
 ## Code Review Fixes
 
-### Must Fix (bugs)
-
-- [x] **Phone validation** — `src/app/api/auth/send-otp/route.ts`
-  Replace `min(8)` with E.164 regex: `/^\+[1-9]\d{7,14}$/`
-
-- [x] **JWT payload type safety** — `src/lib/jwt.ts:22`
-  Replace `as unknown as SessionPayload` double-cast with a proper type guard
-  that checks `typeof payload.phone === 'string'` and `typeof payload.name === 'string'`
-
 ### Should Fix (before real guests)
 
 - [ ] **Rate limiting on `send-otp`** — `src/app/api/auth/send-otp/route.ts`
   Prevent endpoint spam that burns Twilio credits. Options: Vercel rate limiting,
   or a simple IP-based check middleware.
-
-- [x] **Typo: `Unauthorised` → `Unauthorized`** — `src/app/api/rsvp/submit/route.ts:18`
-
-### Cleanup (nitpicks)
-
-- [x] **RSVP status constants** — `src/components/welcome/RSVPForm.tsx`
-  Replace hardcoded `'attending'`/`'declined'` strings:
-  `const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];`
-
-- [x] **Consistent nullish handling in `sheets.ts`** — `src/lib/sheets.ts:44–54`
-  `rsvpSubmittedAt` uses `|| null`, rest uses `?? ''`. Pick one.
 
 ---
 
@@ -60,14 +40,13 @@
 - [ ] **`POST /api/auth/send-otp`**
   - Returns 400 for missing phone
   - Returns 400 for invalid phone format (no `+`, too short)
-  - Mock mode: returns `{ sent: true }` for any valid phone
+  - Mock mode (`MOCK_TWILIO=true`): returns `{ mock: true }` for any valid phone
   - Real mode: returns 404 when phone not in guest list
-  - Real mode: returns `{ sent: true }` when phone found
+  - Real mode: returns `{}` when phone found and OTP sent
 
 - [ ] **`POST /api/auth/verify-otp`**
   - Returns 400 for missing phone or code
-  - Mock mode: returns 400 for wrong OTP
-  - Mock mode: returns 200 + sets session cookie for correct OTP (`000000`)
+  - Mock mode (`MOCK_TWILIO=true`): returns 200 + sets session cookie for any 6-digit code
   - Mock mode: session cookie is `httpOnly`
   - Real mode: returns 400 for incorrect OTP
 
