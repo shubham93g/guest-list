@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
       await sendOTP(phone);
     }
 
-    const isMock = MOCK_SHEETS || MOCK_TWILIO;
-    return NextResponse.json({ sent: true, ...(isMock && { mock: true }) });
+    return NextResponse.json({ sent: true, ...(MOCK_TWILIO && { mock: true }) });
   } catch (err) {
     console.error('[send-otp]', err);
     return NextResponse.json(
