@@ -100,12 +100,18 @@ NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
 **Mock flow behaviour:**
 - Any phone number is accepted on `/verify`
 - OTP code is always `000000`
-- `/welcome` shows a hardcoded guest ("Shubham Goyal") with mock event details
+- `/welcome` shows the guest configured via `MOCK_GUEST_NAME` env var
 - RSVP submit logs to the console instead of writing to Sheets
 
 **Mock mode only covers guest lookup and WhatsApp OTP** — event details (couple names, date, venue) are always read from env vars and are never mocked. `mock.ts` reads from `MOCK_GUEST_NAME` for the guest name. See `.env.example` for the full list.
 
 **Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_MODE`. Every new API route or server action that calls an external service must short-circuit cleanly when `MOCK_MODE=true`. This ensures the UX can always be previewed and developed without live credentials.
+
+## Pending Work
+
+See `TODO.md` for a prioritised list of outstanding tasks:
+- **Code review fixes** — phone validation, JWT type safety, rate limiting, typo, and cleanup items
+- **Tests to write** — unit tests for `jwt.ts`, `mock.ts`, `sheets.ts`, `event.ts`; API route tests for all three endpoints; integration/E2E tests for the mock-mode happy path and middleware
 
 ## Important Patterns
 
