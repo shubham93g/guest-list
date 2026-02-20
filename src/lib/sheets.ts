@@ -35,11 +35,17 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   return rowToGuest(row);
 }
 
+const VALID_RSVP_STATUSES = new Set<string>(['attending', 'declined', 'pending']);
+
+function toRSVPStatus(value: string | undefined): Guest['rsvpStatus'] {
+  return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['rsvpStatus']) : 'pending';
+}
+
 function rowToGuest(row: string[]): Guest {
   return {
     name: row[GUEST_COLS.NAME] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
-    rsvpStatus: (row[GUEST_COLS.RSVP_STATUS] as Guest['rsvpStatus']) || 'pending',
+    rsvpStatus: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
     rsvpSubmittedAt: row[GUEST_COLS.RSVP_SUBMITTED_AT] || null,
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
     plusOneAttending: row[GUEST_COLS.PLUS_ONE_ATTENDING] === 'yes',

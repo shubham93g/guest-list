@@ -3,7 +3,9 @@ import type { SessionPayload } from '@/types';
 import { SESSION_EXPIRY_DAYS } from './constants';
 
 function getJWTSecret() {
-  return new TextEncoder().encode(process.env.JWT_SECRET!);
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+  return new TextEncoder().encode(secret);
 }
 
 export async function signJWT(payload: SessionPayload): Promise<string> {

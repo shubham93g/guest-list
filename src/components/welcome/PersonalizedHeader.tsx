@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default function PersonalizedHeader({ guest, event }: Props) {
-  const firstName = guest.name.split(' ')[0];
+  const firstName = guest.name.split(' ')[0] || 'there';
 
   return (
     <div className="text-center px-6 pt-12 pb-8">

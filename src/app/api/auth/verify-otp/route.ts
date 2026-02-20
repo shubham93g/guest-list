@@ -10,6 +10,17 @@ const schema = z.object({
   code: z.string().length(6, 'Code must be 6 digits'),
 });
 
+function setSessionCookie(res: NextResponse, token: string): NextResponse {
+  res.cookies.set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,
+    path: '/',
+  });
+  return res;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -32,15 +43,7 @@ export async function POST(req: NextRequest) {
         );
       }
       const token = await signJWT({ phone, name: MOCK_GUEST.name });
-      const res = NextResponse.json({ success: true });
-      res.cookies.set(SESSION_COOKIE, token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,
-        path: '/',
-      });
-      return res;
+      return setSessionCookie(NextResponse.json({ success: true }), token);
     }
 
     const approved = await verifyOTP(phone, code);
@@ -58,17 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await signJWT({ phone, name: guest.name });
-
-    const res = NextResponse.json({ success: true });
-    res.cookies.set(SESSION_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: SESSION_EXPIRY_DAYS * 24 * 60 * 60,
-      path: '/',
-    });
-
-    return res;
+    return setSessionCookie(NextResponse.json({ success: true }), token);
   } catch (err) {
     console.error('[verify-otp]', err);
     return NextResponse.json(

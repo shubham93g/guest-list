@@ -25,4 +25,5 @@ export const MOCK_EVENT: EventDetails = {
 };
 
 // The OTP accepted in mock mode — shown as a hint in the UI.
-export const MOCK_OTP = '000000';
+// Configured via NEXT_PUBLIC_MOCK_OTP in .env.local so server and client stay in sync.
+export const MOCK_OTP = process.env.NEXT_PUBLIC_MOCK_OTP ?? '000000';

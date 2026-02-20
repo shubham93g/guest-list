@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-const MOCK_OTP = '000000';
+const MOCK_OTP = process.env.NEXT_PUBLIC_MOCK_OTP ?? '000000';
 
 interface Props {
   phone: string;
