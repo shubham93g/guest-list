@@ -3,9 +3,9 @@ import type { Guest } from '@/types';
 export const MOCK_SHEETS = process.env.MOCK_SHEETS === 'true';
 export const MOCK_TWILIO = process.env.MOCK_TWILIO === 'true';
 
-// In mock mode, any phone number gets this guest profile.
+// When MOCK_SHEETS=true, any phone number gets this guest profile.
 // Configure via MOCK_SHEETS_GUEST_NAME in .env.local — never hardcode personal details here.
-export const MOCK_GUEST: Guest = {
+export const MOCK_SHEETS_GUEST: Guest = {
   name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
   phone: '',
   rsvpStatus: 'pending',

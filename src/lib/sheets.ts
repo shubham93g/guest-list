@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
-import { MOCK_SHEETS, MOCK_GUEST } from './mock';
+import { MOCK_SHEETS, MOCK_SHEETS_GUEST } from './mock';
 import type { Guest, RSVPData } from '@/types';
 
 function getAuthClient() {
@@ -29,7 +29,7 @@ async function getAllGuestRows(): Promise<string[][]> {
 
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   if (MOCK_SHEETS) {
-    return { ...MOCK_GUEST, phone };
+    return { ...MOCK_SHEETS_GUEST, phone };
   }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => r[GUEST_COLS.PHONE]?.trim() === phone.trim());
