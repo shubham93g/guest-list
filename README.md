@@ -99,5 +99,5 @@ openssl rand -hex 32
 ```bash
 npm run dev      # Start development server
 npm run build    # Production build
-npm run lint     # Lint
+npm run lint     # ESLint (runs eslint src/)
 ```

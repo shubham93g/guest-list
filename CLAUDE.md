@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev        # Start development server (localhost:3000)
 npm run build      # Production build
-npm run lint       # ESLint
+npm run lint       # ESLint (runs eslint src/)
 ```
 
 Node.js is installed via **nvm** on this machine. If `node`/`npm` are not found, source nvm first:
