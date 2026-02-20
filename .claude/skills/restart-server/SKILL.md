@@ -1,3 +1,8 @@
+---
+name: restart-server
+description: Kill any process on port 3000 and restart the Next.js dev server
+---
+
 Kill any process running on port 3000, then start the Next.js dev server.
 
 Steps:
