@@ -10,11 +10,18 @@ npm run build      # Production build
 npm run lint       # ESLint
 ```
 
+Node.js is installed via **nvm** on this machine. If `node`/`npm` are not found, source nvm first:
+```bash
+[ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh"
+```
+
 There is no test suite yet. Validate API routes with curl (see Testing section below).
 
 ## Architecture
 
-**Stack:** Next.js 14 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (WhatsApp OTP) · JWT cookie sessions (`jose`)
+**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (WhatsApp OTP) · JWT cookie sessions (`jose`)
+
+**Hosting:** Vercel (target for production deployment)
 
 **Routes:**
 - `/` — Public save-the-date hero (Server Component)
