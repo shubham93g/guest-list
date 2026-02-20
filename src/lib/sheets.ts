@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
-import { MOCK_MODE, MOCK_GUEST, MOCK_EVENT } from './mock';
-import type { Guest, EventDetails, RSVPData } from '@/types';
+import { MOCK_MODE, MOCK_GUEST } from './mock';
+import type { Guest, RSVPData } from '@/types';
 
 function getAuthClient() {
   return new google.auth.GoogleAuth({
@@ -54,23 +54,6 @@ function rowToGuest(row: string[]): Guest {
   };
 }
 
-export async function getEventDetails(): Promise<EventDetails> {
-  if (MOCK_MODE) return MOCK_EVENT;
-  const sheets = await getSheetsClient();
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEETS.EVENT}!A:B`,
-  });
-  const rows: string[][] = (res.data.values as string[][]) ?? [];
-  const map = Object.fromEntries(rows.map(([k, v]) => [k, v ?? '']));
-  return {
-    weddingDate: map['wedding_date'] ?? '',
-    weddingDay: map['wedding_day'] ?? '',
-    venueName: map['venue_name'] ?? '',
-    venueCity: map['venue_city'] ?? '',
-    coupleNames: map['couple_names'] ?? '',
-  };
-}
 
 export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<void> {
   if (MOCK_MODE) { console.log('[mock] RSVP submitted', { phone, ...data }); return; }

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
-import { findGuestByPhone, getEventDetails } from '@/lib/sheets';
+import { findGuestByPhone } from '@/lib/sheets';
+import { getEventDetails } from '@/lib/event';
 import PersonalizedHeader from '@/components/welcome/PersonalizedHeader';
 import RSVPForm from '@/components/welcome/RSVPForm';
 
@@ -8,10 +9,8 @@ export default async function WelcomePage() {
   const session = await getSession();
   if (!session) redirect('/verify');
 
-  const [guest, event] = await Promise.all([
-    findGuestByPhone(session.phone),
-    getEventDetails(),
-  ]);
+  const guest = await findGuestByPhone(session.phone);
+  const event = getEventDetails();
 
   if (!guest) redirect('/verify');
 

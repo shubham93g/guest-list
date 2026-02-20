@@ -62,7 +62,7 @@ To disable mock mode and use real integrations, set `MOCK_MODE=false` and `NEXT_
 5. From the downloaded JSON, copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL` and `private_key` → `GOOGLE_PRIVATE_KEY`
 6. Create a Google Sheet, share it with the service account email (Editor access), and copy the spreadsheet ID from the URL → `GOOGLE_SHEET_ID`
 
-**Sheet structure** — two tabs:
+**Sheet structure** — one tab only:
 
 `Guests` tab (header row 1, columns A–H):
 | Col | Header |
@@ -76,8 +76,7 @@ To disable mock mode and use real integrations, set `MOCK_MODE=false` and `NEXT_
 | G | `plus_one_name` |
 | H | `notes` |
 
-`EventDetails` tab (key-value pairs, col A = key, col B = value):
-`wedding_date`, `wedding_day`, `venue_name`, `venue_city`, `couple_names`
+Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
 ### Twilio Verify (WhatsApp OTP)
 

@@ -30,7 +30,8 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 | File | Purpose |
 |------|---------|
-| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. |
+| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. |
+| `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
 | `src/lib/auth.ts` | Twilio Verify OTP send/check. Re-exports JWT functions from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
@@ -39,7 +40,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 ## Google Sheets Structure
 
-**Tab: `Guests`** (header in row 1, frozen)
+One tab only: **`Guests`** (header in row 1, frozen)
 
 | Col | Name | Notes |
 |-----|------|-------|
@@ -52,9 +53,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 | G | `plus_one_name` | |
 | H | `notes` | Guest message |
 
-**Tab: `EventDetails`** (key-value pairs, col A = key, col B = value)
-
-Keys: `wedding_date`, `wedding_day`, `venue_name`, `venue_city`, `couple_names`
+Event details (couple names, date, venue) are **not** stored in Sheets — they are static env var config read via `src/lib/event.ts`.
 
 ## Environment Variables
 
@@ -104,7 +103,7 @@ NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
 - `/welcome` shows a hardcoded guest ("Shubham Goyal") with mock event details
 - RSVP submit logs to the console instead of writing to Sheets
 
-**Mock data is configured via env vars in `.env.local`** — never hardcode personal details (names, dates, venues) in `src/lib/mock.ts` or anywhere in the codebase. `mock.ts` reads from `MOCK_GUEST_NAME`, `MOCK_EVENT_*` vars with generic fallback placeholders. See `.env.example` for the full list.
+**Mock mode only covers guest lookup and WhatsApp OTP** — event details (couple names, date, venue) are always read from env vars and are never mocked. `mock.ts` reads from `MOCK_GUEST_NAME` for the guest name. See `.env.example` for the full list.
 
 **Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_MODE`. Every new API route or server action that calls an external service must short-circuit cleanly when `MOCK_MODE=true`. This ensures the UX can always be previewed and developed without live credentials.
 

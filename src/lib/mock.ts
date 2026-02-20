@@ -1,4 +1,4 @@
-import type { Guest, EventDetails } from '@/types';
+import type { Guest } from '@/types';
 
 export const MOCK_MODE = process.env.MOCK_MODE === 'true';
 
@@ -15,14 +15,6 @@ export const MOCK_GUEST: Guest = {
   notes: '',
 };
 
-// Configure via MOCK_EVENT_* vars in .env.local.
-export const MOCK_EVENT: EventDetails = {
-  weddingDate: process.env.MOCK_EVENT_DATE ?? 'Date TBC',
-  weddingDay: process.env.MOCK_EVENT_DAY ?? '',
-  venueName: process.env.MOCK_EVENT_VENUE_NAME ?? 'Venue TBC',
-  venueCity: process.env.MOCK_EVENT_VENUE_CITY ?? '',
-  coupleNames: process.env.MOCK_EVENT_COUPLE_NAMES ?? 'Partner A & Partner B',
-};
 
 // The OTP accepted in mock mode — shown as a hint in the UI.
 // Configured via NEXT_PUBLIC_MOCK_OTP in .env.local so server and client stay in sync.
