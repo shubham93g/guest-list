@@ -3,15 +3,13 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
-const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-const MOCK_OTP = process.env.NEXT_PUBLIC_MOCK_OTP ?? '000000';
-
 interface Props {
   phone: string;
   onBack: () => void;
+  mock?: boolean;
 }
 
-export default function OTPForm({ phone, onBack }: Props) {
+export default function OTPForm({ phone, onBack, mock }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,16 +47,10 @@ export default function OTPForm({ phone, onBack }: Props) {
         Check WhatsApp
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
-        {MOCK_MODE
-          ? 'Mock mode — no WhatsApp message was sent.'
+        {mock
+          ? 'Mock mode active.'
           : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{phone}</span></>}
       </p>
-
-      {MOCK_MODE && (
-        <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700 text-center">
-          <span className="font-semibold">Use code: {MOCK_OTP}</span>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input

@@ -10,9 +10,11 @@ type Step = 'phone' | 'otp';
 export default function VerifyPage() {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
+  const [mock, setMock] = useState(false);
 
-  function handlePhoneSuccess(submittedPhone: string) {
+  function handlePhoneSuccess(submittedPhone: string, isMock?: boolean) {
     setPhone(submittedPhone);
+    setMock(isMock ?? false);
     setStep('otp');
   }
 
@@ -28,7 +30,7 @@ export default function VerifyPage() {
       {step === 'phone' ? (
         <PhoneForm onSuccess={handlePhoneSuccess} />
       ) : (
-        <OTPForm phone={phone} onBack={() => setStep('phone')} />
+        <OTPForm phone={phone} onBack={() => setStep('phone')} mock={mock} />
       )}
     </main>
   );
