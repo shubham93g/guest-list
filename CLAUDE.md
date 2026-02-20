@@ -109,9 +109,7 @@ NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
 
 ## Pending Work
 
-See `TODO.md` for a prioritised list of outstanding tasks:
-- **Code review fixes** — phone validation, JWT type safety, rate limiting, typo, and cleanup items
-- **Tests to write** — unit tests for `jwt.ts`, `mock.ts`, `sheets.ts`, `event.ts`; API route tests for all three endpoints; integration/E2E tests for the mock-mode happy path and middleware
+`TODO.md` tracks outstanding fixes and planned work. Always check it when opening or reviewing a PR — reference relevant items in the PR description or review comments.
 
 ## Important Patterns
 
