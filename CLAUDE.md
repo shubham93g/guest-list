@@ -114,6 +114,17 @@ NEXT_PUBLIC_MOCK_MODE=true   # client-side: shows amber hint banners in the UI
 
 **Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future WhatsApp blasts), always add a corresponding mock branch gated on `MOCK_MODE`. Every new API route or server action that calls an external service must short-circuit cleanly when `MOCK_MODE=true`. This ensures the UX can always be previewed and developed without live credentials.
 
+## PR Workflow
+
+Always follow these steps when delivering any change, no matter how small:
+
+1. **Create a branch** — branch off `main` with a descriptive name (e.g. `feat/...`, `fix/...`, `chore/...`)
+2. **Commit** — stage only relevant files; write a clear commit message explaining the *why*
+3. **Push & open a PR** — push the branch and create a PR via `gh pr create`
+4. **Review** — run `gh pr diff <number>` and do a self-review before considering the work done; flag any issues in the PR description
+
+Never commit directly to `main`.
+
 ## Pending Work
 
 `TODO.md` tracks outstanding fixes and planned work. Always check it when opening or reviewing a PR — reference relevant items in the PR description or review comments.
