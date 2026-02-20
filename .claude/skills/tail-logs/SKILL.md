@@ -3,9 +3,11 @@ name: tail-logs
 description: Tail the Next.js dev server logs from /tmp/nextjs-dev.log
 ---
 
-Live-tail the Next.js dev server logs.
+Show the latest Next.js dev server logs and guide the user to tail live.
 
 Steps:
 1. Check if `/tmp/nextjs-dev.log` exists
-2. If it exists, run `tail -f /tmp/nextjs-dev.log` in the background using the Bash tool with `run_in_background: true`, then inform the user that logs are streaming live from `/tmp/nextjs-dev.log` and they can stop with Ctrl+C
+2. If it exists:
+   a. Run `tail -n 50 /tmp/nextjs-dev.log` and print the output to the user
+   b. Tell the user that for live streaming they should run `tail -f /tmp/nextjs-dev.log` in a terminal
 3. If it does not exist, inform the user that no log file was found and suggest starting the server with `/restart-server`
