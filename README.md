@@ -59,26 +59,50 @@ Set both flags together for a fully credential-free local flow. To use real inte
 
 ### Google Sheets
 
-1. Go to [console.cloud.google.com](https://console.cloud.google.com) and create a project
-2. Enable the **Google Sheets API**
-3. Create a **Service Account** (IAM & Admin → Service Accounts → Create)
-4. Generate a JSON key for the service account (Actions → Manage Keys → Add Key → JSON)
-5. From the downloaded JSON, copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL` and `private_key` → `GOOGLE_PRIVATE_KEY`
-6. Create a Google Sheet, share it with the service account email (Editor access), and copy the spreadsheet ID from the URL → `GOOGLE_SHEET_ID`
+The app authenticates via a **service account** — a dedicated non-human Google identity your app logs in as. Unlike API keys, service accounts work with private Sheets, are scoped to specific APIs, and can be revoked without changing code. Access to the Sheet is granted by sharing it directly with the service account (no IAM roles needed).
 
-**Sheet structure** — one tab only:
+**1. Enable the Sheets API**
+- Open your project in [console.cloud.google.com](https://console.cloud.google.com)
+- Left sidebar → **APIs & Services** → **Library**
+- Search "Google Sheets API" → **Enable**
 
-`Guests` tab (header row 1, columns A–H):
-| Col | Header |
-|-----|--------|
-| A | `name` |
-| B | `phone` (E.164 format, e.g. `+919876543210`) |
-| C | `rsvp_status` |
-| D | `rsvp_submitted_at` |
-| E | `dietary_notes` |
-| F | `plus_one_attending` |
-| G | `plus_one_name` |
-| H | `notes` |
+**2. Create a service account**
+- Left sidebar → **APIs & Services** → **Credentials**
+- **+ Create Credentials** → **Service account**
+- Name it (e.g. `guest-list-app`) → **Continue** → skip the IAM role step → **Done**
+
+**3. Generate a JSON key**
+- Click the service account you just created → **Keys** tab
+- **Add Key** → **Create new key** → **JSON** → **Create**
+- A `.json` file downloads — keep this safe, treat it like a password
+
+**4. Share the Sheet with the service account**
+- Open the downloaded JSON and copy the `client_email` value (looks like `guest-list-app@your-project.iam.gserviceaccount.com`)
+- Open your Google Sheet → **Share** → paste that email → **Editor** access → uncheck "Notify people" → **Share**
+
+**5. Set environment variables**
+
+From the downloaded JSON:
+```
+GOOGLE_SERVICE_ACCOUNT_EMAIL=   # client_email field
+GOOGLE_PRIVATE_KEY=             # private_key field — the full -----BEGIN...END----- block
+GOOGLE_SHEET_ID=                # from the Sheet URL: /spreadsheets/d/<THIS PART>/edit
+```
+
+For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal `\n` between lines (`sheets.ts` converts them back). On Vercel, paste the raw multi-line PEM as-is.
+
+**Sheet structure** — one tab named `Guests`, header in row 1, data from row 2:
+
+| Col | Header | Notes |
+|-----|--------|-------|
+| A | `name` | Admin fills before launch |
+| B | `phone` | E.164 format e.g. `+919876543210` — used as auth identifier |
+| C | `rsvp_status` | Written by API: `attending` / `declined` |
+| D | `rsvp_submitted_at` | ISO 8601 timestamp |
+| E | `dietary_notes` | |
+| F | `plus_one_attending` | `yes` / `no` |
+| G | `plus_one_name` | |
+| H | `notes` | Guest message |
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
