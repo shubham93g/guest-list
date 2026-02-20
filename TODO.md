@@ -43,13 +43,13 @@
   - `getJWTSecret` throws if `JWT_SECRET` env var is missing
 
 - [ ] **`src/lib/mock.ts`**
-  - `MOCK_MODE` is true when env var is `'true'`
-  - `MOCK_GUEST.name` falls back to `'Guest Name'` when `MOCK_GUEST_NAME` is unset
-  - `MOCK_OTP` falls back to `'000000'` when `NEXT_PUBLIC_MOCK_OTP` is unset
+  - `MOCK_SHEETS` is true when env var is `'true'`
+  - `MOCK_TWILIO` is true when env var is `'true'`
+  - `MOCK_GUEST.name` falls back to `'Guest Name'` when `MOCK_SHEETS_GUEST_NAME` is unset
 
 - [ ] **`src/lib/sheets.ts`** (mock mode only — no real Sheets calls in unit tests)
-  - `findGuestByPhone` returns `MOCK_GUEST` with the given phone when `MOCK_MODE=true`
-  - `updateGuestRSVP` logs to console (no throw) when `MOCK_MODE=true`
+  - `findGuestByPhone` returns `MOCK_GUEST` with the given phone when `MOCK_SHEETS=true`
+  - `updateGuestRSVP` logs to console (no throw) when `MOCK_SHEETS=true`
 
 - [ ] **`src/lib/event.ts`**
   - `getEventDetails` returns values from env vars
