@@ -119,14 +119,14 @@ MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHE
 
 ## PR Workflow
 
+**Never push directly to `main`. No exceptions — not even for docs, typos, or one-liners.**
+
 Always follow these steps when delivering any change, no matter how small:
 
 1. **Create a branch** — branch off `main` with a descriptive name (e.g. `feat/...`, `fix/...`, `chore/...`)
 2. **Commit** — stage only relevant files; write a clear commit message explaining the *why*
 3. **Push & open a PR** — push the branch and create a PR via `gh pr create`
 4. **Review** — run `gh pr diff <number>` and do a self-review before considering the work done; flag any issues in the PR description
-
-Never commit directly to `main`.
 
 ## Pending Work
 
