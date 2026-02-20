@@ -14,11 +14,6 @@
   repeated OTP attempts and page loads don't hammer the Sheets API.
   Invalidate on `updateGuestRSVP` to avoid serving stale RSVP status.
 
-- [ ] **Skip OTP flow if session already exists** — `src/app/verify/page.tsx`
-  If the user visits `/verify` with a valid session cookie, redirect them
-  directly to `/welcome` instead of showing the phone/OTP form again.
-  Currently they are asked to re-authenticate on every visit even if their
-  30-day session is still valid.
 
 - [ ] **Redirect already-RSVPed guests** — `src/app/welcome/page.tsx`
   If a guest's `rsvpStatus` is `attending` or `declined`, redirect them to
@@ -69,4 +64,6 @@
 - [ ] Full happy path: phone entry → OTP → session cookie → RSVP submit → success
 - [ ] Middleware: `/welcome` redirects to `/verify` with no cookie
 - [ ] Middleware: `/welcome` allows through with valid JWT cookie
+- [ ] Middleware: `/verify` redirects to `/welcome` with a valid session cookie
+- [ ] Middleware: `/verify` shows the form with no cookie
 - [ ] RSVP form: previously submitted RSVP pre-fills form fields

@@ -31,7 +31,9 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/api/auth/verify-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
-**Middleware** (`src/middleware.ts`) guards `/welcome` — redirects to `/verify` if no valid JWT.
+**Middleware** (`src/middleware.ts`) handles auth routing for both protected routes:
+- `/welcome` — redirects to `/verify` if no valid JWT
+- `/verify` — redirects to `/welcome` if a valid JWT exists (skips unnecessary re-auth)
 
 ## Key Files
 
