@@ -35,15 +35,21 @@ export async function POST(req: NextRequest) {
 
     const { phone, code } = parsed.data;
 
-    if (!MOCK_TWILIO) {
-      const approved = await verifyOTP(phone, code);
-
-      if (!approved) {
-        return NextResponse.json(
-          { error: 'Incorrect code. Please try again.' },
-          { status: 400 }
-        );
+    if (MOCK_TWILIO) {
+      const guest = await findGuestByPhone(phone);
+      if (!guest) {
+        return NextResponse.json({ error: 'Guest not found.' }, { status: 404 });
       }
+      const token = await signJWT({ phone, name: guest.name });
+      return setSessionCookie(NextResponse.json({ success: true }), token);
+    }
+
+    const approved = await verifyOTP(phone, code);
+    if (!approved) {
+      return NextResponse.json(
+        { error: 'Incorrect code. Please try again.' },
+        { status: 400 }
+      );
     }
 
     const guest = await findGuestByPhone(phone);

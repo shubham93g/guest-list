@@ -134,6 +134,36 @@ Never commit directly to `main`.
 
 ## Code Style
 
+- **Prefer early returns** to reduce nesting and keep the happy path unindented. Return or throw as soon as a condition is known; don't wrap the rest of the function in an `else`.
+  ```typescript
+  // correct
+  if (!guest) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  // ... continue with guest
+
+  // wrong
+  if (guest) {
+    // ... everything indented inside
+  }
+  ```
+
+- **Mock paths use early returns.** When handling mock flags, check `if (MOCK_X)` first and return from the mock path before the real implementation. This keeps mock code explicit and the real path unindented.
+  ```typescript
+  // correct
+  if (MOCK_TWILIO) {
+    return NextResponse.json({ sent: true, mock: true });
+  }
+  await sendOTP(phone); // real path
+
+  // wrong
+  if (!MOCK_TWILIO) {
+    await sendOTP(phone);
+  }
+  return NextResponse.json({ sent: true, ...(MOCK_TWILIO && { mock: true }) });
+  ```
+  Exception: when a mock flag only skips a step but the function must continue regardless (e.g. `MOCK_SHEETS` in `send-otp` — the OTP step still follows), `if (!MOCK_X)` is acceptable with a comment explaining why an early return isn't possible.
+
 - **Always use curly braces for `if`/`else` blocks**, even single-line bodies. The body goes on the next line.
   ```typescript
   // correct

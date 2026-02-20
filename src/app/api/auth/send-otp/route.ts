@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
 
     const { phone } = parsed.data;
 
+    // MOCK_SHEETS skips the allowlist check — no clean early return here
+    // since we still need to proceed to the OTP step either way
     if (!MOCK_SHEETS) {
       const guest = await findGuestByPhone(phone);
 
@@ -33,11 +35,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (!MOCK_TWILIO) {
-      await sendOTP(phone);
+    if (MOCK_TWILIO) {
+      return NextResponse.json({ sent: true, mock: true });
     }
 
-    return NextResponse.json({ sent: true, ...(MOCK_TWILIO && { mock: true }) });
+    await sendOTP(phone);
+    return NextResponse.json({ sent: true });
   } catch (err) {
     console.error('[send-otp]', err);
     return NextResponse.json(
