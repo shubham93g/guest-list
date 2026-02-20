@@ -41,12 +41,18 @@ async function getAllGuestRows(): Promise<string[][]> {
   return (res.data.values as string[][]) ?? [];
 }
 
+// Strips the leading + so phone numbers stored without it in Sheets (e.g. 6591234567)
+// match E.164 values from the API (e.g. +6591234567).
+function normalisePhone(phone: string): string {
+  return phone.replace(/^\+/, '').trim();
+}
+
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   if (MOCK_SHEETS) {
     return { ...MOCK_SHEETS_GUEST, phone };
   }
   const rows = await getAllGuestRows();
-  const row = rows.find((r) => r[GUEST_COLS.PHONE]?.trim() === phone.trim());
+  const row = rows.find((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
   if (!row) {
     return null;
   }
@@ -79,7 +85,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
     return;
   }
   const rows = await getAllGuestRows();
-  const rowIndex = rows.findIndex((r) => r[GUEST_COLS.PHONE]?.trim() === phone.trim());
+  const rowIndex = rows.findIndex((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
   if (rowIndex === -1) {
     throw new Error(`Guest with phone ${phone} not found`);
   }
