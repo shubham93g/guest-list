@@ -42,14 +42,14 @@
   - `verifyJWT` returns `null` for a garbage string
   - `getJWTSecret` throws if `JWT_SECRET` env var is missing
 
-- [ ] **`src/lib/mock.ts`**
-  - `MOCK_SHEETS` is true when env var is `'true'`
-  - `MOCK_TWILIO` is true when env var is `'true'`
-  - `MOCK_SHEETS_GUEST.name` falls back to `'Guest Name'` when `MOCK_SHEETS_GUEST_NAME` is unset
-
 - [ ] **`src/lib/sheets.ts`** (mock mode only — no real Sheets calls in unit tests)
-  - `findGuestByPhone` returns `MOCK_SHEETS_GUEST` with the given phone when `MOCK_SHEETS=true`
+  - `findGuestByPhone` returns mock guest with the given phone when `MOCK_SHEETS=true`
+  - `findGuestByPhone` mock guest name falls back to `'Guest Name'` when `MOCK_SHEETS_GUEST_NAME` is unset
   - `updateGuestRSVP` logs to console (no throw) when `MOCK_SHEETS=true`
+
+- [ ] **`src/lib/auth.ts`** (mock mode only)
+  - `sendOTP` returns `{ mock: true }` and skips Twilio when `MOCK_TWILIO=true`
+  - `verifyOTP` returns `true` for any code when `MOCK_TWILIO=true`
 
 - [ ] **`src/lib/event.ts`**
   - `getEventDetails` returns values from env vars

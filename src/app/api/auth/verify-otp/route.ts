@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { verifyOTP, signJWT } from '@/lib/auth';
 import { findGuestByPhone } from '@/lib/sheets';
 import { SESSION_COOKIE, SESSION_EXPIRY_DAYS } from '@/lib/constants';
-import { MOCK_TWILIO } from '@/lib/mock';
 
 const schema = z.object({
   phone: z.string().min(8, 'Please enter a valid phone number'),
@@ -34,15 +33,6 @@ export async function POST(req: NextRequest) {
     }
 
     const { phone, code } = parsed.data;
-
-    if (MOCK_TWILIO) {
-      const guest = await findGuestByPhone(phone);
-      if (!guest) {
-        return NextResponse.json({ error: 'Guest not found.' }, { status: 404 });
-      }
-      const token = await signJWT({ phone, name: guest.name });
-      return setSessionCookie(NextResponse.json({ success: true }), token);
-    }
 
     const approved = await verifyOTP(phone, code);
     if (!approved) {
