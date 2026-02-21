@@ -4,15 +4,13 @@ import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
 import { sendOTP, OTP_CHANNEL } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 
-const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const phoneSchema = z.object({
-  phone: z.string().regex(PHONE_REGEX, 'Please enter a valid phone number.'),
-});
-
+// Each schema validates only the field needed for the active channel.
+// Extra fields in the body are ignored by zod (stripped by default).
 const emailSchema = z.object({
-  email: z.string().regex(EMAIL_REGEX, 'Please enter a valid email address.'),
+  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+});
+const phoneSchema = z.object({
+  phone: z.string().regex(/^\+[1-9]\d{7,14}$/),
 });
 
 // Generic message used for both "not found" and validation errors to prevent
@@ -48,7 +46,7 @@ export async function POST(req: NextRequest) {
       if (!parsed.success) {
         return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
       }
-      // Normalise at the route boundary so the store and sheet lookups always use the same key.
+      // Normalise at the route boundary so HMAC derivation and sheet lookups use the same key.
       const email = parsed.data.email.trim().toLowerCase();
 
       const emailLimit = checkRateLimit(`send-otp:email:${email}`, 3, 15 * 60);

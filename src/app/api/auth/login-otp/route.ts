@@ -5,17 +5,16 @@ import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
 import { setSessionCookie } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rate-limit';
 
-const codeSchema = z.string().length(6, 'Code must be 6 digits');
-
-// Keep validation consistent with send-otp (M2).
-const phoneSchema = z.object({
-  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Please enter a valid phone number.'),
-  code: codeSchema,
-});
-
+// Each schema validates only the identifier field needed for the active channel.
+// Extra fields in the body are ignored by zod (stripped by default).
+// Keep format validation consistent with send-otp (M2).
 const emailSchema = z.object({
   email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please enter a valid email address.'),
-  code: codeSchema,
+  code: z.string().length(6, 'Code must be 6 digits'),
+});
+const phoneSchema = z.object({
+  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Please enter a valid phone number.'),
+  code: z.string().length(6, 'Code must be 6 digits'),
 });
 
 export async function POST(req: NextRequest) {

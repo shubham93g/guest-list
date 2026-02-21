@@ -4,33 +4,33 @@ import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  channel: 'sms' | 'whatsapp' | 'email';
-  identifier: string;
+  phone: string;
+  email: string;
   onBack: () => void;
   mock?: boolean;
   otpTitle: string;
 }
 
-export default function OTPForm({ channel, identifier, onBack, mock, otpTitle }: Props) {
+export default function OTPForm({ phone, email, onBack, mock, otpTitle }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  // The non-empty field is the one the server will validate against OTP_CHANNEL.
+  const contact = email || phone;
+  const backLabel = email ? '← Use a different address' : '← Use a different number';
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const body = channel === 'email'
-      ? { email: identifier, code }
-      : { phone: identifier, code };
-
     try {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ phone: phone || undefined, email: email || undefined, code }),
       });
 
       if (!res.ok) {
@@ -48,8 +48,6 @@ export default function OTPForm({ channel, identifier, onBack, mock, otpTitle }:
     }
   }
 
-  const backLabel = channel === 'email' ? '← Use a different address' : '← Use a different number';
-
   return (
     <div className="w-full max-w-sm mx-auto px-6">
       <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
@@ -58,7 +56,7 @@ export default function OTPForm({ channel, identifier, onBack, mock, otpTitle }:
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock
           ? 'Mock mode active.'
-          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{identifier}</span></>}
+          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
