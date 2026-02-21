@@ -32,7 +32,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
-- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `TWILIO_VERIFY_CHANNEL`)
+- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`)
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
@@ -46,7 +46,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 |------|---------|
 | `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Owns `MOCK_SHEETS` flag and mock behaviour. Guest data only — no event details. Caches guest rows in memory (5-minute TTL); invalidated on `updateGuestRSVP`. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
-| `src/lib/auth.ts` | Twilio Verify OTP send/check. Owns `MOCK_TWILIO` flag and mock behaviour. Re-exports JWT functions from `jwt.ts`. |
+| `src/lib/auth.ts` | Twilio Verify OTP send/check. Owns `MOCK_OTP` flag and mock behaviour. Re-exports JWT functions from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
@@ -74,12 +74,12 @@ Event details (couple names, date, venue) are **not** stored in Sheets — they 
 See `.env.example` for all required variables. Critical notes:
 - `GOOGLE_PRIVATE_KEY`: in `.env.local` use `\n`-escaped single line; `sheets.ts` calls `.replace(/\\n/g, '\n')` to restore newlines. On Vercel, paste the raw multi-line PEM as-is.
 - `TWILIO_VERIFY_SERVICE_SID`: created under Twilio Console → Verify → Services (not the Account SID).
-- `TWILIO_VERIFY_CHANNEL`: `sms` (default) or `whatsapp`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service.
+- `OTP_CHANNEL`: `sms` (default) or `whatsapp`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
 
 ## Auth Flow
 
-1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (channel: `TWILIO_VERIFY_CHANNEL`, default `sms`)
+1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (channel: `OTP_CHANNEL`, default `sms`)
 2. Guest enters 6-digit code → `POST /api/auth/login-otp` → Twilio confirms → API issues 30-day `httpOnly` JWT cookie
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
@@ -91,7 +91,7 @@ curl -X POST http://localhost:3000/api/auth/send-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
 
-# 2. Verify OTP (use code received via SMS or WhatsApp depending on TWILIO_VERIFY_CHANNEL)
+# 2. Verify OTP (use code received via SMS or WhatsApp depending on OTP_CHANNEL)
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210", "code": "123456"}'
@@ -109,13 +109,13 @@ Each external service can be mocked independently, allowing integration testing 
 **Flags in `.env.local`:**
 ```bash
 MOCK_SHEETS=true             # bypass Google Sheets: skip allowlist check, RSVP writes log to console
-MOCK_TWILIO=true             # bypass Twilio OTP: any 6-digit code is accepted
+MOCK_OTP=true                # bypass OTP sending/verification (any 6-digit code is accepted)
 MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHEETS=true
 ```
 
 **Mock flow behaviour:**
 - `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/invite` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
-- `MOCK_TWILIO=true` — no OTP message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
+- `MOCK_OTP=true` — no OTP message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
 - Both flags can be set together for a fully credential-free local flow
 
 **Mock mode design principles:**
@@ -123,7 +123,7 @@ MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHE
 - **API-driven UI hints.** When a mock flag is active, the relevant API response includes `mock: true`. The client uses this field to show a simple indicator — no hardcoded values or debug logic in the UI.
 - **Single source of truth.** The server owns mock state; the client reflects it.
 
-**Mock mode must always work.** When adding new features that touch external services (Sheets, Twilio, future integrations), add mock handling inside the relevant service module (`sheets.ts` for Sheets, `auth.ts` for Twilio). API routes should never contain mock flag checks — mock behaviour is encapsulated in the service layer.
+**Mock mode must always work.** When adding new features that touch external services (Sheets, OTP/auth, future integrations), add mock handling inside the relevant service module (`sheets.ts` for Sheets, `auth.ts` for OTP). API routes should never contain mock flag checks — mock behaviour is encapsulated in the service layer.
 
 ## PR Workflow
 
@@ -163,14 +163,14 @@ Always follow these steps when delivering any change, no matter how small:
   ```typescript
   // correct — inside auth.ts
   export async function verifyOTP(phone: string, code: string): Promise<boolean> {
-    if (MOCK_TWILIO) {
+    if (MOCK_OTP) {
       return true;
     }
     // real Twilio call
   }
 
   // wrong — mock logic leaking into routes
-  if (!MOCK_TWILIO) {
+  if (!MOCK_OTP) {
     const approved = await verifyOTP(phone, code);
     // ...
   }
