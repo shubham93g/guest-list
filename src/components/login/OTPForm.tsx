@@ -27,9 +27,9 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, code }),
       });
-      const data = await res.json();
 
       if (!res.ok) {
+        const data = await res.json();
         setError(data.error ?? 'Something went wrong.');
         return;
       }
