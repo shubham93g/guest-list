@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, SyntheticEvent } from 'react';
 
 interface Props {
   onSuccess: (phone: string, mock?: boolean) => void;
@@ -14,7 +14,7 @@ export default function PhoneForm({ onSuccess, sendInstruction, sendLabel }: Pro
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setLoading(true);

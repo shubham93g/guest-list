@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -16,7 +16,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setLoading(true);
