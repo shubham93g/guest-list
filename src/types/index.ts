@@ -1,15 +1,6 @@
 export type RSVPStatus = 'attending' | 'declined' | 'pending';
 
-export interface Guest {
-  name: string;
-  phone: string;
-  rsvpStatus: RSVPStatus;
-  rsvpSubmittedAt: string | null;
-  dietaryNotes: string;
-  plusOneAttending: boolean;
-  plusOneName: string;
-  notes: string;
-}
+export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 
 export interface EventDetails {
   weddingDate: string;
@@ -30,4 +21,10 @@ export interface RSVPData {
   plusOneAttending: boolean;
   plusOneName: string;
   notes: string;
+}
+
+export interface Guest extends RSVPData {
+  name: string;
+  phone: string;
+  rsvpSubmittedAt: ISOTimestamp | null;
 }
