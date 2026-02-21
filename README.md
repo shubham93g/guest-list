@@ -97,12 +97,13 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 |-----|--------|-------|
 | A | `name` | Admin fills before launch |
 | B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Sheets strips `+` even in Plain Text cells, so omit it. The API normalises before comparing. |
-| C | `rsvp_status` | Written by API: `attending` / `declined` |
-| D | `rsvp_submitted_at` | ISO 8601 timestamp |
-| E | `dietary_notes` | |
-| F | `plus_one_attending` | `yes` / `no` |
-| G | `plus_one_name` | |
-| H | `notes` | Guest message |
+| C | `email` | Guest email address (admin fills before launch) |
+| D | `rsvp_status` | Written by API: `attending` / `declined` |
+| E | `rsvp_submitted_at` | ISO 8601 timestamp |
+| F | `dietary_notes` | |
+| G | `plus_one_attending` | `yes` / `no` |
+| H | `plus_one_name` | |
+| I | `notes` | Guest message |
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 

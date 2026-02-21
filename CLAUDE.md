@@ -60,12 +60,13 @@ One tab only: **`Guests`** (header in row 1, frozen)
 |-----|------|-------|
 | A | `name` | Full name (admin fills before launch) |
 | B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Google Sheets strips `+` even in Plain Text cells. `sheets.ts` normalises by stripping `+` before comparing. |
-| C | `rsvp_status` | `attending` / `declined` (written by API) |
-| D | `rsvp_submitted_at` | ISO 8601 timestamp |
-| E | `dietary_notes` | |
-| F | `plus_one_attending` | `yes` / `no` |
-| G | `plus_one_name` | |
-| H | `notes` | Guest message |
+| C | `email` | Guest email address (admin fills before launch) |
+| D | `rsvp_status` | `attending` / `declined` (written by API) |
+| E | `rsvp_submitted_at` | ISO 8601 timestamp |
+| F | `dietary_notes` | |
+| G | `plus_one_attending` | `yes` / `no` |
+| H | `plus_one_name` | |
+| I | `notes` | Guest message |
 
 Event details (couple names, date, venue) are **not** stored in Sheets — they are static env var config read via `src/lib/event.ts`.
 
