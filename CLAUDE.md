@@ -29,7 +29,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 **Routes:**
 - `/` — Public save-the-date hero (Server Component)
-- `/login` — Phone entry + OTP flow (Client Component, 2-step state machine)
+- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
 - `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `TWILIO_VERIFY_CHANNEL`)
