@@ -17,7 +17,7 @@ export default function OTPForm({ phone, email, onBack, mock, otpTitle }: Props)
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // The non-empty field is the one the server will validate against OTP_CHANNEL.
+  // The non-empty field is the one the server will validate against AUTH_CHANNEL.
   const contact = email || phone;
   const backLabel = email ? '← Use a different address' : '← Use a different number';
 

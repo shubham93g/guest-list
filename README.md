@@ -7,8 +7,8 @@ Wedding guest management website — save the date, OTP authentication, RSVP, an
 - **Next.js 15** (App Router, TypeScript)
 - **Tailwind CSS**
 - **Google Sheets** — primary data store
-- **Twilio Verify** — SMS or WhatsApp OTP (when `OTP_CHANNEL=sms` or `whatsapp`)
-- **Resend** — email OTP (when `OTP_CHANNEL=email`)
+- **Twilio Verify** — SMS or WhatsApp OTP (when `AUTH_CHANNEL=sms` or `whatsapp`)
+- **Resend** — email OTP (when `AUTH_CHANNEL=email`)
 - **JWT cookies** — session management (`jose`)
 
 ## Prerequisites
@@ -122,17 +122,17 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
-### Twilio Verify (OTP_CHANNEL=sms or whatsapp)
+### Twilio Verify (AUTH_CHANNEL=sms or whatsapp)
 
 1. Sign up at [twilio.com](https://twilio.com)
 2. Copy **Account SID** and **Auth Token** → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
 3. Go to Verify → Services → **Create new service**
 4. Copy the **Service SID** → `TWILIO_VERIFY_SERVICE_SID`
-5. Set `OTP_CHANNEL`:
+5. Set `AUTH_CHANNEL`:
    - `sms` (default) — works immediately on a trial account; no additional setup
    - `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
 
-### Resend (OTP_CHANNEL=email)
+### Resend (AUTH_CHANNEL=email)
 
 Resend is a transactional email API. The API key is scoped to send-only and can be revoked from the Resend dashboard without changing your Google account.
 
@@ -141,7 +141,7 @@ Resend is a transactional email API. The API key is scoped to send-only and can 
 3. Go to **API Keys** → **Create API Key** → select **Sending access** only
 4. Copy the key → `RESEND_API_KEY`
 5. Set `RESEND_FROM` to a sender address on your verified domain (e.g. `invite@yourdomain.com`)
-6. Set `OTP_CHANNEL=email`
+6. Set `AUTH_CHANNEL=email`
 
 ### JWT Secret
 

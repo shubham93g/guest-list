@@ -7,15 +7,15 @@ export { signJWT, verifyJWT } from './jwt';
 const MOCK_OTP = process.env.MOCK_OTP === 'true';
 export const SKIP_OTP = process.env.SKIP_OTP === 'true';
 
-// Switch between 'sms', 'whatsapp', and 'email' via OTP_CHANNEL in .env.local.
+// Switch between 'sms', 'whatsapp', and 'email' via AUTH_CHANNEL in .env.local.
 // Defaults to 'sms' — no WhatsApp Business Account or email setup required.
 // Exported so page.tsx can derive UI copy from the same value without a second env read.
 const VALID_CHANNELS = new Set<string>(['sms', 'whatsapp', 'email']);
-const rawChannel = process.env.OTP_CHANNEL ?? 'sms';
+const rawChannel = process.env.AUTH_CHANNEL ?? 'sms';
 if (!VALID_CHANNELS.has(rawChannel)) {
-  throw new Error(`Invalid OTP_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
+  throw new Error(`Invalid AUTH_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
 }
-export const OTP_CHANNEL = rawChannel as 'sms' | 'whatsapp' | 'email';
+export const AUTH_CHANNEL = rawChannel as 'sms' | 'whatsapp' | 'email';
 
 // --- Stateless email OTP (HMAC-based, no server-side storage) ---
 //
@@ -69,7 +69,7 @@ export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
     return { mock: true };
   }
 
-  if (OTP_CHANNEL === 'email') {
+  if (AUTH_CHANNEL === 'email') {
     const code = generateEmailCode(identifier);
     const resend = getResendClient();
     await resend.emails.send({
@@ -84,7 +84,7 @@ export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
   const client = getTwilioClient();
   await client.verify.v2
     .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-    .verifications.create({ to: identifier, channel: OTP_CHANNEL });
+    .verifications.create({ to: identifier, channel: AUTH_CHANNEL });
   return { mock: false };
 }
 
@@ -93,7 +93,7 @@ export async function verifyOTP(identifier: string, code: string): Promise<boole
     return true;
   }
 
-  if (OTP_CHANNEL === 'email') {
+  if (AUTH_CHANNEL === 'email') {
     return verifyEmailCode(identifier, code);
   }
 

@@ -11,7 +11,7 @@ interface Props {
   channel: 'sms' | 'whatsapp' | 'email';
 }
 
-const OTP_CHANNEL_COPY = {
+const AUTH_CHANNEL_COPY = {
   sms: {
     sendInstruction: 'Enter your phone number to access your invitation.',
     sendLabel: 'Proceed',
@@ -35,7 +35,7 @@ export default function LoginPage({ channel }: Props) {
   const [email, setEmail] = useState('');
   const [mock, setMock] = useState(false);
 
-  const channelCopy = OTP_CHANNEL_COPY[channel];
+  const channelCopy = AUTH_CHANNEL_COPY[channel];
 
   function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string, isMock?: boolean) {
     setPhone(submittedPhone);
