@@ -5,16 +5,21 @@ import { useRouter } from 'next/navigation';
 
 interface Props {
   phone: string;
+  email: string;
   onBack: () => void;
   mock?: boolean;
   otpTitle: string;
 }
 
-export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
+export default function OTPForm({ phone, email, onBack, mock, otpTitle }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  // The non-empty field is the one the server will validate against OTP_CHANNEL.
+  const contact = email || phone;
+  const backLabel = email ? '← Use a different address' : '← Use a different number';
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +30,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({ phone: phone || undefined, email: email || undefined, code }),
       });
 
       if (!res.ok) {
@@ -36,6 +41,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
 
       router.push('/invite');
     } catch {
+      console.error('[OTPForm] login-otp request failed');
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -50,7 +56,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock
           ? 'Mock mode active.'
-          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{phone}</span></>}
+          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -84,7 +90,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
         onClick={onBack}
         className="mt-6 w-full text-sm text-stone-400 hover:text-stone-600 transition-colors"
       >
-        ← Use a different number
+        {backLabel}
       </button>
     </div>
   );

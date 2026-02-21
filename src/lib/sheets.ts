@@ -13,7 +13,7 @@ interface GuestRowsCache {
 
 let guestRowsCache: GuestRowsCache | null = null;
 
-// When MOCK_SHEETS=true, any phone number gets this guest profile.
+// When MOCK_SHEETS=true, any identifier gets this guest profile.
 // Configure via MOCK_SHEETS_GUEST_NAME in .env.local — never hardcode personal details here.
 const MOCK_SHEETS_GUEST: Guest = {
   name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
@@ -70,6 +70,18 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
+  if (!row) {
+    return null;
+  }
+  return rowToGuest(row);
+}
+
+export async function findGuestByEmail(email: string): Promise<Guest | null> {
+  if (MOCK_SHEETS) {
+    return { ...MOCK_SHEETS_GUEST, email };
+  }
+  const rows = await getAllGuestRows();
+  const row = rows.find((r) => (r[GUEST_COLS.EMAIL] ?? '').trim().toLowerCase() === email);
   if (!row) {
     return null;
   }
