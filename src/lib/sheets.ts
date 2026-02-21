@@ -87,7 +87,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
   const rows = await getAllGuestRows();
   const rowIndex = rows.findIndex((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
   if (rowIndex === -1) {
-    throw new Error(`Guest with phone ${phone} not found`);
+    throw new Error('Guest not found');
   }
 
   const sheetRow = rowIndex + 2; // +1 for 1-indexing, +1 for header row

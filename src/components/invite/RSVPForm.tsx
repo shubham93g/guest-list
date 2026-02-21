@@ -40,9 +40,8 @@ export default function RSVPForm({ existingRSVP }: Props) {
           notes,
         }),
       });
-      const data = await res.json();
-
       if (!res.ok) {
+        const data = await res.json();
         setErrorMsg(data.error ?? 'Something went wrong.');
         setFormState('error');
         return;
