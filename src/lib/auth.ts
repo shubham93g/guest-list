@@ -7,11 +7,12 @@ const MOCK_TWILIO = process.env.MOCK_TWILIO === 'true';
 // Switch between 'sms' and 'whatsapp' via TWILIO_VERIFY_CHANNEL in .env.local.
 // Defaults to 'sms' — no WhatsApp Business Account setup required.
 // Exported so page.tsx can derive UI copy from the same value without a second env read.
+const VALID_CHANNELS = new Set(['sms', 'whatsapp']);
 const rawChannel = process.env.TWILIO_VERIFY_CHANNEL ?? 'sms';
-if (rawChannel !== 'sms' && rawChannel !== 'whatsapp') {
+if (!VALID_CHANNELS.has(rawChannel)) {
   throw new Error(`Invalid TWILIO_VERIFY_CHANNEL: "${rawChannel}". Must be "sms" or "whatsapp".`);
 }
-export const TWILIO_CHANNEL = rawChannel;
+export const TWILIO_CHANNEL = rawChannel as 'sms' | 'whatsapp';
 
 function getTwilioClient() {
   return twilio(
