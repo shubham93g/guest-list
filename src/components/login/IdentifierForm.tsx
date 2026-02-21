@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 interface Props {
   channel: 'sms' | 'whatsapp' | 'email';
-  onSuccess: (phone: string, email: string, mock?: boolean) => void;
+  onSuccess: (phone: string, email: string) => void;
   sendInstruction: string;
   sendLabel: string;
 }
@@ -45,7 +45,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
         router.push('/invite');
         return;
       }
-      onSuccess(phoneValue, emailValue, data.mock === true);
+      onSuccess(phoneValue, emailValue);
     } catch {
       console.error('[IdentifierForm] send-otp request failed');
       setError('Something went wrong. Please try again.');

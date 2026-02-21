@@ -7,11 +7,10 @@ interface Props {
   phone: string;
   email: string;
   onBack: () => void;
-  mock?: boolean;
   otpTitle: string;
 }
 
-export default function OTPForm({ phone, email, onBack, mock, otpTitle }: Props) {
+export default function OTPForm({ phone, email, onBack, otpTitle }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,9 +53,8 @@ export default function OTPForm({ phone, email, onBack, mock, otpTitle }: Props)
         {otpTitle}
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
-        {mock
-          ? 'Mock mode active.'
-          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>}
+        <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>
+
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">

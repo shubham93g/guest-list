@@ -1,9 +1,5 @@
 # TODO
 
-## Pending Changes
-
-- [ ] Remove all mock mode support (`MOCK_SHEETS`, `MOCK_OTP`, `MOCK_SHEETS_GUEST_NAME`) in a future cleanup PR
-
 ## Tests to Write
 
 ### Unit Tests

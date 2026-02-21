@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
         return setSessionCookie(res, token);
       }
 
-      const { mock } = await sendOTP(email);
-      return NextResponse.json({ ...(mock && { mock: true }) });
+      await sendOTP(email);
+      return NextResponse.json({});
     }
 
     // sms / whatsapp
@@ -100,8 +100,8 @@ export async function POST(req: NextRequest) {
       return setSessionCookie(res, token);
     }
 
-    const { mock } = await sendOTP(phone);
-    return NextResponse.json({ ...(mock && { mock: true }) });
+    await sendOTP(phone);
+    return NextResponse.json({});
   } catch (err) {
     console.error('[send-otp]', err);
     return NextResponse.json(
