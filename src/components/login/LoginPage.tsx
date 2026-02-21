@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import PhoneForm from '@/components/login/PhoneForm';
+import IdentifierForm from '@/components/login/IdentifierForm';
 import OTPForm from '@/components/login/OTPForm';
 
-type Step = 'phone' | 'otp';
+type Step = 'identifier' | 'otp';
 
 interface Props {
-  channel: 'sms' | 'whatsapp';
+  channel: 'sms' | 'whatsapp' | 'email';
 }
 
 const OTP_CHANNEL_COPY = {
@@ -22,17 +22,22 @@ const OTP_CHANNEL_COPY = {
     sendLabel: 'Send Code via WhatsApp',
     otpTitle: 'Check WhatsApp',
   },
+  email: {
+    sendInstruction: 'Enter your email address to receive your invitation code.',
+    sendLabel: 'Send Code via Email',
+    otpTitle: 'Check your email',
+  },
 } as const;
 
 export default function LoginPage({ channel }: Props) {
-  const [step, setStep] = useState<Step>('phone');
-  const [phone, setPhone] = useState('');
+  const [step, setStep] = useState<Step>('identifier');
+  const [identifier, setIdentifier] = useState('');
   const [mock, setMock] = useState(false);
 
   const channelCopy = OTP_CHANNEL_COPY[channel];
 
-  function handlePhoneSuccess(submittedPhone: string, isMock?: boolean) {
-    setPhone(submittedPhone);
+  function handleIdentifierSuccess(submittedIdentifier: string, isMock?: boolean) {
+    setIdentifier(submittedIdentifier);
     setMock(isMock ?? false);
     setStep('otp');
   }
@@ -46,16 +51,18 @@ export default function LoginPage({ channel }: Props) {
         ← Back
       </Link>
 
-      {step === 'phone' ? (
-        <PhoneForm
-          onSuccess={handlePhoneSuccess}
+      {step === 'identifier' ? (
+        <IdentifierForm
+          channel={channel}
+          onSuccess={handleIdentifierSuccess}
           sendInstruction={channelCopy.sendInstruction}
           sendLabel={channelCopy.sendLabel}
         />
       ) : (
         <OTPForm
-          phone={phone}
-          onBack={() => setStep('phone')}
+          channel={channel}
+          identifier={identifier}
+          onBack={() => setStep('identifier')}
           mock={mock}
           otpTitle={channelCopy.otpTitle}
         />

@@ -23,16 +23,16 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 ## Architecture
 
-**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (SMS/WhatsApp OTP) · JWT cookie sessions (`jose`)
+**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (SMS/WhatsApp OTP) · Resend (email OTP) · JWT cookie sessions (`jose`)
 
 **Hosting:** Vercel (target for production deployment)
 
 **Routes:**
 - `/` — Public save-the-date hero (Server Component)
-- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
+- `/login` — Identifier entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine; input is phone or email depending on `OTP_CHANNEL`)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
-- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`)
+- `/api/auth/send-otp` — POST: check allowlist → send OTP; email channel uses Resend, sms/whatsapp use Twilio Verify (channel set by `OTP_CHANNEL`)
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
@@ -46,7 +46,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 |------|---------|
 | `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Owns `MOCK_SHEETS` flag and mock behaviour. Guest data only — no event details. Caches guest rows in memory (5-minute TTL); invalidated on `updateGuestRSVP`. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
-| `src/lib/auth.ts` | Twilio Verify OTP send/check. Owns `MOCK_OTP` flag and mock behaviour. Re-exports JWT functions from `jwt.ts`. |
+| `src/lib/auth.ts` | OTP send/verify. Email channel uses Resend + in-memory store (10-min TTL, single-use); sms/whatsapp use Twilio Verify. Owns `MOCK_OTP` flag. Re-exports JWT from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
@@ -75,27 +75,38 @@ Event details (couple names, date, venue) are **not** stored in Sheets — they 
 See `.env.example` for all required variables. Critical notes:
 - `GOOGLE_PRIVATE_KEY`: in `.env.local` use `\n`-escaped single line; `sheets.ts` calls `.replace(/\\n/g, '\n')` to restore newlines. On Vercel, paste the raw multi-line PEM as-is.
 - `TWILIO_VERIFY_SERVICE_SID`: created under Twilio Console → Verify → Services (not the Account SID).
-- `OTP_CHANNEL`: `sms` (default) or `whatsapp`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service.
+- `OTP_CHANNEL`: `sms` (default), `whatsapp`, or `email`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service. `email` uses Resend — set `RESEND_API_KEY` and `RESEND_FROM`.
+- `RESEND_FROM`: must be a sender address on a verified domain in your Resend account.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
 
 ## Auth Flow
 
-1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (channel: `OTP_CHANNEL`, default `sms`)
-2. Guest enters 6-digit code → `POST /api/auth/login-otp` → Twilio confirms → API issues 30-day `httpOnly` JWT cookie
+1. Guest enters phone or email (depending on `OTP_CHANNEL`) → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP (email: Resend; sms/whatsapp: Twilio Verify)
+2. Guest enters 6-digit code → `POST /api/auth/login-otp` → verifies code → API issues 30-day `httpOnly` JWT cookie containing `{ name, phone, email }`
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
 ## Testing API Routes
 
 ```bash
+# OTP_CHANNEL=sms or whatsapp:
 # 1. Send OTP (must use a phone number in the Guests sheet)
 curl -X POST http://localhost:3000/api/auth/send-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
-
-# 2. Verify OTP (use code received via SMS or WhatsApp depending on OTP_CHANNEL)
+# 2. Verify OTP
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210", "code": "123456"}'
+
+# OTP_CHANNEL=email:
+# 1. Send OTP (must use an email address in the Guests sheet)
+curl -X POST http://localhost:3000/api/auth/send-otp \
+  -H "Content-Type: application/json" \
+  -d '{"email": "guest@example.com"}'
+# 2. Verify OTP
+curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
+  -H "Content-Type: application/json" \
+  -d '{"email": "guest@example.com", "code": "123456"}'
 
 # 3. Submit RSVP (uses session cookie from step 2)
 curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \

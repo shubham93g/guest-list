@@ -11,8 +11,9 @@ export interface EventDetails {
 }
 
 export interface SessionPayload {
-  phone: string;
   name: string;
+  phone: string;
+  email?: string;
 }
 
 export interface RSVPData {

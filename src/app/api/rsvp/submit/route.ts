@@ -19,8 +19,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    // Rate-limit by authenticated phone: 10 per 15 min to prevent Sheets quota abuse (M3).
-    const limit = checkRateLimit(`rsvp:phone:${session.phone}`, 10, 15 * 60);
+    // Rate-limit by authenticated identifier: 10 per 15 min to prevent Sheets quota abuse (M3).
+    const identifier = session.phone || session.email || 'unknown';
+    const limit = checkRateLimit(`rsvp:${identifier}`, 10, 15 * 60);
     if (limit.limited) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
