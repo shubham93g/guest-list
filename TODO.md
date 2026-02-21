@@ -15,12 +15,6 @@
   Invalidate on `updateGuestRSVP` to avoid serving stale RSVP status.
 
 
-- [ ] **Redirect already-RSVPed guests** — `src/app/invite/page.tsx`
-  If a guest's `rsvpStatus` is `attending` or `declined`, redirect them to
-  a dedicated confirmation page (e.g. `/rsvp-confirmed`) instead of showing
-  the RSVP form again. The confirmation page should show their submitted
-  status and a thank-you message.
-
 ---
 
 ## Tests to Write
