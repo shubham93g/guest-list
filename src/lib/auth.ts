@@ -1,5 +1,6 @@
 import twilio from 'twilio';
 import { Resend } from 'resend';
+import { createHmac } from 'crypto';
 
 export { signJWT, verifyJWT } from './jwt';
 
@@ -15,17 +16,36 @@ if (!VALID_CHANNELS.has(rawChannel)) {
 }
 export const OTP_CHANNEL = rawChannel as 'sms' | 'whatsapp' | 'email';
 
-// --- Email OTP store (email channel only) ---
-// Single-use, 10-minute TTL. Keys are normalised email addresses.
-interface EmailOTPEntry {
-  code: string;
-  expiresAt: number;
-}
-const emailOTPStore = new Map<string, EmailOTPEntry>();
-const EMAIL_OTP_TTL_MS = 10 * 60 * 1_000;
+// --- Stateless email OTP (HMAC-based, no server-side storage) ---
+//
+// The code is derived from JWT_SECRET + email + time window so it can be verified
+// by any route handler or serverless instance without sharing state.
+//
+// Window = 10 minutes. On verify we accept the current window AND the previous
+// one to handle requests that straddle a window boundary.
 
-function generateEmailOTP(): string {
-  return String(Math.floor(100_000 + Math.random() * 900_000));
+const EMAIL_OTP_WINDOW_MS = 10 * 60 * 1_000;
+
+function emailOTPWindow(): number {
+  return Math.floor(Date.now() / EMAIL_OTP_WINDOW_MS);
+}
+
+function deriveEmailOTP(email: string, window: number): string {
+  const secret = process.env.JWT_SECRET ?? '';
+  const hmac = createHmac('sha256', secret).update(`${email}:${window}`).digest('hex');
+  // Map 8 hex chars → 0–4294967295, then scale to 100000–999999 (6 digits).
+  const num = parseInt(hmac.slice(0, 8), 16);
+  return String(100_000 + (num % 900_000));
+}
+
+function generateEmailCode(email: string): string {
+  return deriveEmailOTP(email, emailOTPWindow());
+}
+
+function verifyEmailCode(email: string, code: string): boolean {
+  const w = emailOTPWindow();
+  // Accept current window and previous window.
+  return deriveEmailOTP(email, w) === code || deriveEmailOTP(email, w - 1) === code;
 }
 
 // --- Client factories (serverless-safe: created per-invocation) ---
@@ -49,8 +69,7 @@ export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
   }
 
   if (OTP_CHANNEL === 'email') {
-    const code = generateEmailOTP();
-    emailOTPStore.set(identifier, { code, expiresAt: Date.now() + EMAIL_OTP_TTL_MS });
+    const code = generateEmailCode(identifier);
     const resend = getResendClient();
     await resend.emails.send({
       from: process.env.RESEND_FROM!,
@@ -74,19 +93,7 @@ export async function verifyOTP(identifier: string, code: string): Promise<boole
   }
 
   if (OTP_CHANNEL === 'email') {
-    const entry = emailOTPStore.get(identifier);
-    if (!entry) {
-      return false;
-    }
-    if (Date.now() > entry.expiresAt) {
-      emailOTPStore.delete(identifier);
-      return false;
-    }
-    if (entry.code !== code) {
-      return false;
-    }
-    emailOTPStore.delete(identifier);
-    return true;
+    return verifyEmailCode(identifier, code);
   }
 
   const client = getTwilioClient();
