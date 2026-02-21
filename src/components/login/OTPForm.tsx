@@ -30,7 +30,7 @@ export default function OTPForm({ phone, email, channel, onBack, mock, otpTitle 
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, email, code }),
+        body: JSON.stringify({ phone: phone || undefined, email: email || undefined, code }),
       });
 
       if (!res.ok) {

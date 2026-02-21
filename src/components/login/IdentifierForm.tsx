@@ -30,7 +30,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, email: submittedEmail }),
+        body: JSON.stringify({ phone: phone || undefined, email: submittedEmail || undefined }),
       });
       const data = await res.json();
 
