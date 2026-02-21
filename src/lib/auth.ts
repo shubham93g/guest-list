@@ -10,7 +10,7 @@ const MOCK_TWILIO = process.env.MOCK_TWILIO === 'true';
 const VALID_CHANNELS = new Set(['sms', 'whatsapp']);
 const rawChannel = process.env.TWILIO_VERIFY_CHANNEL ?? 'sms';
 if (!VALID_CHANNELS.has(rawChannel)) {
-  throw new Error(`Invalid TWILIO_VERIFY_CHANNEL: "${rawChannel}". Must be "sms" or "whatsapp".`);
+  throw new Error(`Invalid TWILIO_VERIFY_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
 }
 export const TWILIO_CHANNEL = rawChannel as 'sms' | 'whatsapp';
 
