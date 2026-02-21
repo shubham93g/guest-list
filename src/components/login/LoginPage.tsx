@@ -11,16 +11,16 @@ interface Props {
   channel: 'sms' | 'whatsapp';
 }
 
-const CHANNEL_COPY = {
+const OTP_CHANNEL_COPY = {
   sms: {
-    description: 'Enter your phone number to receive your invitation code via SMS.',
-    buttonLabel: 'Send Code via SMS',
-    otpHeading: 'Check your messages',
+    sendInstruction: 'Enter your phone number to receive your invitation code via SMS.',
+    sendLabel: 'Send Code via SMS',
+    otpTitle: 'Check your messages',
   },
   whatsapp: {
-    description: 'Enter your phone number to receive your invitation code via WhatsApp.',
-    buttonLabel: 'Send Code via WhatsApp',
-    otpHeading: 'Check WhatsApp',
+    sendInstruction: 'Enter your phone number to receive your invitation code via WhatsApp.',
+    sendLabel: 'Send Code via WhatsApp',
+    otpTitle: 'Check WhatsApp',
   },
 } as const;
 
@@ -29,7 +29,7 @@ export default function LoginPage({ channel }: Props) {
   const [phone, setPhone] = useState('');
   const [mock, setMock] = useState(false);
 
-  const copy = CHANNEL_COPY[channel];
+  const channelCopy = OTP_CHANNEL_COPY[channel];
 
   function handlePhoneSuccess(submittedPhone: string, isMock?: boolean) {
     setPhone(submittedPhone);
@@ -49,15 +49,15 @@ export default function LoginPage({ channel }: Props) {
       {step === 'phone' ? (
         <PhoneForm
           onSuccess={handlePhoneSuccess}
-          description={copy.description}
-          buttonLabel={copy.buttonLabel}
+          sendInstruction={channelCopy.sendInstruction}
+          sendLabel={channelCopy.sendLabel}
         />
       ) : (
         <OTPForm
           phone={phone}
           onBack={() => setStep('phone')}
           mock={mock}
-          heading={copy.otpHeading}
+          otpTitle={channelCopy.otpTitle}
         />
       )}
     </main>

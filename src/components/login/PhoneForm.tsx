@@ -4,11 +4,11 @@ import { useState, FormEvent } from 'react';
 
 interface Props {
   onSuccess: (phone: string, mock?: boolean) => void;
-  description: string;
-  buttonLabel: string;
+  sendInstruction: string;
+  sendLabel: string;
 }
 
-export default function PhoneForm({ onSuccess, description, buttonLabel }: Props) {
+export default function PhoneForm({ onSuccess, sendInstruction, sendLabel }: Props) {
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,7 +50,7 @@ export default function PhoneForm({ onSuccess, description, buttonLabel }: Props
         Welcome
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
-        {description}
+        {sendInstruction}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -85,7 +85,7 @@ export default function PhoneForm({ onSuccess, description, buttonLabel }: Props
           disabled={loading || !countryCode || !phoneNumber}
           className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Sending code…' : buttonLabel}
+          {loading ? 'Sending code…' : sendLabel}
         </button>
       </form>
 
