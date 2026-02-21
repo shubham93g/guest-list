@@ -7,9 +7,10 @@ interface Props {
   phone: string;
   onBack: () => void;
   mock?: boolean;
+  channel: 'sms' | 'whatsapp';
 }
 
-export default function OTPForm({ phone, onBack, mock }: Props) {
+export default function OTPForm({ phone, onBack, mock, channel }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,7 +45,7 @@ export default function OTPForm({ phone, onBack, mock }: Props) {
   return (
     <div className="w-full max-w-sm mx-auto px-6">
       <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
-        Check your messages
+        {channel === 'sms' ? 'Check your messages' : 'Check WhatsApp'}
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock
