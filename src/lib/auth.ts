@@ -4,6 +4,16 @@ export { signJWT, verifyJWT } from './jwt';
 
 const MOCK_TWILIO = process.env.MOCK_TWILIO === 'true';
 
+// Switch between 'sms' and 'whatsapp' via TWILIO_VERIFY_CHANNEL in .env.local.
+// Defaults to 'sms' — no WhatsApp Business Account setup required.
+// Exported so page.tsx can derive UI copy from the same value without a second env read.
+const VALID_CHANNELS = new Set(['sms', 'whatsapp']);
+const rawChannel = process.env.TWILIO_VERIFY_CHANNEL ?? 'sms';
+if (!VALID_CHANNELS.has(rawChannel)) {
+  throw new Error(`Invalid TWILIO_VERIFY_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
+}
+export const TWILIO_CHANNEL = rawChannel as 'sms' | 'whatsapp';
+
 function getTwilioClient() {
   return twilio(
     process.env.TWILIO_ACCOUNT_SID!,
@@ -18,7 +28,7 @@ export async function sendOTP(phone: string): Promise<{ mock: boolean }> {
   const client = getTwilioClient();
   await client.verify.v2
     .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-    .verifications.create({ to: phone, channel: 'whatsapp' });
+    .verifications.create({ to: phone, channel: TWILIO_CHANNEL });
   return { mock: false };
 }
 

@@ -23,7 +23,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 ## Architecture
 
-**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (WhatsApp OTP) · JWT cookie sessions (`jose`)
+**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (SMS/WhatsApp OTP) · JWT cookie sessions (`jose`)
 
 **Hosting:** Vercel (target for production deployment)
 
@@ -32,7 +32,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/login` — Phone entry + OTP flow (Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
-- `/api/auth/send-otp` — POST: check allowlist → send WhatsApp OTP via Twilio Verify
+- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `TWILIO_VERIFY_CHANNEL`)
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
@@ -74,11 +74,12 @@ Event details (couple names, date, venue) are **not** stored in Sheets — they 
 See `.env.example` for all required variables. Critical notes:
 - `GOOGLE_PRIVATE_KEY`: in `.env.local` use `\n`-escaped single line; `sheets.ts` calls `.replace(/\\n/g, '\n')` to restore newlines. On Vercel, paste the raw multi-line PEM as-is.
 - `TWILIO_VERIFY_SERVICE_SID`: created under Twilio Console → Verify → Services (not the Account SID).
+- `TWILIO_VERIFY_CHANNEL`: `sms` (default) or `whatsapp`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
 
 ## Auth Flow
 
-1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends WhatsApp OTP via Twilio Verify
+1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (channel: `TWILIO_VERIFY_CHANNEL`, default `sms`)
 2. Guest enters 6-digit code → `POST /api/auth/login-otp` → Twilio confirms → API issues 30-day `httpOnly` JWT cookie
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
@@ -90,7 +91,7 @@ curl -X POST http://localhost:3000/api/auth/send-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
 
-# 2. Verify OTP (use code received on WhatsApp)
+# 2. Verify OTP (use code received via SMS or WhatsApp depending on TWILIO_VERIFY_CHANNEL)
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210", "code": "123456"}'
@@ -114,7 +115,7 @@ MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHE
 
 **Mock flow behaviour:**
 - `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/invite` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
-- `MOCK_TWILIO=true` — no WhatsApp message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
+- `MOCK_TWILIO=true` — no OTP message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
 - Both flags can be set together for a fully credential-free local flow
 
 **Mock mode design principles:**
