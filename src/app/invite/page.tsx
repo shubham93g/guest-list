@@ -11,29 +11,19 @@ export default async function WelcomePage() {
     redirect('/login');
   }
 
-  const guest = await findGuestByPhone(session.phone);
+  const rsvpData = await findGuestByPhone(session.phone);
   const event = getEventDetails();
 
-  if (!guest) {
+  if (!rsvpData) {
     redirect('/login');
   }
 
   return (
     <main className="min-h-screen bg-stone-50">
-      <PersonalizedHeader guest={guest} event={event} />
+      <PersonalizedHeader name={session.name} event={event} />
       <div className="w-16 h-px bg-stone-200 mx-auto mb-8" />
       <RSVPForm
-        existingRSVP={
-          guest.rsvpStatus !== 'pending'
-            ? {
-                status: guest.rsvpStatus,
-                dietaryNotes: guest.dietaryNotes,
-                plusOneAttending: guest.plusOneAttending,
-                plusOneName: guest.plusOneName,
-                notes: guest.notes,
-              }
-            : null
-        }
+        existingRSVP={rsvpData.status !== 'pending' ? rsvpData : null}
       />
     </main>
   );

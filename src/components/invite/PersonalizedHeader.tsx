@@ -1,12 +1,12 @@
-import type { Guest, EventDetails } from '@/types';
+import type { EventDetails } from '@/types';
 
 interface Props {
-  guest: Guest;
+  name: string;
   event: EventDetails;
 }
 
-export default function PersonalizedHeader({ guest, event }: Props) {
-  const firstName = guest.name.split(' ')[0] || 'there';
+export default function PersonalizedHeader({ name, event }: Props) {
+  const firstName = name.split(' ')[0] || 'there';
 
   return (
     <div className="text-center px-6 pt-12 pb-8">

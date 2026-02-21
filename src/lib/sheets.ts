@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
-import type { Guest, RSVPData } from '@/types';
+import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 const MOCK_SHEETS = process.env.MOCK_SHEETS === 'true';
 
@@ -9,7 +9,7 @@ const MOCK_SHEETS = process.env.MOCK_SHEETS === 'true';
 const MOCK_SHEETS_GUEST: Guest = {
   name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
   phone: '',
-  rsvpStatus: 'pending',
+  status: 'pending',
   rsvpSubmittedAt: null,
   dietaryNotes: '',
   plusOneAttending: false,
@@ -61,16 +61,16 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
 
 const VALID_RSVP_STATUSES = new Set<string>(['attending', 'declined', 'pending']);
 
-function toRSVPStatus(value: string | undefined): Guest['rsvpStatus'] {
-  return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['rsvpStatus']) : 'pending';
+function toRSVPStatus(value: string | undefined): Guest['status'] {
+  return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['status']) : 'pending';
 }
 
 function rowToGuest(row: string[]): Guest {
   return {
     name: row[GUEST_COLS.NAME] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
-    rsvpStatus: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
-    rsvpSubmittedAt: row[GUEST_COLS.RSVP_SUBMITTED_AT] ?? null,
+    status: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
+    rsvpSubmittedAt: (row[GUEST_COLS.RSVP_SUBMITTED_AT] as ISOTimestamp) ?? null,
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
     plusOneAttending: row[GUEST_COLS.PLUS_ONE_ATTENDING] === 'yes',
     plusOneName: row[GUEST_COLS.PLUS_ONE_NAME] ?? '',
@@ -102,7 +102,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
           range: `${SHEETS.GUESTS}!C${sheetRow}:H${sheetRow}`,
           values: [[
             data.status,
-            new Date().toISOString(),
+            new Date().toISOString() as ISOTimestamp,
             data.dietaryNotes,
             data.plusOneAttending ? 'yes' : 'no',
             data.plusOneName,
