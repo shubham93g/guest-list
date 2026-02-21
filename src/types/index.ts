@@ -26,5 +26,6 @@ export interface RSVPData {
 export interface Guest extends RSVPData {
   name: string;
   phone: string;
+  email: string;
   rsvpSubmittedAt: ISOTimestamp | null;
 }

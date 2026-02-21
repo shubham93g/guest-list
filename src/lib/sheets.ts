@@ -18,6 +18,7 @@ let guestRowsCache: GuestRowsCache | null = null;
 const MOCK_SHEETS_GUEST: Guest = {
   name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
   phone: '',
+  email: '',
   status: 'pending',
   rsvpSubmittedAt: null,
   dietaryNotes: '',
@@ -49,7 +50,7 @@ async function getAllGuestRows(): Promise<string[][]> {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!A2:H`,
+    range: `${SHEETS.GUESTS}!A2:I`,
   });
   const rows = (res.data.values as string[][]) ?? [];
   guestRowsCache = { rows, cachedAt: Date.now() };
@@ -85,6 +86,7 @@ function rowToGuest(row: string[]): Guest {
   return {
     name: row[GUEST_COLS.NAME] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
+    email: row[GUEST_COLS.EMAIL] ?? '',
     status: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
     rsvpSubmittedAt: (row[GUEST_COLS.RSVP_SUBMITTED_AT] as ISOTimestamp) ?? null,
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
@@ -115,7 +117,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
       valueInputOption: 'USER_ENTERED',
       data: [
         {
-          range: `${SHEETS.GUESTS}!C${sheetRow}:H${sheetRow}`,
+          range: `${SHEETS.GUESTS}!D${sheetRow}:I${sheetRow}`,
           values: [[
             data.status,
             new Date().toISOString() as ISOTimestamp,
