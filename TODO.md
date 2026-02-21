@@ -60,4 +60,7 @@
 - [ ] Middleware: `/invite` allows through with valid JWT cookie
 - [ ] Middleware: `/login` redirects to `/invite` with a valid session cookie
 - [ ] Middleware: `/login` shows the form with no cookie
-- [ ] RSVP form: previously submitted RSVP pre-fills form fields
+- [ ] RSVP form (returning guest): banner shows prior response ("Attending" / "Unable to attend")
+- [ ] RSVP form (returning guest): all fields pre-filled from existing RSVP data
+- [ ] RSVP form (returning guest): success screen shows "has been updated" copy
+- [ ] RSVP form (new guest): no banner shown, form starts empty, success screen shows "has been received" copy
