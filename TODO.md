@@ -4,9 +4,11 @@
 
 ### Should Fix (before real guests)
 
-- [ ] **Rate limiting on `send-otp`** — `src/app/api/auth/send-otp/route.ts`
-  Prevent endpoint spam that burns Twilio credits. Options: Vercel rate limiting,
-  or a simple IP-based check middleware.
+- [x] **Rate limiting on `send-otp`** — done in PR #24
+  In-memory sliding-window limiter (`src/lib/rate-limit.ts`) applied to all three
+  endpoints: `send-otp` (10/15min per IP + 3/15min per phone), `login-otp`
+  (5/10min per phone), `rsvp/submit` (10/15min per session phone). Per-instance
+  only — upgrade to Vercel KV if global coordination becomes necessary.
 
 - [ ] **Cache guest list to reduce Sheets reads** — `src/lib/sheets.ts`
   `findGuestByPhone` fetches all rows on every call. Cache the guest list in
@@ -36,9 +38,10 @@
 ### API Route Tests
 
 - [ ] **`POST /api/auth/send-otp`**
-  - Returns 400 for missing phone
-  - Returns 400 for invalid phone format (no `+`, too short)
-  - Returns 404 when phone not in guest list
+  - Returns 422 for missing phone
+  - Returns 422 for invalid phone format (no `+`, too short) — same response as not found to prevent enumeration
+  - Returns 429 when rate limit exceeded (IP or phone)
+  - Returns 422 when phone not in guest list
   - Returns 200 when phone found and OTP sent
 
 - [ ] **`POST /api/auth/login-otp`**
