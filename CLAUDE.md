@@ -136,6 +136,7 @@ Always follow these steps when delivering any change, no matter how small:
 3. **Commit** — stage only relevant files; write a clear commit message explaining the *why*
 4. **Push & open a PR** — push the branch and create a PR via `gh pr create`
 5. **Review** — run `gh pr diff <number>` and do a self-review before considering the work done; flag any issues in the PR description
+6. **Merge** — use `gh pr merge <number> --merge` to preserve the full commit history. Never squash.
 
 ## Pending Work
 
