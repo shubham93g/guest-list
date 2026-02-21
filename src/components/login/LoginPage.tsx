@@ -37,12 +37,9 @@ export default function LoginPage({ channel }: Props) {
 
   const channelCopy = OTP_CHANNEL_COPY[channel];
 
-  function handleIdentifierSuccess(submittedIdentifier: string, isMock?: boolean) {
-    if (channel === 'email') {
-      setEmail(submittedIdentifier);
-    } else {
-      setPhone(submittedIdentifier);
-    }
+  function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string, isMock?: boolean) {
+    setPhone(submittedPhone);
+    setEmail(submittedEmail);
     setMock(isMock ?? false);
     setStep('otp');
   }

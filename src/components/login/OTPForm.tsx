@@ -26,13 +26,11 @@ export default function OTPForm({ phone, email, channel, onBack, mock, otpTitle 
     setError('');
     setLoading(true);
 
-    const requestBody = channel === 'email' ? { email, code } : { phone, code };
-
     try {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({ phone, email, code }),
       });
 
       if (!res.ok) {

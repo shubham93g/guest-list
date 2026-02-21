@@ -6,12 +6,9 @@ import { checkRateLimit } from '@/lib/rate-limit';
 
 const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
-const phoneSchema = z.object({
-  phone: z.string().regex(PHONE_REGEX, 'Please enter a valid phone number.'),
-});
-
-const emailSchema = z.object({
-  email: z.string().email('Please enter a valid email address.'),
+const schema = z.object({
+  phone: z.string().optional(),
+  email: z.string().optional(),
 });
 
 // Generic message used for both "not found" and validation errors to prevent
@@ -41,14 +38,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
+    }
 
     if (OTP_CHANNEL === 'email') {
-      const parsed = emailSchema.safeParse(body);
-      if (!parsed.success) {
+      const rawEmail = parsed.data.email ?? '';
+      if (!z.string().email().safeParse(rawEmail).success) {
         return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
       }
-
-      const email = parsed.data.email.toLowerCase();
+      const email = rawEmail.toLowerCase();
 
       const emailLimit = checkRateLimit(`send-otp:email:${email}`, 3, 15 * 60);
       if (emailLimit.limited) {
@@ -68,12 +68,10 @@ export async function POST(req: NextRequest) {
     }
 
     // sms / whatsapp
-    const parsed = phoneSchema.safeParse(body);
-    if (!parsed.success) {
+    const phone = parsed.data.phone ?? '';
+    if (!PHONE_REGEX.test(phone)) {
       return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
     }
-
-    const { phone } = parsed.data;
 
     // Rate-limit by phone (3 per 15 min) to prevent SMS-bombing a specific guest.
     const phoneLimit = checkRateLimit(`send-otp:phone:${phone}`, 3, 15 * 60);

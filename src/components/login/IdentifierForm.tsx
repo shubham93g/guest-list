@@ -4,7 +4,7 @@ import { useState, SyntheticEvent } from 'react';
 
 interface Props {
   channel: 'sms' | 'whatsapp' | 'email';
-  onSuccess: (identifier: string, mock?: boolean) => void;
+  onSuccess: (phone: string, email: string, mock?: boolean) => void;
   sendInstruction: string;
   sendLabel: string;
 }
@@ -21,17 +21,16 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
     setError('');
     setLoading(true);
 
-    const isEmail = channel === 'email';
     // + prefix is required by Twilio (E.164 format). Sheets stores digits-only,
     // so sheets.ts normalises by stripping + before comparing.
-    const identifier = isEmail ? email : `+${countryCode}${phoneNumber}`;
-    const body = isEmail ? { email: identifier } : { phone: identifier };
+    const phone = channel === 'email' ? '' : `+${countryCode}${phoneNumber}`;
+    const submittedEmail = channel === 'email' ? email : '';
 
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ phone, email: submittedEmail }),
       });
       const data = await res.json();
 
@@ -40,7 +39,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
         return;
       }
 
-      onSuccess(identifier, data.mock === true);
+      onSuccess(phone, submittedEmail, data.mock === true);
     } catch (err) {
       console.error('[IdentifierForm] send-otp fetch failed', err);
       setError('Something went wrong. Please try again.');
