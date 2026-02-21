@@ -4,7 +4,6 @@ import { createHmac } from 'crypto';
 
 export { signJWT, verifyJWT } from './jwt';
 
-const MOCK_OTP = process.env.MOCK_OTP === 'true';
 export const SKIP_OTP = process.env.SKIP_OTP === 'true';
 
 // Switch between 'sms', 'whatsapp', and 'email' via AUTH_CHANNEL in .env.local.
@@ -64,11 +63,7 @@ function getResendClient() {
 
 // --- Public API ---
 
-export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
-  if (MOCK_OTP) {
-    return { mock: true };
-  }
-
+export async function sendOTP(identifier: string): Promise<void> {
   if (AUTH_CHANNEL === 'email') {
     const code = generateEmailCode(identifier);
     const resend = getResendClient();
@@ -78,21 +73,16 @@ export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
       subject: 'Your invitation code',
       text: `Your code is: ${code}\n\nThis code expires in 10 minutes.`,
     });
-    return { mock: false };
+    return;
   }
 
   const client = getTwilioClient();
   await client.verify.v2
     .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
     .verifications.create({ to: identifier, channel: AUTH_CHANNEL });
-  return { mock: false };
 }
 
 export async function verifyOTP(identifier: string, code: string): Promise<boolean> {
-  if (MOCK_OTP) {
-    return true;
-  }
-
   if (AUTH_CHANNEL === 'email') {
     return verifyEmailCode(identifier, code);
   }

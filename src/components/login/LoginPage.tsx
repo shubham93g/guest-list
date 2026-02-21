@@ -33,14 +33,12 @@ export default function LoginPage({ channel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [mock, setMock] = useState(false);
 
   const channelCopy = AUTH_CHANNEL_COPY[channel];
 
-  function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string, isMock?: boolean) {
+  function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string) {
     setPhone(submittedPhone);
     setEmail(submittedEmail);
-    setMock(isMock ?? false);
     setStep('otp');
   }
 
@@ -65,7 +63,6 @@ export default function LoginPage({ channel }: Props) {
           phone={phone}
           email={email}
           onBack={() => setStep('identifier')}
-          mock={mock}
           otpTitle={channelCopy.otpTitle}
         />
       )}

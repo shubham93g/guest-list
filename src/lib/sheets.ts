@@ -2,8 +2,6 @@ import { google } from 'googleapis';
 import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
 import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
-const MOCK_SHEETS = process.env.MOCK_SHEETS === 'true';
-
 const CACHE_TTL_MS = 5 * 60 * 1_000; // 5 minutes
 
 interface GuestRowsCache {
@@ -12,20 +10,6 @@ interface GuestRowsCache {
 }
 
 let guestRowsCache: GuestRowsCache | null = null;
-
-// When MOCK_SHEETS=true, any identifier gets this guest profile.
-// Configure via MOCK_SHEETS_GUEST_NAME in .env.local — never hardcode personal details here.
-const MOCK_SHEETS_GUEST: Guest = {
-  name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
-  phone: '',
-  email: '',
-  status: 'pending',
-  rsvpSubmittedAt: null,
-  dietaryNotes: '',
-  plusOneAttending: false,
-  plusOneName: '',
-  notes: '',
-};
 
 function getAuthClient() {
   return new google.auth.GoogleAuth({
@@ -65,9 +49,6 @@ function normalisePhone(phone: string): string {
 }
 
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
-  if (MOCK_SHEETS) {
-    return { ...MOCK_SHEETS_GUEST, phone };
-  }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
   if (!row) {
@@ -77,9 +58,6 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
 }
 
 export async function findGuestByEmail(email: string): Promise<Guest | null> {
-  if (MOCK_SHEETS) {
-    return { ...MOCK_SHEETS_GUEST, email };
-  }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => (r[GUEST_COLS.EMAIL] ?? '').trim().toLowerCase() === email);
   if (!row) {
@@ -110,10 +88,6 @@ function rowToGuest(row: string[]): Guest {
 
 
 export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<void> {
-  if (MOCK_SHEETS) {
-    console.log('[mock] RSVP submitted', { phone, ...data });
-    return;
-  }
   const rows = await getAllGuestRows();
   const rowIndex = rows.findIndex((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
   if (rowIndex === -1) {

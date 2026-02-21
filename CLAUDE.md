@@ -44,9 +44,9 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 | File | Purpose |
 |------|---------|
-| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Owns `MOCK_SHEETS` flag and mock behaviour. Guest data only — no event details. Caches guest rows in memory (5-minute TTL); invalidated on `updateGuestRSVP`. |
+| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. Caches guest rows in memory (5-minute TTL); invalidated on `updateGuestRSVP`. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
-| `src/lib/auth.ts` | OTP send/verify. Email channel uses Resend + in-memory store (10-min TTL, single-use); sms/whatsapp use Twilio Verify. Owns `MOCK_OTP` flag. Re-exports JWT from `jwt.ts`. |
+| `src/lib/auth.ts` | OTP send/verify. Email channel uses Resend (stateless HMAC codes, 10-min window); sms/whatsapp use Twilio Verify. Re-exports JWT from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
@@ -78,7 +78,7 @@ See `.env.example` for all required variables. Critical notes:
 - `AUTH_CHANNEL`: `sms` (default), `whatsapp`, or `email`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service. `email` uses Resend — set `RESEND_API_KEY` and `RESEND_FROM`.
 - `RESEND_FROM`: must be a sender address on a verified domain in your Resend account.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
-- `SKIP_OTP`: set to `true` to skip OTP delivery and verification entirely. The guest's identifier is still checked against the allowlist — only guests on the list receive a session. This is an operational escape hatch for when the OTP provider (Twilio or Resend) is experiencing an outage; it is not a mock or dev flag. Can be toggled on Vercel without a code change by updating the env var and triggering a redeploy.
+- `SKIP_OTP`: set to `true` to skip OTP delivery and verification entirely. The guest's identifier is still checked against the allowlist — only guests on the list receive a session. Operational escape hatch for OTP provider outages. Can be toggled on Vercel without a code change by updating the env var and triggering a redeploy.
 
 ## Auth Flow
 
@@ -120,29 +120,6 @@ curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \
   -d '{"status": "attending", "dietaryNotes": "vegetarian", "plusOneAttending": false, "plusOneName": "", "notes": ""}'
 ```
 
-## Mock Mode
-
-Each external service can be mocked independently, allowing integration testing against one real service while bypassing the other.
-
-**Flags in `.env.local`:**
-```bash
-MOCK_SHEETS=true             # bypass Google Sheets: skip allowlist check, RSVP writes log to console
-MOCK_OTP=true                # bypass OTP sending/verification (any 6-digit code is accepted)
-MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHEETS=true
-```
-
-**Mock flow behaviour:**
-- `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/invite` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
-- `MOCK_OTP=true` — no OTP message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
-- Both flags can be set together for a fully credential-free local flow
-
-**Mock mode design principles:**
-- **Server-side only.** Mock configuration lives in server env vars — no `NEXT_PUBLIC_MOCK_*` vars. The client never reads mock state from the environment.
-- **API-driven UI hints.** When a mock flag is active, the relevant API response includes `mock: true`. The client uses this field to show a simple indicator — no hardcoded values or debug logic in the UI.
-- **Single source of truth.** The server owns mock state; the client reflects it.
-
-**Mock mode must always work.** When adding new features that touch external services (Sheets, OTP/auth, future integrations), add mock handling inside the relevant service module (`sheets.ts` for Sheets, `auth.ts` for OTP). API routes should never contain mock flag checks — mock behaviour is encapsulated in the service layer.
-
 ## PR Workflow
 
 **Never push directly to `main`. No exceptions — not even for docs, typos, or one-liners.**
@@ -174,23 +151,6 @@ Always follow these steps when delivering any change, no matter how small:
   // wrong
   if (guest) {
     // ... everything indented inside
-  }
-  ```
-
-- **Mock paths use early returns.** Mock handling lives in service modules (`auth.ts`, `sheets.ts`). Check `if (MOCK_X)` first and return from the mock path before the real implementation.
-  ```typescript
-  // correct — inside auth.ts
-  export async function verifyOTP(phone: string, code: string): Promise<boolean> {
-    if (MOCK_OTP) {
-      return true;
-    }
-    // real Twilio call
-  }
-
-  // wrong — mock logic leaking into routes
-  if (!MOCK_OTP) {
-    const approved = await verifyOTP(phone, code);
-    // ...
   }
   ```
 

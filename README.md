@@ -31,30 +31,13 @@ npm install
 ```bash
 cp .env.example .env.local
 ```
-Fill in `.env.local`. To run in mock mode (no external services needed), set:
-```
-MOCK_SHEETS=true
-MOCK_OTP=true
-```
-See the [External Services](#external-services) section for real credentials.
+Fill in `.env.local`. See the [External Services](#external-services) section for credentials.
 
 **3. Start the development server**
 ```bash
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000).
-
-## Mock Mode
-
-Each external service can be mocked independently — useful for development, previewing the UI, or integration testing against one real service at a time.
-
-| Flag | Effect |
-|------|--------|
-| `MOCK_SHEETS=true` | Bypasses Google Sheets — any phone is accepted, RSVP writes log to console |
-| `MOCK_OTP=true` | Bypasses OTP sending/verification — any 6-digit code is accepted |
-| `MOCK_SHEETS_GUEST_NAME=` | Guest name shown when `MOCK_SHEETS=true` |
-
-Set both flags together for a fully credential-free local flow. To use real integrations, remove (or set to `false`) the relevant flag and fill in the credentials below.
 
 ## OTP Bypass (`SKIP_OTP`)
 
@@ -68,7 +51,7 @@ SKIP_OTP=true
 
 **When to use it:** OTP provider is down or degraded and guests cannot receive codes. Toggle it on Vercel by setting the env var and triggering a redeploy, then revert once the provider recovers.
 
-**What it is not:** a development or mock tool. For local development without real credentials, use `MOCK_SHEETS` and `MOCK_OTP` instead.
+**What it is not:** a substitute for real credentials. Real Google Sheets and real OTP credentials are required to run the app.
 
 ## External Services
 
