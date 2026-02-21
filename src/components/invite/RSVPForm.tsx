@@ -1,20 +1,14 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import type { RSVPStatus } from '@/types';
+import type { RSVPData, RSVPStatus } from '@/types';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];
 
 interface Props {
-  existingRSVP?: {
-    status: RSVPStatus;
-    dietaryNotes: string;
-    plusOneAttending: boolean;
-    plusOneName: string;
-    notes: string;
-  } | null;
+  existingRSVP?: RSVPData | null;
 }
 
 export default function RSVPForm({ existingRSVP }: Props) {
