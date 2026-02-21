@@ -4,12 +4,6 @@
 
 ### Should Fix (before real guests)
 
-- [x] **Rate limiting on `send-otp`** — done in PR #24
-  In-memory sliding-window limiter (`src/lib/rate-limit.ts`) applied to all three
-  endpoints: `send-otp` (10/15min per IP + 3/15min per phone), `login-otp`
-  (5/10min per phone), `rsvp/submit` (10/15min per session phone). Per-instance
-  only — upgrade to Vercel KV if global coordination becomes necessary.
-
 - [ ] **Cache guest list to reduce Sheets reads** — `src/lib/sheets.ts`
   `findGuestByPhone` fetches all rows on every call. Cache the guest list in
   memory (or via Next.js `unstable_cache`) with a short TTL (e.g. 5 min) so
