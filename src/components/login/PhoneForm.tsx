@@ -48,7 +48,7 @@ export default function PhoneForm({ onSuccess }: Props) {
         Welcome
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
-        Enter your WhatsApp number to receive your invitation code.
+        Enter your phone number to receive your invitation code via SMS.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -83,7 +83,7 @@ export default function PhoneForm({ onSuccess }: Props) {
           disabled={loading || !countryCode || !phoneNumber}
           className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Sending code…' : 'Send Code via WhatsApp'}
+          {loading ? 'Sending code…' : 'Send Code via SMS'}
         </button>
       </form>
 

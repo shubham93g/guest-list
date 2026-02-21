@@ -44,7 +44,7 @@ export default function OTPForm({ phone, onBack, mock }: Props) {
   return (
     <div className="w-full max-w-sm mx-auto px-6">
       <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
-        Check WhatsApp
+        Check your messages
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock

@@ -1,13 +1,13 @@
 # guest-list
 
-Wedding guest management website — save the date, WhatsApp OTP authentication, RSVP, and guest management via Google Sheets.
+Wedding guest management website — save the date, SMS/WhatsApp OTP authentication, RSVP, and guest management via Google Sheets.
 
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript)
 - **Tailwind CSS**
 - **Google Sheets** — primary data store
-- **Twilio Verify** — WhatsApp OTP authentication
+- **Twilio Verify** — SMS or WhatsApp OTP authentication (configurable)
 - **JWT cookies** — session management (`jose`)
 
 ## Prerequisites
@@ -106,14 +106,15 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
-### Twilio Verify (WhatsApp OTP)
+### Twilio Verify (OTP)
 
 1. Sign up at [twilio.com](https://twilio.com)
 2. Copy **Account SID** and **Auth Token** → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
-3. Go to Verify → Services → Create a service → enable the **WhatsApp** channel
+3. Go to Verify → Services → **Create new service**
 4. Copy the **Service SID** → `TWILIO_VERIFY_SERVICE_SID`
-
-> **Note:** During development, Twilio uses a WhatsApp sandbox. Test guests need to send a one-time opt-in message to the sandbox number before they can receive OTPs.
+5. Set the delivery channel via `TWILIO_VERIFY_CHANNEL`:
+   - `sms` (default) — works immediately on a trial account; no additional setup
+   - `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
 
 ### JWT Secret
 
