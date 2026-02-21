@@ -21,7 +21,7 @@ export default function HeroSection() {
       <div className="w-12 h-px bg-stone-300 mb-12" />
 
       <Link
-        href="/verify"
+        href="/login"
         className="inline-flex items-center justify-center h-12 px-8 bg-stone-800 text-white text-sm tracking-wide rounded-full hover:bg-stone-700 active:bg-stone-900 transition-colors"
       >
         RSVP

@@ -14,17 +14,17 @@ export async function middleware(req: NextRequest) {
   const session = token ? await verifyJWT(token) : null;
   const { pathname } = req.nextUrl;
 
-  if (pathname === '/verify' && session) {
-    return NextResponse.redirect(new URL('/welcome', req.url));
+  if (pathname === '/login' && session) {
+    return NextResponse.redirect(new URL('/invite', req.url));
   }
 
-  if (pathname === '/welcome' && !session) {
-    return NextResponse.redirect(new URL('/verify', req.url));
+  if (pathname === '/invite' && !session) {
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/welcome', '/verify'],
+  matcher: ['/invite', '/login'],
 };

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import PhoneForm from '@/components/verify/PhoneForm';
-import OTPForm from '@/components/verify/OTPForm';
+import PhoneForm from '@/components/login/PhoneForm';
+import OTPForm from '@/components/login/OTPForm';
 import Link from 'next/link';
 
 type Step = 'phone' | 'otp';
