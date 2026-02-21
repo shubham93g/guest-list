@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import PhoneForm from '@/components/login/PhoneForm';
+import IdentifierForm from '@/components/login/IdentifierForm';
 import OTPForm from '@/components/login/OTPForm';
 
 type Step = 'identifier' | 'otp';
@@ -52,7 +52,7 @@ export default function LoginPage({ channel }: Props) {
       </Link>
 
       {step === 'identifier' ? (
-        <PhoneForm
+        <IdentifierForm
           channel={channel}
           onSuccess={handleIdentifierSuccess}
           sendInstruction={channelCopy.sendInstruction}

@@ -9,7 +9,7 @@ interface Props {
   sendLabel: string;
 }
 
-export default function PhoneForm({ channel, onSuccess, sendInstruction, sendLabel }: Props) {
+export default function IdentifierForm({ channel, onSuccess, sendInstruction, sendLabel }: Props) {
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
