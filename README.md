@@ -56,6 +56,20 @@ Each external service can be mocked independently — useful for development, pr
 
 Set both flags together for a fully credential-free local flow. To use real integrations, remove (or set to `false`) the relevant flag and fill in the credentials below.
 
+## OTP Bypass (`SKIP_OTP`)
+
+If the OTP provider (Twilio or Resend) experiences an outage, you can enable `SKIP_OTP=true` to keep the site functional without a code change.
+
+```
+SKIP_OTP=true
+```
+
+**What it does:** the guest enters their identifier as usual, it is validated against the real guest list, and a session is issued immediately — no OTP is sent or verified. Guests not on the list still get a 422 error; the allowlist check is never skipped.
+
+**When to use it:** OTP provider is down or degraded and guests cannot receive codes. Toggle it on Vercel by setting the env var and triggering a redeploy, then revert once the provider recovers.
+
+**What it is not:** a development or mock tool. For local development without real credentials, use `MOCK_SHEETS` and `MOCK_OTP` instead.
+
 ## External Services
 
 ### Google Sheets

@@ -78,12 +78,18 @@ See `.env.example` for all required variables. Critical notes:
 - `OTP_CHANNEL`: `sms` (default), `whatsapp`, or `email`. WhatsApp requires a Meta-approved WhatsApp Business Account on the Verify Service. `email` uses Resend — set `RESEND_API_KEY` and `RESEND_FROM`.
 - `RESEND_FROM`: must be a sender address on a verified domain in your Resend account.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
+- `SKIP_OTP`: set to `true` to skip OTP delivery and verification entirely. The guest's identifier is still checked against the allowlist — only guests on the list receive a session. This is an operational escape hatch for when the OTP provider (Twilio or Resend) is experiencing an outage; it is not a mock or dev flag. Can be toggled on Vercel without a code change by updating the env var and triggering a redeploy.
 
 ## Auth Flow
 
+**Normal flow:**
 1. Guest enters phone or email (depending on `OTP_CHANNEL`) → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP (email: Resend; sms/whatsapp: Twilio Verify)
 2. Guest enters 6-digit code → `POST /api/auth/login-otp` → verifies code → API issues 30-day `httpOnly` JWT cookie containing `{ name, phone, email }`
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
+
+**`SKIP_OTP=true` (escape hatch):**
+1. Guest enters identifier → `POST /api/auth/send-otp` checks Sheets allowlist → issues JWT session immediately (no OTP sent or verified)
+2. Client receives `{ skipOtp: true }` and redirects directly to `/invite` — the OTP form is never shown
 
 ## Testing API Routes
 
