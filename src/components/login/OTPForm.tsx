@@ -33,7 +33,7 @@ export default function OTPForm({ phone, onBack, mock }: Props) {
         return;
       }
 
-      router.push('/welcome');
+      router.push('/invite');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {

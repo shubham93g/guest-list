@@ -15,7 +15,7 @@
   Invalidate on `updateGuestRSVP` to avoid serving stale RSVP status.
 
 
-- [ ] **Redirect already-RSVPed guests** — `src/app/welcome/page.tsx`
+- [ ] **Redirect already-RSVPed guests** — `src/app/invite/page.tsx`
   If a guest's `rsvpStatus` is `attending` or `declined`, redirect them to
   a dedicated confirmation page (e.g. `/rsvp-confirmed`) instead of showing
   the RSVP form again. The confirmation page should show their submitted
@@ -47,7 +47,7 @@
   - Returns 404 when phone not in guest list
   - Returns 200 when phone found and OTP sent
 
-- [ ] **`POST /api/auth/verify-otp`**
+- [ ] **`POST /api/auth/login-otp`**
   - Returns 400 for missing phone or code
   - Returns 400 for incorrect OTP
   - Returns 200 + sets `httpOnly` session cookie for correct OTP
@@ -62,8 +62,8 @@
 ### Integration / E2E Tests
 
 - [ ] Full happy path: phone entry → OTP → session cookie → RSVP submit → success
-- [ ] Middleware: `/welcome` redirects to `/verify` with no cookie
-- [ ] Middleware: `/welcome` allows through with valid JWT cookie
-- [ ] Middleware: `/verify` redirects to `/welcome` with a valid session cookie
-- [ ] Middleware: `/verify` shows the form with no cookie
+- [ ] Middleware: `/invite` redirects to `/login` with no cookie
+- [ ] Middleware: `/invite` allows through with valid JWT cookie
+- [ ] Middleware: `/login` redirects to `/invite` with a valid session cookie
+- [ ] Middleware: `/login` shows the form with no cookie
 - [ ] RSVP form: previously submitted RSVP pre-fills form fields

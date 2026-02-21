@@ -29,16 +29,16 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 **Routes:**
 - `/` — Public save-the-date hero (Server Component)
-- `/verify` — Phone entry + OTP flow (Client Component, 2-step state machine)
-- `/welcome` — Personalized save-the-date + RSVP form (Server Component, protected)
+- `/login` — Phone entry + OTP flow (Client Component, 2-step state machine)
+- `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
 - `/api/auth/send-otp` — POST: check allowlist → send WhatsApp OTP via Twilio Verify
 - `/api/auth/verify-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
 **Middleware** (`src/middleware.ts`) handles auth routing for both protected routes:
-- `/welcome` — redirects to `/verify` if no valid JWT
-- `/verify` — redirects to `/welcome` if a valid JWT exists (skips unnecessary re-auth)
+- `/invite` — redirects to `/login` if no valid JWT
+- `/login` — redirects to `/invite` if a valid JWT exists (skips unnecessary re-auth)
 
 ## Key Files
 
@@ -80,7 +80,7 @@ See `.env.example` for all required variables. Critical notes:
 
 1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → sends WhatsApp OTP via Twilio Verify
 2. Guest enters 6-digit code → `POST /api/auth/verify-otp` → Twilio confirms → API issues 30-day `httpOnly` JWT cookie
-3. `/welcome` reads cookie server-side via `getSession()` → fetches guest data from Sheets
+3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
 ## Testing API Routes
 
@@ -113,7 +113,7 @@ MOCK_SHEETS_GUEST_NAME=      # guest name returned for all lookups when MOCK_SHE
 ```
 
 **Mock flow behaviour:**
-- `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/welcome` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
+- `MOCK_SHEETS=true` — any phone number passes the allowlist check; `/invite` shows the guest configured via `MOCK_SHEETS_GUEST_NAME`; RSVP writes log to the console instead of updating Sheets
 - `MOCK_TWILIO=true` — no WhatsApp message is sent; any 6-digit code is accepted; OTPForm shows "Mock mode active" (driven by API response, not client env var)
 - Both flags can be set together for a fully credential-free local flow
 
