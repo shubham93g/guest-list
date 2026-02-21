@@ -33,7 +33,7 @@ cp .env.example .env.local
 Fill in `.env.local`. To run in mock mode (no external services needed), set:
 ```
 MOCK_SHEETS=true
-MOCK_TWILIO=true
+MOCK_OTP=true
 ```
 See the [External Services](#external-services) section for real credentials.
 
@@ -50,7 +50,7 @@ Each external service can be mocked independently — useful for development, pr
 | Flag | Effect |
 |------|--------|
 | `MOCK_SHEETS=true` | Bypasses Google Sheets — any phone is accepted, RSVP writes log to console |
-| `MOCK_TWILIO=true` | Bypasses Twilio OTP — any 6-digit code is accepted |
+| `MOCK_OTP=true` | Bypasses OTP sending/verification — any 6-digit code is accepted |
 | `MOCK_SHEETS_GUEST_NAME=` | Guest name shown when `MOCK_SHEETS=true` |
 
 Set both flags together for a fully credential-free local flow. To use real integrations, remove (or set to `false`) the relevant flag and fill in the credentials below.
@@ -112,7 +112,7 @@ Event details (couple names, date, venue) are configured via env vars, not store
 2. Copy **Account SID** and **Auth Token** → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
 3. Go to Verify → Services → **Create new service**
 4. Copy the **Service SID** → `TWILIO_VERIFY_SERVICE_SID`
-5. Set the delivery channel via `TWILIO_VERIFY_CHANNEL`:
+5. Set the delivery channel via `OTP_CHANNEL`:
    - `sms` (default) — works immediately on a trial account; no additional setup
    - `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
 
