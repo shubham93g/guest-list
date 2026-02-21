@@ -47,7 +47,7 @@
   - Returns 404 when phone not in guest list
   - Returns 200 when phone found and OTP sent
 
-- [ ] **`POST /api/auth/login-otp`**
+- [ ] **`POST /api/auth/verify-otp`**
   - Returns 400 for missing phone or code
   - Returns 400 for incorrect OTP
   - Returns 200 + sets `httpOnly` session cookie for correct OTP
