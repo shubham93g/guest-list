@@ -7,12 +7,22 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];
 
-export default function RSVPForm() {
-  const [status, setStatus] = useState<RSVPStatus | ''>('');
-  const [dietaryNotes, setDietaryNotes] = useState('');
-  const [plusOne, setPlusOne] = useState(false);
-  const [plusOneName, setPlusOneName] = useState('');
-  const [notes, setNotes] = useState('');
+interface Props {
+  existingRSVP?: {
+    status: RSVPStatus;
+    dietaryNotes: string;
+    plusOneAttending: boolean;
+    plusOneName: string;
+    notes: string;
+  } | null;
+}
+
+export default function RSVPForm({ existingRSVP }: Props) {
+  const [status, setStatus] = useState<RSVPStatus | ''>(existingRSVP?.status ?? '');
+  const [dietaryNotes, setDietaryNotes] = useState(existingRSVP?.dietaryNotes ?? '');
+  const [plusOne, setPlusOne] = useState(existingRSVP?.plusOneAttending ?? false);
+  const [plusOneName, setPlusOneName] = useState(existingRSVP?.plusOneName ?? '');
+  const [notes, setNotes] = useState(existingRSVP?.notes ?? '');
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -60,8 +70,12 @@ export default function RSVPForm() {
         </h3>
         <p className="text-sm text-stone-500">
           {status === 'attending'
-            ? 'Your RSVP has been received. More details to follow.'
-            : 'We will miss you. Wishing you all the best.'}
+            ? existingRSVP
+              ? "Your RSVP has been updated. We can't wait to see you!"
+              : 'Your RSVP has been received. More details to follow.'
+            : existingRSVP
+              ? 'Your RSVP has been updated. Thank you for letting us know.'
+              : 'We will miss you. Wishing you all the best.'}
         </p>
       </div>
     );
@@ -70,6 +84,16 @@ export default function RSVPForm() {
   return (
     <div className="max-w-sm mx-auto px-6 pb-12">
       <h2 className="text-xl font-serif text-stone-800 text-center mb-6">RSVP</h2>
+
+      {existingRSVP && (
+        <p className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-600 text-center mb-4">
+          You previously responded as{' '}
+          <span className="font-medium">
+            {existingRSVP.status === 'attending' ? 'Attending' : 'Unable to attend'}
+          </span>
+          . Feel free to update your response below.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Attending or not */}
