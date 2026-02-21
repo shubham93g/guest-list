@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
-import { sendOTP, OTP_CHANNEL } from '@/lib/auth';
+import { sendOTP, OTP_CHANNEL, SKIP_OTP, signJWT } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { setSessionCookie } from '@/lib/session';
 
 // Each schema validates only the field needed for the active channel.
 // Extra fields in the body are ignored by zod (stripped by default).
@@ -62,6 +63,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
       }
 
+      if (SKIP_OTP) {
+        const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
+        const res = NextResponse.json({ skipOtp: true });
+        return setSessionCookie(res, token);
+      }
+
       const { mock } = await sendOTP(email);
       return NextResponse.json({ ...(mock && { mock: true }) });
     }
@@ -85,6 +92,12 @@ export async function POST(req: NextRequest) {
     const guest = await findGuestByPhone(phone);
     if (!guest) {
       return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
+    }
+
+    if (SKIP_OTP) {
+      const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
+      const res = NextResponse.json({ skipOtp: true });
+      return setSessionCookie(res, token);
     }
 
     const { mock } = await sendOTP(phone);
