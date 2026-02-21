@@ -4,10 +4,11 @@ import { useState, FormEvent } from 'react';
 
 interface Props {
   onSuccess: (phone: string, mock?: boolean) => void;
-  channel: 'sms' | 'whatsapp';
+  description: string;
+  buttonLabel: string;
 }
 
-export default function PhoneForm({ onSuccess, channel }: Props) {
+export default function PhoneForm({ onSuccess, description, buttonLabel }: Props) {
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,7 +50,7 @@ export default function PhoneForm({ onSuccess, channel }: Props) {
         Welcome
       </h2>
       <p className="text-sm text-stone-500 text-center mb-8">
-        Enter your phone number to receive your invitation code via {channel === 'sms' ? 'SMS' : 'WhatsApp'}.
+        {description}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -84,7 +85,7 @@ export default function PhoneForm({ onSuccess, channel }: Props) {
           disabled={loading || !countryCode || !phoneNumber}
           className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Sending code…' : `Send Code via ${channel === 'sms' ? 'SMS' : 'WhatsApp'}`}
+          {loading ? 'Sending code…' : buttonLabel}
         </button>
       </form>
 

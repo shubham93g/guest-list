@@ -11,10 +11,25 @@ interface Props {
   channel: 'sms' | 'whatsapp';
 }
 
+const CHANNEL_COPY = {
+  sms: {
+    description: 'Enter your phone number to receive your invitation code via SMS.',
+    buttonLabel: 'Send Code via SMS',
+    otpHeading: 'Check your messages',
+  },
+  whatsapp: {
+    description: 'Enter your phone number to receive your invitation code via WhatsApp.',
+    buttonLabel: 'Send Code via WhatsApp',
+    otpHeading: 'Check WhatsApp',
+  },
+} as const;
+
 export default function LoginPage({ channel }: Props) {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [mock, setMock] = useState(false);
+
+  const copy = CHANNEL_COPY[channel];
 
   function handlePhoneSuccess(submittedPhone: string, isMock?: boolean) {
     setPhone(submittedPhone);
@@ -32,9 +47,18 @@ export default function LoginPage({ channel }: Props) {
       </Link>
 
       {step === 'phone' ? (
-        <PhoneForm onSuccess={handlePhoneSuccess} channel={channel} />
+        <PhoneForm
+          onSuccess={handlePhoneSuccess}
+          description={copy.description}
+          buttonLabel={copy.buttonLabel}
+        />
       ) : (
-        <OTPForm phone={phone} onBack={() => setStep('phone')} mock={mock} channel={channel} />
+        <OTPForm
+          phone={phone}
+          onBack={() => setStep('phone')}
+          mock={mock}
+          heading={copy.otpHeading}
+        />
       )}
     </main>
   );
