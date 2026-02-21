@@ -4,6 +4,15 @@ import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 const MOCK_SHEETS = process.env.MOCK_SHEETS === 'true';
 
+const CACHE_TTL_MS = 5 * 60 * 1_000; // 5 minutes
+
+interface GuestRowsCache {
+  rows: string[][];
+  cachedAt: number;
+}
+
+let guestRowsCache: GuestRowsCache | null = null;
+
 // When MOCK_SHEETS=true, any phone number gets this guest profile.
 // Configure via MOCK_SHEETS_GUEST_NAME in .env.local — never hardcode personal details here.
 const MOCK_SHEETS_GUEST: Guest = {
@@ -33,12 +42,19 @@ async function getSheetsClient() {
 }
 
 async function getAllGuestRows(): Promise<string[][]> {
+  if (guestRowsCache && Date.now() - guestRowsCache.cachedAt < CACHE_TTL_MS) {
+    return guestRowsCache.rows;
+  }
+  console.log('[sheets] cache miss — fetching from Sheets API');
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: `${SHEETS.GUESTS}!A2:H`,
   });
-  return (res.data.values as string[][]) ?? [];
+  const rows = (res.data.values as string[][]) ?? [];
+  guestRowsCache = { rows, cachedAt: Date.now() };
+  console.log(`[sheets] cache populated with ${rows.length} row(s)`);
+  return rows;
 }
 
 // Strips the leading + so phone numbers stored without it in Sheets (e.g. 6591234567)
@@ -112,4 +128,6 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
       ],
     },
   });
+  guestRowsCache = null;
+  console.log('[sheets] cache invalidated after RSVP write');
 }
