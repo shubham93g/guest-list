@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, SyntheticEvent } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   channel: 'sms' | 'whatsapp' | 'email';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function IdentifierForm({ channel, onSuccess, sendInstruction, sendLabel }: Props) {
+  const router = useRouter();
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -39,6 +41,10 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
         return;
       }
 
+      if (data.skipOtp === true) {
+        router.push('/invite');
+        return;
+      }
       onSuccess(phoneValue, emailValue, data.mock === true);
     } catch {
       console.error('[IdentifierForm] send-otp request failed');

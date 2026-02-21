@@ -1,5 +1,9 @@
 # TODO
 
+## Pending Changes
+
+- [ ] Rename `OTP_CHANNEL` → `AUTH_CHANNEL` (next PR after `feat/skip-otp-mode` is merged)
+
 ## Tests to Write
 
 ### Unit Tests

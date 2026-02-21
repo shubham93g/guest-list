@@ -5,6 +5,7 @@ import { createHmac } from 'crypto';
 export { signJWT, verifyJWT } from './jwt';
 
 const MOCK_OTP = process.env.MOCK_OTP === 'true';
+export const SKIP_OTP = process.env.SKIP_OTP === 'true';
 
 // Switch between 'sms', 'whatsapp', and 'email' via OTP_CHANNEL in .env.local.
 // Defaults to 'sms' — no WhatsApp Business Account or email setup required.
