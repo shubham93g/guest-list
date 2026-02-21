@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { findGuestByPhone } from '@/lib/sheets';
-import { sendOTP } from '@/lib/auth';
+import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
+import { sendOTP, OTP_CHANNEL } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
-const schema = z.object({
+const phoneSchema = z.object({
   phone: z.string().regex(PHONE_REGEX, 'Please enter a valid phone number.'),
+});
+
+const emailSchema = z.object({
+  email: z.string().email('Please enter a valid email address.'),
 });
 
 // Generic message used for both "not found" and validation errors to prevent
 // guest-list enumeration (M1 — an attacker must not be able to distinguish
-// a phone that failed format validation from one that simply isn't on the list).
+// a contact that failed format validation from one that simply isn't on the list).
 const NOT_FOUND_MSG =
-  "We couldn't find your number on our guest list. Please double-check or reach out to us directly.";
+  "We couldn't find you on our guest list. Please double-check or reach out to us directly.";
 
 function getClientIP(req: NextRequest): string {
   return (
@@ -37,10 +41,36 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const parsed = schema.safeParse(body);
 
+    if (OTP_CHANNEL === 'email') {
+      const parsed = emailSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
+      }
+
+      const { email } = parsed.data;
+      const normalised = email.toLowerCase();
+
+      const emailLimit = checkRateLimit(`send-otp:email:${normalised}`, 3, 15 * 60);
+      if (emailLimit.limited) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { status: 429, headers: { 'Retry-After': String(emailLimit.retryAfterSeconds) } }
+        );
+      }
+
+      const guest = await findGuestByEmail(email);
+      if (!guest) {
+        return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
+      }
+
+      const { mock } = await sendOTP(email);
+      return NextResponse.json({ ...(mock && { mock: true }) });
+    }
+
+    // sms / whatsapp
+    const parsed = phoneSchema.safeParse(body);
     if (!parsed.success) {
-      // Return the same response as "not found" to prevent format-based enumeration.
       return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
     }
 

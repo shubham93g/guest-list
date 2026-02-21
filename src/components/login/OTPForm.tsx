@@ -4,13 +4,14 @@ import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  phone: string;
+  identifier: string;
+  channel: 'sms' | 'whatsapp' | 'email';
   onBack: () => void;
   mock?: boolean;
   otpTitle: string;
 }
 
-export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
+export default function OTPForm({ identifier, channel, onBack, mock, otpTitle }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,11 +22,15 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
     setError('');
     setLoading(true);
 
+    const body = channel === 'email'
+      ? { email: identifier, code }
+      : { phone: identifier, code };
+
     try {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -42,6 +47,8 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
     }
   }
 
+  const backLabel = channel === 'email' ? '← Use a different email' : '← Use a different number';
+
   return (
     <div className="w-full max-w-sm mx-auto px-6">
       <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
@@ -50,7 +57,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock
           ? 'Mock mode active.'
-          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{phone}</span></>}
+          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{identifier}</span></>}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -84,7 +91,7 @@ export default function OTPForm({ phone, onBack, mock, otpTitle }: Props) {
         onClick={onBack}
         className="mt-6 w-full text-sm text-stone-400 hover:text-stone-600 transition-colors"
       >
-        ← Use a different number
+        {backLabel}
       </button>
     </div>
   );

@@ -11,8 +11,9 @@ export interface EventDetails {
 }
 
 export interface SessionPayload {
-  phone: string;
   name: string;
+  phone: string;
+  email: string;
 }
 
 export interface RSVPData {
@@ -26,5 +27,6 @@ export interface RSVPData {
 export interface Guest extends RSVPData {
   name: string;
   phone: string;
+  email: string;
   rsvpSubmittedAt: ISOTimestamp | null;
 }

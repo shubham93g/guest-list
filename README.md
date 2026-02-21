@@ -7,7 +7,8 @@ Wedding guest management website — save the date, SMS/WhatsApp OTP authenticat
 - **Next.js 15** (App Router, TypeScript)
 - **Tailwind CSS**
 - **Google Sheets** — primary data store
-- **Twilio Verify** — SMS or WhatsApp OTP authentication (configurable)
+- **Twilio Verify** — SMS or WhatsApp OTP authentication
+- **Nodemailer + Gmail** — email OTP authentication (configurable via `OTP_CHANNEL`)
 - **JWT cookies** — session management (`jose`)
 
 ## Prerequisites
@@ -33,7 +34,7 @@ cp .env.example .env.local
 Fill in `.env.local`. To run in mock mode (no external services needed), set:
 ```
 MOCK_SHEETS=true
-MOCK_TWILIO=true
+MOCK_OTP=true
 ```
 See the [External Services](#external-services) section for real credentials.
 
@@ -49,8 +50,8 @@ Each external service can be mocked independently — useful for development, pr
 
 | Flag | Effect |
 |------|--------|
-| `MOCK_SHEETS=true` | Bypasses Google Sheets — any phone is accepted, RSVP writes log to console |
-| `MOCK_TWILIO=true` | Bypasses Twilio OTP — any 6-digit code is accepted |
+| `MOCK_SHEETS=true` | Bypasses Google Sheets — any phone/email is accepted, RSVP writes log to console |
+| `MOCK_OTP=true` | Bypasses OTP sending — any 6-digit code is accepted (all channels) |
 | `MOCK_SHEETS_GUEST_NAME=` | Guest name shown when `MOCK_SHEETS=true` |
 
 Set both flags together for a fully credential-free local flow. To use real integrations, remove (or set to `false`) the relevant flag and fill in the credentials below.
@@ -97,24 +98,42 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 |-----|--------|-------|
 | A | `name` | Admin fills before launch |
 | B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Sheets strips `+` even in Plain Text cells, so omit it. The API normalises before comparing. |
-| C | `rsvp_status` | Written by API: `attending` / `declined` |
-| D | `rsvp_submitted_at` | ISO 8601 timestamp |
-| E | `dietary_notes` | |
-| F | `plus_one_attending` | `yes` / `no` |
-| G | `plus_one_name` | |
-| H | `notes` | Guest message |
+| C | `email` | Guest email address. |
+| D | `rsvp_status` | Written by API: `attending` / `declined` |
+| E | `rsvp_submitted_at` | ISO 8601 timestamp |
+| F | `dietary_notes` | |
+| G | `plus_one_attending` | `yes` / `no` |
+| H | `plus_one_name` | |
+| I | `notes` | Guest message |
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
-### Twilio Verify (OTP)
+### OTP Channel
+
+Set `OTP_CHANNEL` in `.env.local` to choose your delivery method:
+- `sms` (default) — uses Twilio Verify
+- `whatsapp` — uses Twilio Verify (requires a Meta-approved WhatsApp Business Account)
+- `email` — uses Nodemailer + Gmail (see Gmail SMTP section below)
+
+### Twilio Verify (OTP_CHANNEL=sms or OTP_CHANNEL=whatsapp)
 
 1. Sign up at [twilio.com](https://twilio.com)
 2. Copy **Account SID** and **Auth Token** → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
 3. Go to Verify → Services → **Create new service**
 4. Copy the **Service SID** → `TWILIO_VERIFY_SERVICE_SID`
-5. Set the delivery channel via `TWILIO_VERIFY_CHANNEL`:
-   - `sms` (default) — works immediately on a trial account; no additional setup
-   - `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
+5. For `sms` — works immediately on a trial account; no additional setup
+6. For `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
+
+### Gmail SMTP (OTP_CHANNEL=email)
+
+1. Enable 2-Step Verification on your Google account (required for App Passwords)
+2. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+3. Create an App Password for "Mail" → copy the 16-character password
+4. Set environment variables:
+   ```
+   GMAIL_USER=you@gmail.com
+   GMAIL_APP_PASSWORD=your-16-char-app-password
+   ```
 
 ### JWT Secret
 

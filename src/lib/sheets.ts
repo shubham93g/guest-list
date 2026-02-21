@@ -13,11 +13,12 @@ interface GuestRowsCache {
 
 let guestRowsCache: GuestRowsCache | null = null;
 
-// When MOCK_SHEETS=true, any phone number gets this guest profile.
+// When MOCK_SHEETS=true, any phone/email gets this guest profile.
 // Configure via MOCK_SHEETS_GUEST_NAME in .env.local — never hardcode personal details here.
 const MOCK_SHEETS_GUEST: Guest = {
   name: process.env.MOCK_SHEETS_GUEST_NAME ?? 'Guest Name',
   phone: '',
+  email: '',
   status: 'pending',
   rsvpSubmittedAt: null,
   dietaryNotes: '',
@@ -49,7 +50,7 @@ async function getAllGuestRows(): Promise<string[][]> {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!A2:H`,
+    range: `${SHEETS.GUESTS}!A2:I`,
   });
   const rows = (res.data.values as string[][]) ?? [];
   guestRowsCache = { rows, cachedAt: Date.now() };
@@ -63,12 +64,28 @@ function normalisePhone(phone: string): string {
   return phone.replace(/^\+/, '').trim();
 }
 
+function normaliseEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   if (MOCK_SHEETS) {
     return { ...MOCK_SHEETS_GUEST, phone };
   }
   const rows = await getAllGuestRows();
   const row = rows.find((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
+  if (!row) {
+    return null;
+  }
+  return rowToGuest(row);
+}
+
+export async function findGuestByEmail(email: string): Promise<Guest | null> {
+  if (MOCK_SHEETS) {
+    return { ...MOCK_SHEETS_GUEST, email };
+  }
+  const rows = await getAllGuestRows();
+  const row = rows.find((r) => normaliseEmail(r[GUEST_COLS.EMAIL] ?? '') === normaliseEmail(email));
   if (!row) {
     return null;
   }
@@ -85,6 +102,7 @@ function rowToGuest(row: string[]): Guest {
   return {
     name: row[GUEST_COLS.NAME] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
+    email: row[GUEST_COLS.EMAIL] ?? '',
     status: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
     rsvpSubmittedAt: (row[GUEST_COLS.RSVP_SUBMITTED_AT] as ISOTimestamp) ?? null,
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
@@ -115,7 +133,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
       valueInputOption: 'USER_ENTERED',
       data: [
         {
-          range: `${SHEETS.GUESTS}!C${sheetRow}:H${sheetRow}`,
+          range: `${SHEETS.GUESTS}!D${sheetRow}:I${sheetRow}`,
           values: [[
             data.status,
             new Date().toISOString() as ISOTimestamp,
