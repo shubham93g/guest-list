@@ -1,6 +1,6 @@
 import LoginPage from '@/components/login/LoginPage';
+import { TWILIO_CHANNEL } from '@/lib/auth';
 
 export default function Page() {
-  const channel = (process.env.TWILIO_VERIFY_CHANNEL ?? 'sms') as 'sms' | 'whatsapp';
-  return <LoginPage channel={channel} />;
+  return <LoginPage channel={TWILIO_CHANNEL} />;
 }
