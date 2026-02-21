@@ -2,7 +2,6 @@
 
 ## Pending Changes
 
-- [ ] Rename `OTP_CHANNEL` → `AUTH_CHANNEL` (next PR after `feat/skip-otp-mode` is merged)
 - [ ] Remove all mock mode support (`MOCK_SHEETS`, `MOCK_OTP`, `MOCK_SHEETS_GUEST_NAME`) in a future cleanup PR
 
 ## Tests to Write

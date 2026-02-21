@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { verifyOTP, signJWT, OTP_CHANNEL } from '@/lib/auth';
+import { verifyOTP, signJWT, AUTH_CHANNEL } from '@/lib/auth';
 import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
 import { setSessionCookie } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    if (OTP_CHANNEL === 'email') {
+    if (AUTH_CHANNEL === 'email') {
       const parsed = emailSchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(

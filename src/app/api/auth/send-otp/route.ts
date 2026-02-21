@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
-import { sendOTP, OTP_CHANNEL, SKIP_OTP, signJWT } from '@/lib/auth';
+import { sendOTP, AUTH_CHANNEL, SKIP_OTP, signJWT } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { setSessionCookie } from '@/lib/session';
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    if (OTP_CHANNEL === 'email') {
+    if (AUTH_CHANNEL === 'email') {
       const parsed = emailSchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
