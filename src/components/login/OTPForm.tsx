@@ -4,33 +4,35 @@ import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  identifier: string;
+  phone: string;
+  email: string;
   channel: 'sms' | 'whatsapp' | 'email';
   onBack: () => void;
   mock?: boolean;
   otpTitle: string;
 }
 
-export default function OTPForm({ identifier, channel, onBack, mock, otpTitle }: Props) {
+export default function OTPForm({ phone, email, channel, onBack, mock, otpTitle }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const contact = channel === 'email' ? email : phone;
+  const backLabel = channel === 'email' ? '← Use a different email' : '← Use a different number';
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const body = channel === 'email'
-      ? { email: identifier, code }
-      : { phone: identifier, code };
+    const requestBody = channel === 'email' ? { email, code } : { phone, code };
 
     try {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(requestBody),
       });
 
       if (!res.ok) {
@@ -40,14 +42,13 @@ export default function OTPForm({ identifier, channel, onBack, mock, otpTitle }:
       }
 
       router.push('/invite');
-    } catch {
+    } catch (err) {
+      console.error('[OTPForm] login-otp fetch failed', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   }
-
-  const backLabel = channel === 'email' ? '← Use a different email' : '← Use a different number';
 
   return (
     <div className="w-full max-w-sm mx-auto px-6">
@@ -57,7 +58,7 @@ export default function OTPForm({ identifier, channel, onBack, mock, otpTitle }:
       <p className="text-sm text-stone-500 text-center mb-8">
         {mock
           ? 'Mock mode active.'
-          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{identifier}</span></>}
+          : <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -48,10 +48,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
       }
 
-      const { email } = parsed.data;
-      const normalised = email.toLowerCase();
+      const email = parsed.data.email.toLowerCase();
 
-      const emailLimit = checkRateLimit(`send-otp:email:${normalised}`, 3, 15 * 60);
+      const emailLimit = checkRateLimit(`send-otp:email:${email}`, 3, 15 * 60);
       if (emailLimit.limited) {
         return NextResponse.json(
           { error: 'Too many requests. Please try again later.' },

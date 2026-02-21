@@ -41,7 +41,8 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
       }
 
       onSuccess(identifier, data.mock === true);
-    } catch {
+    } catch (err) {
+      console.error('[IdentifierForm] send-otp fetch failed', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);

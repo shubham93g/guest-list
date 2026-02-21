@@ -31,13 +31,18 @@ const OTP_CHANNEL_COPY = {
 
 export default function LoginPage({ channel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
-  const [identifier, setIdentifier] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [mock, setMock] = useState(false);
 
   const channelCopy = OTP_CHANNEL_COPY[channel];
 
   function handleIdentifierSuccess(submittedIdentifier: string, isMock?: boolean) {
-    setIdentifier(submittedIdentifier);
+    if (channel === 'email') {
+      setEmail(submittedIdentifier);
+    } else {
+      setPhone(submittedIdentifier);
+    }
     setMock(isMock ?? false);
     setStep('otp');
   }
@@ -60,7 +65,8 @@ export default function LoginPage({ channel }: Props) {
         />
       ) : (
         <OTPForm
-          identifier={identifier}
+          phone={phone}
+          email={email}
           channel={channel}
           onBack={() => setStep('identifier')}
           mock={mock}

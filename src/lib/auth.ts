@@ -8,23 +8,26 @@ const MOCK_OTP = process.env.MOCK_OTP === 'true';
 // OTP_CHANNEL determines the delivery mechanism.
 // 'sms' / 'whatsapp' → Twilio Verify; 'email' → Nodemailer + Gmail.
 // Exported so the login page can derive UI copy from the same value.
-const VALID_CHANNELS = new Set(['sms', 'whatsapp', 'email']);
-const rawChannel = process.env.OTP_CHANNEL ?? 'sms';
-if (!VALID_CHANNELS.has(rawChannel)) {
-  throw new Error(`Invalid OTP_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
+function isValidChannel(c: string): c is 'sms' | 'whatsapp' | 'email' {
+  return c === 'sms' || c === 'whatsapp' || c === 'email';
 }
-export const OTP_CHANNEL = rawChannel as 'sms' | 'whatsapp' | 'email';
+const rawChannel = process.env.OTP_CHANNEL ?? 'sms';
+if (!isValidChannel(rawChannel)) {
+  throw new Error(`Invalid OTP_CHANNEL: "${rawChannel}". Must be one of: sms, whatsapp, email.`);
+}
+export const OTP_CHANNEL = rawChannel;
 
-// In-memory OTP store for the email channel (single-use, 10-minute TTL).
-interface OTPEntry {
+// In-memory store for email OTPs only (single-use, 10-minute TTL).
+// Emails are expected to be pre-normalised (lowercase) by the caller.
+interface EmailOTPEntry {
   code: string;
   expiresAt: number;
 }
-const otpStore = new Map<string, OTPEntry>();
+const emailOTPStore = new Map<string, EmailOTPEntry>();
 
-const OTP_TTL_MS = 10 * 60 * 1_000; // 10 minutes
+const EMAIL_OTP_TTL_MS = 10 * 60 * 1_000; // 10 minutes
 
-function generateOTP(): string {
+function generateEmailOTP(): string {
   return String(Math.floor(100_000 + Math.random() * 900_000));
 }
 
@@ -47,16 +50,12 @@ function getEmailTransporter() {
 
 export async function sendOTP(identifier: string): Promise<{ mock: boolean }> {
   if (MOCK_OTP) {
-    if (OTP_CHANNEL === 'email') {
-      // Store a dummy code so verifyOTP passes even in mock mode, if needed.
-      otpStore.set(identifier.toLowerCase(), { code: '000000', expiresAt: Date.now() + OTP_TTL_MS });
-    }
     return { mock: true };
   }
 
   if (OTP_CHANNEL === 'email') {
-    const code = generateOTP();
-    otpStore.set(identifier.toLowerCase(), { code, expiresAt: Date.now() + OTP_TTL_MS });
+    const code = generateEmailOTP();
+    emailOTPStore.set(identifier, { code, expiresAt: Date.now() + EMAIL_OTP_TTL_MS });
     const transporter = getEmailTransporter();
     await transporter.sendMail({
       from: process.env.GMAIL_USER!,
@@ -81,18 +80,18 @@ export async function verifyOTP(identifier: string, code: string): Promise<boole
   }
 
   if (OTP_CHANNEL === 'email') {
-    const entry = otpStore.get(identifier.toLowerCase());
+    const entry = emailOTPStore.get(identifier);
     if (!entry) {
       return false;
     }
     if (Date.now() > entry.expiresAt) {
-      otpStore.delete(identifier.toLowerCase());
+      emailOTPStore.delete(identifier);
       return false;
     }
     if (entry.code !== code) {
       return false;
     }
-    otpStore.delete(identifier.toLowerCase()); // single-use
+    emailOTPStore.delete(identifier); // single-use
     return true;
   }
 

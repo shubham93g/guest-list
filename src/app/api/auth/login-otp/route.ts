@@ -28,10 +28,12 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const { email, code } = parsed.data;
+      // Normalise at the boundary — all downstream code receives lowercase email.
+      const email = parsed.data.email.toLowerCase();
+      const { code } = parsed.data;
 
       // Rate-limit by email: 5 attempts per 10 min to prevent OTP brute-force (H1).
-      const limit = checkRateLimit(`login-otp:email:${email.toLowerCase()}`, 5, 10 * 60);
+      const limit = checkRateLimit(`login-otp:email:${email}`, 5, 10 * 60);
       if (limit.limited) {
         return NextResponse.json(
           { error: 'Too many attempts. Please request a new code and try again.' },
@@ -49,7 +51,12 @@ export async function POST(req: NextRequest) {
 
       const guest = await findGuestByEmail(email);
       if (!guest) {
-        return NextResponse.json({ error: 'Guest not found.' }, { status: 404 });
+        // Should not normally happen (email passed OTP verification), but guard defensively.
+        // Generic error avoids leaking whether the email is on the guest list (M1).
+        return NextResponse.json(
+          { error: 'Something went wrong. Please try again.' },
+          { status: 500 }
+        );
       }
 
       const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
@@ -86,7 +93,12 @@ export async function POST(req: NextRequest) {
 
     const guest = await findGuestByPhone(phone);
     if (!guest) {
-      return NextResponse.json({ error: 'Guest not found.' }, { status: 404 });
+      // Should not normally happen (phone passed OTP verification), but guard defensively.
+      // Generic error avoids leaking whether the phone is on the guest list (M1).
+      return NextResponse.json(
+        { error: 'Something went wrong. Please try again.' },
+        { status: 500 }
+      );
     }
 
     const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
