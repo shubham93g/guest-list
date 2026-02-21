@@ -13,18 +13,18 @@ interface Props {
 
 const OTP_CHANNEL_COPY = {
   sms: {
-    sendInstruction: 'Enter your phone number to receive your invitation code via SMS.',
-    sendLabel: 'Send Code via SMS',
+    sendInstruction: 'Enter your phone number to access your invitation.',
+    sendLabel: 'Proceed',
     otpTitle: 'Check your messages',
   },
   whatsapp: {
-    sendInstruction: 'Enter your phone number to receive your invitation code via WhatsApp.',
-    sendLabel: 'Send Code via WhatsApp',
+    sendInstruction: 'Enter your phone number to access your invitation.',
+    sendLabel: 'Proceed',
     otpTitle: 'Check WhatsApp',
   },
   email: {
-    sendInstruction: 'Enter your email address to receive your invitation code.',
-    sendLabel: 'Send Code via Email',
+    sendInstruction: 'Enter your email address to access your invitation.',
+    sendLabel: 'Proceed',
     otpTitle: 'Check your email',
   },
 } as const;

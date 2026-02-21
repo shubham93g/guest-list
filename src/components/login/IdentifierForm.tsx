@@ -110,7 +110,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
           disabled={submitDisabled}
           className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Sending code…' : sendLabel}
+          {loading ? 'Logging in…' : sendLabel}
         </button>
       </form>
 
