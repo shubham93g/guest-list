@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     await updateGuestRSVP(session.phone, parsed.data);
-    return NextResponse.json({ success: true });
+    return new NextResponse(null, { status: 200 });
   } catch (err) {
     console.error('[rsvp/submit]', err);
     return NextResponse.json(

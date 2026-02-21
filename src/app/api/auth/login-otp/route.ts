@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await signJWT({ phone, name: guest.name });
-    return setSessionCookie(NextResponse.json({ success: true }), token);
+    return setSessionCookie(new NextResponse(null, { status: 200 }), token);
   } catch (err) {
     console.error('[login-otp]', err);
     return NextResponse.json(
