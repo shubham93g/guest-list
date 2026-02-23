@@ -141,6 +141,46 @@ npm run build    # Production build
 npm run lint     # ESLint (runs eslint src/)
 ```
 
+## Deployment
+
+The app deploys to **Vercel** (free Hobby plan) via native GitHub integration — no CI/CD config files needed. Every push to `main` auto-deploys to production; every PR gets a preview URL.
+
+### 1. Create Vercel project
+
+1. Go to [vercel.com](https://vercel.com) → sign up or log in with your GitHub account
+2. Click **"Add New Project"** → find and import this GitHub repository
+3. Vercel will detect Next.js automatically — leave build settings as-is
+4. Skip the env vars screen for now; configure them in the next step
+
+### 2. Configure environment variables
+
+In the Vercel project → **Settings → Environment Variables**, add each variable from `.env.example`. Set scope to **Production** and **Preview**.
+
+> **`GOOGLE_PRIVATE_KEY`**: paste the raw multi-line PEM directly — no `\n` escaping needed in the Vercel dashboard (unlike `.env.local`).
+
+After saving all variables, trigger a redeploy: **Deployments → ⋯ → Redeploy**.
+
+### 3. Connect your custom domain
+
+**In Vercel:** Project → **Settings → Domains** → Add your domain (e.g. `yourdomain.com`)
+
+**In GoDaddy DNS** (keep GoDaddy as your DNS provider — don't change nameservers, as existing email DNS records live there):
+
+| Type | Host | Value |
+|------|------|-------|
+| A | `@` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Vercel will issue a TLS certificate automatically once it detects the records. DNS propagation takes 1–48 hours.
+
+### Verification
+
+- Vercel **Domains** tab shows a green **Valid Configuration** badge
+- Visit your domain → app loads
+- Open a PR → Vercel posts a preview URL comment on the PR
+- Merge to `main` → Vercel dashboard shows a new production deployment
+- Test the full flow: identifier → OTP → `/invite` → RSVP submission
+
 ## Claude Code Skills
 
 If you use [Claude Code](https://claude.ai/code), the following slash commands are available:
