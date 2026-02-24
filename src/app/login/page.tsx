@@ -1,6 +1,6 @@
 import LoginPage from '@/components/login/LoginPage';
-import { AUTH_CHANNEL } from '@/lib/auth';
+import { RSVP_CHANNEL, OTP_CHANNEL } from '@/lib/auth';
 
 export default function Page() {
-  return <LoginPage channel={AUTH_CHANNEL} />;
+  return <LoginPage rsvpChannel={RSVP_CHANNEL} otpChannel={OTP_CHANNEL} />;
 }

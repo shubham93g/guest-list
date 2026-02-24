@@ -4,19 +4,30 @@ import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  channel: 'sms' | 'whatsapp' | 'email';
+  channel: 'phone' | 'email';
   onSuccess: (phone: string, email: string) => void;
-  sendInstruction: string;
-  sendLabel: string;
 }
 
-export default function IdentifierForm({ channel, onSuccess, sendInstruction, sendLabel }: Props) {
+const RSVP_CHANNEL_COPY = {
+  phone: {
+    sendInstruction: 'Enter your phone number to access your invitation.',
+    sendLabel: 'Proceed',
+  },
+  email: {
+    sendInstruction: 'Enter your email address to access your invitation.',
+    sendLabel: 'Proceed',
+  },
+} as const;
+
+export default function IdentifierForm({ channel, onSuccess }: Props) {
   const router = useRouter();
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const { sendInstruction, sendLabel } = RSVP_CHANNEL_COPY[channel];
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +36,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
 
     // For phone channels: + prefix is required by Twilio (E.164 format).
     // Sheets stores digits-only, so sheets.ts normalises by stripping + before comparing.
-    const phoneValue = channel !== 'email' ? `+${countryCode}${phoneNumber}` : '';
+    const phoneValue = channel === 'phone' ? `+${countryCode}${phoneNumber}` : '';
     const emailValue = channel === 'email' ? email.trim().toLowerCase() : '';
 
     try {
@@ -54,7 +65,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
     }
   }
 
-  const isPhoneChannel = channel === 'sms' || channel === 'whatsapp';
+  const isPhoneChannel = channel === 'phone';
   const submitDisabled = loading || (isPhoneChannel ? !countryCode || !phoneNumber : !email);
 
   return (
