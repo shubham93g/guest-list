@@ -52,7 +52,18 @@ export default function ScrollBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    // Use 100lvh (large viewport height) instead of inset-0 / bottom:0.
+    // On mobile, browser chrome (address bar + tab bar) shows/hides as the user
+    // scrolls, changing window.innerHeight. With bottom:0 the container would
+    // resize to match, forcing background-size:cover to recalculate and causing
+    // a visible jump. 100lvh is fixed to the largest possible viewport (chrome
+    // hidden), so the container never needs to resize — it simply extends a few
+    // pixels below the fold when chrome is visible, which is invisible to the user.
+    // Falls back to 100vh on browsers that don't support lvh (pre-2022).
+    <div
+      className="fixed top-0 left-0 w-full -z-10 overflow-hidden"
+      style={{ height: '100lvh' }}
+    >
       {/* Hero image — always visible as the base layer */}
       <div
         className="absolute inset-0 bg-cover bg-center"
