@@ -2,14 +2,6 @@ export type RSVPStatus = 'attending' | 'declined' | 'pending';
 
 export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 
-export interface EventDetails {
-  weddingDate: string;
-  weddingDay: string;
-  venueName: string;
-  venueCity: string;
-  coupleNames: string;
-}
-
 export interface SessionPayload {
   name: string;
   phone: string;
