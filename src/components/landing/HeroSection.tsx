@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import { wedding } from '@/config/wedding';
 
 export default function HeroSection() {
   return (
-    <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-stone-50">
+    <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-stone-50 relative">
       <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-6">
         Save the Date
       </p>
@@ -18,16 +17,15 @@ export default function HeroSection() {
 
       <div className="w-12 h-px bg-stone-300 mb-12" />
 
-      <Link
-        href="/login"
-        className="inline-flex items-center justify-center h-12 px-8 bg-stone-800 text-white text-sm tracking-wide rounded-full hover:bg-stone-700 active:bg-stone-900 transition-colors"
-      >
-        RSVP
-      </Link>
-
-      <p className="mt-6 text-xs text-stone-400">
+      <p className="text-xs text-stone-400">
         Formal invitation to follow
       </p>
+
+      <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-stone-300">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </div>
     </section>
   );
 }

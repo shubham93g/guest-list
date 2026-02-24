@@ -3,6 +3,7 @@ import { wedding } from '@/config/wedding';
 import NavMenu from '@/components/landing/NavMenu';
 import HeroSection from '@/components/landing/HeroSection';
 import VenueSection from '@/components/landing/VenueSection';
+import RSVPSection from '@/components/landing/RSVPSection';
 import FAQSection from '@/components/landing/FAQSection';
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function HomePage() {
       <NavMenu />
       <HeroSection />
       <VenueSection />
+      <RSVPSection />
       <FAQSection />
     </main>
   );
