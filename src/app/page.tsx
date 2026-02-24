@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { wedding } from '@/config/wedding';
 import NavMenu from '@/components/landing/NavMenu';
+import ScrollBackground from '@/components/landing/ScrollBackground';
 import HeroSection from '@/components/landing/HeroSection';
 import VenueSection from '@/components/landing/VenueSection';
 import RSVPSection from '@/components/landing/RSVPSection';
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main>
+      <ScrollBackground />
       <NavMenu />
       <HeroSection />
       <VenueSection />

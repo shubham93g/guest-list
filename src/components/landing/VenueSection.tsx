@@ -31,8 +31,10 @@ export default function VenueSection() {
   }
 
   return (
-    <section id="venue" className="py-24 px-6 bg-white">
-      <div className="max-w-lg mx-auto">
+    <section id="venue" className="py-24 px-6 relative">
+      {/* Light overlay — cards have their own white bg; this tints the gaps */}
+      <div className="absolute inset-0 bg-white/40" />
+      <div className="relative z-10 max-w-lg mx-auto">
         <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-10 text-center">
           Venue &amp; Date
         </p>
