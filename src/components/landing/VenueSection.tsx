@@ -11,7 +11,7 @@ export default function VenueSection() {
 
   const mapsUrl = wedding.venueMapUrl || (
     `https://maps.google.com/?q=${encodeURIComponent(
-      wedding.venueAddress || `${wedding.venueName}, ${wedding.venueCity}`,
+      [wedding.venueName, wedding.venueAddress, wedding.venueCity].filter(Boolean).join(', '),
     )}`
   );
 
