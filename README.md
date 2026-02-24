@@ -103,7 +103,7 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 | H | `plus_one_name` | |
 | I | `notes` | Guest message |
 
-Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
+Event details (couple names, date, venue) are configured in `src/config/wedding.ts`, not stored in Sheets.
 
 ### Twilio Verify (OTP_CHANNEL=sms or whatsapp)
 
@@ -134,6 +134,60 @@ Generate a secure secret and set it as `JWT_SECRET`:
 ```bash
 openssl rand -hex 32
 ```
+
+## Customising Content
+
+### Wedding details
+
+All wedding details live in one file — `src/config/wedding.ts`. Edit it directly before launch:
+
+```ts
+export const wedding = {
+  coupleNames: 'Alex & Jordan',
+  date: 'November 15, 2025',
+  day: 'Saturday',
+  time: '6:00 PM IST',
+  venueName: 'The Grand Ballroom',
+  venueCity: 'Mumbai',
+  venueAddress: '123 Marine Drive, Mumbai 400001',
+  datetimeISO: '2025-11-15T18:00:00+05:30', // leave '' to hide Add to Calendar
+};
+```
+
+No env vars needed — restart the dev server (or redeploy) after saving.
+
+### FAQ
+
+Edit the `faqs` array in `src/components/landing/FAQSection.tsx`. Each item is a plain `{ q, a }` object. Replace the `[bracketed]` placeholders with your actual answers before launch.
+
+### Background photos
+
+The landing page uses two full-screen background photos — one for the hero section and one for the venue section. Both are configured at the top of `src/components/landing/ScrollBackground.tsx`:
+
+```ts
+const HERO_IMAGE = 'https://...';  // couple photo
+const VENUE_IMAGE = 'https://...'; // venue exterior
+```
+
+**Recommended specs:**
+
+| | Requirement | Notes |
+|-|------------|-------|
+| **Orientation** | Landscape (wider than tall) | Portrait photos are cropped heavily on desktop because `background-size: cover` scales to fill the viewport width |
+| **Aspect ratio** | 16:9 or wider | Matches typical desktop viewport proportions |
+| **Minimum width** | 1920 px | Prevents visible pixelation on large screens; 2400–3000 px ideal for retina displays |
+| **File size** | Under 500 KB | Compress before upload — large photos noticeably delay the first paint |
+| **Format** | JPEG | Better compression than PNG for photographs |
+
+**Recommended workflow:** shoot or source a landscape photo → compress with [Squoosh](https://squoosh.app) targeting ≤ 400 KB → place in `public/images/` → update the URL to `/images/your-photo.jpg`.
+
+**CSP note:** if you host photos in `/public` (same origin), no config changes are needed. If you load them from an external CDN, add that hostname to the `img-src` directive in `next.config.ts`:
+
+```ts
+"img-src 'self' data: https://your-cdn.com",
+```
+
+The current placeholder Pexels images already have `https://images.pexels.com` added for this reason. Remove it once you replace them with self-hosted photos.
 
 ## Commands
 
