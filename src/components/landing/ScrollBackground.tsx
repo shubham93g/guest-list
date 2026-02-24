@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
-// Hero: wedding couple (Pexels photo 1587042 by Moose Photos, free to use).
+// Hero: wedding couple in landscape orientation (Pexels photo 4942920, free to use).
 // Replace with your own photo before launch.
 // Venue: The Fullerton Hotel Singapore at night (Pexels photo 10531440, free to use).
 const HERO_IMAGE =
-  'https://images.pexels.com/photos/1587042/pexels-photo-1587042.jpeg?auto=compress&cs=tinysrgb&w=1920';
+  'https://images.pexels.com/photos/4942920/pexels-photo-4942920.jpeg?auto=compress&cs=tinysrgb&w=1920';
 const VENUE_IMAGE =
   'https://images.pexels.com/photos/10531440/pexels-photo-10531440.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
@@ -17,21 +17,18 @@ export default function ScrollBackground() {
   useEffect(() => {
     const update = () => {
       const venueEl = document.getElementById('venue');
-      const rsvpEl = document.getElementById('rsvp');
-      if (!venueEl || !rsvpEl || !venueLayerRef.current) {
+      if (!venueEl || !venueLayerRef.current) {
         return;
       }
 
       const vh = window.innerHeight;
       const venueTop = venueEl.getBoundingClientRect().top;
-      const rsvpTop = rsvpEl.getBoundingClientRect().top;
 
-      // Fade venue image in as venue section scrolls up into view (venueTop: vh → 0)
-      const fadeIn = Math.max(0, Math.min(1, (vh - venueTop) / vh));
-      // Fade venue image out as RSVP section scrolls up into view (rsvpTop: vh → 0)
-      const fadeOut = Math.max(0, Math.min(1, (vh - rsvpTop) / vh));
-
-      venueLayerRef.current.style.opacity = String(fadeIn * (1 - fadeOut));
+      // Fade venue image in as venue section scrolls up into view (venueTop: vh → 0).
+      // No JS fade-out needed — RSVP and FAQ have solid section backgrounds that
+      // naturally cover the fixed image layer once the user scrolls past venue.
+      const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
+      venueLayerRef.current.style.opacity = String(opacity);
     };
 
     const onScroll = () => {
