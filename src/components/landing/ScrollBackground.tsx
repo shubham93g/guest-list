@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
-// Hero: placeholder couple photo — replace with your own before launch.
-// Venue: The Fullerton Hotel Singapore at night (Pexels, free to use).
-const HERO_IMAGE = 'https://picsum.photos/seed/wedding-couple/1920/1080';
+// Hero: wedding couple (Pexels photo 1587042 by Moose Photos, free to use).
+// Replace with your own photo before launch.
+// Venue: The Fullerton Hotel Singapore at night (Pexels photo 10531440, free to use).
+const HERO_IMAGE =
+  'https://images.pexels.com/photos/1587042/pexels-photo-1587042.jpeg?auto=compress&cs=tinysrgb&w=1920';
 const VENUE_IMAGE =
   'https://images.pexels.com/photos/10531440/pexels-photo-10531440.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
