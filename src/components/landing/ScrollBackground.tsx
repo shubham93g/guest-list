@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
-// Placeholder images — replace with your own before launch.
-// Hero: a photo of the couple. Venue: a photo of the event venue.
+// Hero: placeholder couple photo — replace with your own before launch.
+// Venue: The Fullerton Hotel Singapore at night (Pexels, free to use).
 const HERO_IMAGE = 'https://picsum.photos/seed/wedding-couple/1920/1080';
-const VENUE_IMAGE = 'https://picsum.photos/seed/fullerton-hotel/1920/1080';
+const VENUE_IMAGE =
+  'https://images.pexels.com/photos/10531440/pexels-photo-10531440.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
 export default function ScrollBackground() {
   const venueLayerRef = useRef<HTMLDivElement>(null);
