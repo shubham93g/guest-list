@@ -15,7 +15,8 @@ export const wedding = {
   // ── Venue ─────────────────────────────────────────────────────────────────
   venueName: 'Fullerton Hotel',
   venueCity: 'Singapore',
-  venueAddress: '1 Fullerton Sq, Singapore 049178', // used to build the Google Maps link
+  venueAddress: '1 Fullerton Sq, Singapore 049178',
+  venueMapUrl: 'https://maps.app.goo.gl/QKoW6gL6dRsUUrHy9', // short link takes priority over venueAddress for Maps
 
   // ── Calendar ──────────────────────────────────────────────────────────────
   // ISO 8601 datetime — used to generate Google Calendar link and .ics file.
