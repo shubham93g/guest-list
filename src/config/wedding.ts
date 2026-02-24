@@ -5,20 +5,21 @@
 export const wedding = {
   // ── Identity ──────────────────────────────────────────────────────────────
   // Displayed in the browser tab, hero heading, and invite page.
-  coupleNames: '[Partner A] & [Partner B]',
+  coupleNames: 'Shubham & Khaing Zin',
 
   // ── Date & Time ───────────────────────────────────────────────────────────
-  date: '[Month Day, Year]',   // e.g. 'November 15, 2025'
-  day: '[Day of Week]',        // e.g. 'Saturday'
-  time: '[H:MM AM/PM TZ]',     // e.g. '6:00 PM IST' — shown on the venue card
+  date: '5th December 2026',   // e.g. 'November 15, 2025'
+  day: 'Saturday',             // e.g. 'Saturday'
+  time: 'Lunch',               // e.g. '6:00 PM IST' — shown on the venue card
 
   // ── Venue ─────────────────────────────────────────────────────────────────
-  venueName: '[Venue Name]',
-  venueCity: '[City]',
-  venueAddress: '[Full street address]', // used to build the Google Maps link
+  venueName: 'Fullerton Hotel',
+  venueCity: 'Singapore',
+  venueAddress: '1 Fullerton Sq, Singapore 049178', // used to build the Google Maps link
 
   // ── Calendar ──────────────────────────────────────────────────────────────
   // ISO 8601 datetime — used to generate Google Calendar link and .ics file.
   // Leave as '' to hide the "Add to Calendar" button.
-  datetimeISO: '', // e.g. '2025-11-15T18:00:00+05:30'
+  datetimeISO: '2026-12-05T11:00:00+08:00',
+  durationHours: 4, // used for Google Calendar link and .ics end time
 };
