@@ -18,7 +18,7 @@ export default function VenueSection() {
   if (wedding.datetimeISO) {
     const start = new Date(wedding.datetimeISO);
     if (!isNaN(start.getTime())) {
-      const end = new Date(start.getTime() + 4 * 60 * 60 * 1000);
+      const end = new Date(start.getTime() + wedding.durationHours * 60 * 60 * 1000);
       const title = encodeURIComponent(`${wedding.coupleNames} Wedding`);
       const location = encodeURIComponent(
         [wedding.venueAddress, wedding.venueCity, wedding.venueName].filter(Boolean).join(', '),

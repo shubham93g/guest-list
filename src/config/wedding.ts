@@ -21,4 +21,5 @@ export const wedding = {
   // ISO 8601 datetime — used to generate Google Calendar link and .ics file.
   // Leave as '' to hide the "Add to Calendar" button.
   datetimeISO: '2026-12-05T11:00:00+08:00',
+  durationHours: 4, // used for Google Calendar link and .ics end time
 };

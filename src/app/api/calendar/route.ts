@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Invalid datetimeISO in wedding config' }, { status: 503 });
   }
 
-  const end = new Date(start.getTime() + 4 * 60 * 60 * 1000);
+  const end = new Date(start.getTime() + wedding.durationHours * 60 * 60 * 1000);
 
   const locationParts = [wedding.venueAddress, wedding.venueCity, wedding.venueName].filter(Boolean);
 
