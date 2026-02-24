@@ -9,10 +9,11 @@ export default function VenueSection() {
     return null;
   }
 
-  const mapsQuery = encodeURIComponent(
-    wedding.venueAddress || `${wedding.venueName}, ${wedding.venueCity}`,
+  const mapsUrl = wedding.venueMapUrl || (
+    `https://maps.google.com/?q=${encodeURIComponent(
+      wedding.venueAddress || `${wedding.venueName}, ${wedding.venueCity}`,
+    )}`
   );
-  const mapsUrl = `https://maps.google.com/?q=${mapsQuery}`;
 
   let calendarLinks: { google: string; ics: string } | null = null;
   if (wedding.datetimeISO) {
