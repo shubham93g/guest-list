@@ -7,8 +7,8 @@ Wedding guest management website — save the date, OTP authentication, RSVP, an
 - **Next.js 15** (App Router, TypeScript)
 - **Tailwind CSS**
 - **Google Sheets** — primary data store
-- **Twilio Verify** — SMS or WhatsApp OTP (when `AUTH_CHANNEL=sms` or `whatsapp`)
-- **Resend** — email OTP (when `AUTH_CHANNEL=email`)
+- **Twilio Verify** — SMS or WhatsApp OTP (when `OTP_CHANNEL=sms` or `whatsapp`)
+- **Resend** — email OTP (when `OTP_CHANNEL=email`)
 - **JWT cookies** — session management (`jose`)
 
 ## Prerequisites
@@ -39,19 +39,19 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000).
 
-## OTP Bypass (`SKIP_OTP`)
+## OTP Bypass (`OTP_CHANNEL=skip`)
 
-If the OTP provider (Twilio or Resend) experiences an outage, you can enable `SKIP_OTP=true` to keep the site functional without a code change.
+If the OTP provider (Twilio or Resend) experiences an outage, you can set `OTP_CHANNEL=skip` to keep the site functional without a code change.
 
 ```
-SKIP_OTP=true
+OTP_CHANNEL=skip
 ```
 
 **What it does:** the guest enters their identifier as usual, it is validated against the real guest list, and a session is issued immediately — no OTP is sent or verified. Guests not on the list still get a 422 error; the allowlist check is never skipped.
 
-**When to use it:** OTP provider is down or degraded and guests cannot receive codes. Toggle it on Vercel by setting the env var and triggering a redeploy, then revert once the provider recovers.
+**When to use it:** OTP provider is down or degraded and guests cannot receive codes. Toggle it on Vercel by updating the env var and triggering a redeploy, then revert once the provider recovers.
 
-**What it is not:** a substitute for real credentials. Real Google Sheets and real OTP credentials are required to run the app.
+**What it is not:** a substitute for real credentials. Real Google Sheets credentials are required to run the app.
 
 ## External Services
 
@@ -105,17 +105,19 @@ For `GOOGLE_PRIVATE_KEY`: in `.env.local` paste it as a single line with literal
 
 Event details (couple names, date, venue) are configured via env vars, not stored in Sheets.
 
-### Twilio Verify (AUTH_CHANNEL=sms or whatsapp)
+### Twilio Verify (OTP_CHANNEL=sms or whatsapp)
 
 1. Sign up at [twilio.com](https://twilio.com)
 2. Copy **Account SID** and **Auth Token** → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
 3. Go to Verify → Services → **Create new service**
 4. Copy the **Service SID** → `TWILIO_VERIFY_SERVICE_SID`
-5. Set `AUTH_CHANNEL`:
-   - `sms` (default) — works immediately on a trial account; no additional setup
+5. Set `OTP_CHANNEL`:
+   - `sms` — works immediately on a trial account; no additional setup
    - `whatsapp` — requires enabling the WhatsApp channel on the Verify Service and a Meta-approved WhatsApp Business Account
 
-### Resend (AUTH_CHANNEL=email)
+Also set `RSVP_CHANNEL=phone` (or leave it at the default).
+
+### Resend (OTP_CHANNEL=email)
 
 Resend is a transactional email API. The API key is scoped to send-only and can be revoked from the Resend dashboard without changing your Google account.
 
@@ -124,7 +126,7 @@ Resend is a transactional email API. The API key is scoped to send-only and can 
 3. Go to **API Keys** → **Create API Key** → select **Sending access** only
 4. Copy the key → `RESEND_API_KEY`
 5. Set `RESEND_FROM` to a sender address on your verified domain (e.g. `invite@yourdomain.com`)
-6. Set `AUTH_CHANNEL=email`
+6. Set `OTP_CHANNEL=email` and `RSVP_CHANNEL=email`
 
 ### JWT Secret
 

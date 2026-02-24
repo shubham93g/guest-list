@@ -4,7 +4,7 @@ import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Props {
-  channel: 'sms' | 'whatsapp' | 'email';
+  channel: 'phone' | 'email';
   onSuccess: (phone: string, email: string) => void;
   sendInstruction: string;
   sendLabel: string;
@@ -25,7 +25,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
 
     // For phone channels: + prefix is required by Twilio (E.164 format).
     // Sheets stores digits-only, so sheets.ts normalises by stripping + before comparing.
-    const phoneValue = channel !== 'email' ? `+${countryCode}${phoneNumber}` : '';
+    const phoneValue = channel === 'phone' ? `+${countryCode}${phoneNumber}` : '';
     const emailValue = channel === 'email' ? email.trim().toLowerCase() : '';
 
     try {
@@ -54,7 +54,7 @@ export default function IdentifierForm({ channel, onSuccess, sendInstruction, se
     }
   }
 
-  const isPhoneChannel = channel === 'sms' || channel === 'whatsapp';
+  const isPhoneChannel = channel === 'phone';
   const submitDisabled = loading || (isPhoneChannel ? !countryCode || !phoneNumber : !email);
 
   return (

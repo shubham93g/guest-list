@@ -8,33 +8,35 @@ import OTPForm from '@/components/login/OTPForm';
 type Step = 'identifier' | 'otp';
 
 interface Props {
-  channel: 'sms' | 'whatsapp' | 'email';
+  rsvpChannel: 'phone' | 'email';
+  otpChannel: 'sms' | 'whatsapp' | 'email' | 'skip';
 }
 
-const AUTH_CHANNEL_COPY = {
-  sms: {
+const RSVP_CHANNEL_COPY = {
+  phone: {
     sendInstruction: 'Enter your phone number to access your invitation.',
     sendLabel: 'Proceed',
-    otpTitle: 'Check your messages',
-  },
-  whatsapp: {
-    sendInstruction: 'Enter your phone number to access your invitation.',
-    sendLabel: 'Proceed',
-    otpTitle: 'Check WhatsApp',
   },
   email: {
     sendInstruction: 'Enter your email address to access your invitation.',
     sendLabel: 'Proceed',
-    otpTitle: 'Check your email',
   },
 } as const;
 
-export default function LoginPage({ channel }: Props) {
+const OTP_CHANNEL_TITLE = {
+  sms: 'Check your messages',
+  whatsapp: 'Check WhatsApp',
+  email: 'Check your email',
+  skip: 'Check your messages',
+} as const;
+
+export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
 
-  const channelCopy = AUTH_CHANNEL_COPY[channel];
+  const channelCopy = RSVP_CHANNEL_COPY[rsvpChannel];
+  const otpTitle = OTP_CHANNEL_TITLE[otpChannel];
 
   function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string) {
     setPhone(submittedPhone);
@@ -53,7 +55,7 @@ export default function LoginPage({ channel }: Props) {
 
       {step === 'identifier' ? (
         <IdentifierForm
-          channel={channel}
+          channel={rsvpChannel}
           onSuccess={handleIdentifierSuccess}
           sendInstruction={channelCopy.sendInstruction}
           sendLabel={channelCopy.sendLabel}
@@ -63,7 +65,7 @@ export default function LoginPage({ channel }: Props) {
           phone={phone}
           email={email}
           onBack={() => setStep('identifier')}
-          otpTitle={channelCopy.otpTitle}
+          otpTitle={otpTitle}
         />
       )}
     </main>

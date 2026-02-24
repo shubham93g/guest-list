@@ -4,17 +4,40 @@ import { createHmac } from 'crypto';
 
 export { signJWT, verifyJWT } from './jwt';
 
-export const SKIP_OTP = process.env.SKIP_OTP === 'true';
-
-// Switch between 'sms', 'whatsapp', and 'email' via AUTH_CHANNEL in .env.local.
-// Defaults to 'sms' — no WhatsApp Business Account or email setup required.
-// Exported so page.tsx can derive UI copy from the same value without a second env read.
-const VALID_CHANNELS = new Set<string>(['sms', 'whatsapp', 'email']);
-const rawChannel = process.env.AUTH_CHANNEL ?? 'sms';
-if (!VALID_CHANNELS.has(rawChannel)) {
-  throw new Error(`Invalid AUTH_CHANNEL: "${rawChannel}". Must be one of: ${[...VALID_CHANNELS].join(', ')}.`);
+// RSVP_CHANNEL controls login UI and identifier type (phone or email).
+// Defaults to 'phone' — guests enter a phone number.
+const VALID_RSVP_CHANNELS = new Set<string>(['phone', 'email']);
+const rawRsvpChannel = process.env.RSVP_CHANNEL ?? 'phone';
+if (!VALID_RSVP_CHANNELS.has(rawRsvpChannel)) {
+  throw new Error(`Invalid RSVP_CHANNEL: "${rawRsvpChannel}". Must be one of: ${[...VALID_RSVP_CHANNELS].join(', ')}.`);
 }
-export const AUTH_CHANNEL = rawChannel as 'sms' | 'whatsapp' | 'email';
+export const RSVP_CHANNEL = rawRsvpChannel as 'phone' | 'email';
+
+// OTP_CHANNEL controls OTP delivery method.
+// 'skip' issues a session immediately without sending or verifying a code —
+// use as an operational escape hatch when OTP providers are unavailable.
+// Defaults to 'skip'.
+const VALID_OTP_CHANNELS = new Set<string>(['sms', 'whatsapp', 'email', 'skip']);
+const rawOtpChannel = process.env.OTP_CHANNEL ?? 'skip';
+if (!VALID_OTP_CHANNELS.has(rawOtpChannel)) {
+  throw new Error(`Invalid OTP_CHANNEL: "${rawOtpChannel}". Must be one of: ${[...VALID_OTP_CHANNELS].join(', ')}.`);
+}
+export const OTP_CHANNEL = rawOtpChannel as 'sms' | 'whatsapp' | 'email' | 'skip';
+
+// Validate that RSVP_CHANNEL and OTP_CHANNEL are a compatible combination.
+// phone identifiers can only pair with sms/whatsapp/skip OTP delivery.
+// email identifiers can only pair with email/skip OTP delivery.
+const VALID_COMBINATIONS: Record<string, Set<string>> = {
+  phone: new Set(['sms', 'whatsapp', 'skip']),
+  email: new Set(['email', 'skip']),
+};
+if (!VALID_COMBINATIONS[RSVP_CHANNEL].has(OTP_CHANNEL)) {
+  throw new Error(
+    `Invalid channel combination: RSVP_CHANNEL="${RSVP_CHANNEL}" is incompatible with OTP_CHANNEL="${OTP_CHANNEL}". ` +
+    `For RSVP_CHANNEL=phone use OTP_CHANNEL=sms, whatsapp, or skip. ` +
+    `For RSVP_CHANNEL=email use OTP_CHANNEL=email or skip.`
+  );
+}
 
 // --- Stateless email OTP (HMAC-based, no server-side storage) ---
 //
@@ -64,7 +87,7 @@ function getResendClient() {
 // --- Public API ---
 
 export async function sendOTP(identifier: string): Promise<void> {
-  if (AUTH_CHANNEL === 'email') {
+  if (OTP_CHANNEL === 'email') {
     const code = generateEmailCode(identifier);
     const resend = getResendClient();
     await resend.emails.send({
@@ -79,11 +102,11 @@ export async function sendOTP(identifier: string): Promise<void> {
   const client = getTwilioClient();
   await client.verify.v2
     .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-    .verifications.create({ to: identifier, channel: AUTH_CHANNEL });
+    .verifications.create({ to: identifier, channel: OTP_CHANNEL });
 }
 
 export async function verifyOTP(identifier: string, code: string): Promise<boolean> {
-  if (AUTH_CHANNEL === 'email') {
+  if (OTP_CHANNEL === 'email') {
     return verifyEmailCode(identifier, code);
   }
 
