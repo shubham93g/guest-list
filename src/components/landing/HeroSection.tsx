@@ -1,21 +1,19 @@
 import Link from 'next/link';
+import { wedding } from '@/config/wedding';
 
 export default function HeroSection() {
-  const coupleNames = process.env.NEXT_PUBLIC_COUPLE_NAMES ?? 'Save the Date';
-  const weddingDate = process.env.NEXT_PUBLIC_WEDDING_DATE ?? '';
-
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-stone-50">
+    <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-stone-50">
       <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-6">
         Save the Date
       </p>
 
       <h1 className="text-5xl sm:text-6xl font-serif text-stone-800 mb-4 leading-tight">
-        {coupleNames}
+        {wedding.coupleNames}
       </h1>
 
-      {weddingDate && (
-        <p className="text-lg text-stone-500 mb-12">{weddingDate}</p>
+      {wedding.date && (
+        <p className="text-lg text-stone-500 mb-12">{wedding.date}</p>
       )}
 
       <div className="w-12 h-px bg-stone-300 mb-12" />

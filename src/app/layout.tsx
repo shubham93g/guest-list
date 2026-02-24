@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from 'next';
+import { wedding } from '@/config/wedding';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_COUPLE_NAMES
-    ? `Save the Date — ${process.env.NEXT_PUBLIC_COUPLE_NAMES}`
-    : 'Save the Date',
+  title: `Save the Date — ${wedding.coupleNames}`,
 };
 
 export const viewport: Viewport = {
