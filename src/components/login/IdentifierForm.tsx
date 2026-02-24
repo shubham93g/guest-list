@@ -6,17 +6,28 @@ import { useRouter } from 'next/navigation';
 interface Props {
   channel: 'phone' | 'email';
   onSuccess: (phone: string, email: string) => void;
-  sendInstruction: string;
-  sendLabel: string;
 }
 
-export default function IdentifierForm({ channel, onSuccess, sendInstruction, sendLabel }: Props) {
+const RSVP_CHANNEL_COPY = {
+  phone: {
+    sendInstruction: 'Enter your phone number to access your invitation.',
+    sendLabel: 'Proceed',
+  },
+  email: {
+    sendInstruction: 'Enter your email address to access your invitation.',
+    sendLabel: 'Proceed',
+  },
+} as const;
+
+export default function IdentifierForm({ channel, onSuccess }: Props) {
   const router = useRouter();
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const { sendInstruction, sendLabel } = RSVP_CHANNEL_COPY[channel];
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();

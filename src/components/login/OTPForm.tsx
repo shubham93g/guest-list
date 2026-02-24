@@ -7,18 +7,25 @@ interface Props {
   phone: string;
   email: string;
   onBack: () => void;
-  otpTitle: string;
+  otpChannel: 'sms' | 'whatsapp' | 'email';
 }
 
-export default function OTPForm({ phone, email, onBack, otpTitle }: Props) {
+const OTP_CHANNEL_TITLE = {
+  sms: 'Check your messages',
+  whatsapp: 'Check WhatsApp',
+  email: 'Check your email',
+} as const;
+
+export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // The non-empty field is the one the server will validate against AUTH_CHANNEL.
+  // The non-empty field is the one the server will validate against RSVP_CHANNEL.
   const contact = email || phone;
   const backLabel = email ? '← Use a different address' : '← Use a different number';
+  const otpTitle = OTP_CHANNEL_TITLE[otpChannel];
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();

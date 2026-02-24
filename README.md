@@ -39,9 +39,9 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000).
 
-## OTP Bypass (`OTP_CHANNEL=skip`)
+## Skip OTP (`OTP_CHANNEL=skip`)
 
-If the OTP provider (Twilio or Resend) experiences an outage, you can set `OTP_CHANNEL=skip` to keep the site functional without a code change.
+`OTP_CHANNEL=skip` is a valid first-class configuration — not just an emergency fallback. Use it when you don't need OTP verification: guests you fully trust, internal previews, or events where the guest list itself is the only gate.
 
 ```
 OTP_CHANNEL=skip
@@ -49,7 +49,7 @@ OTP_CHANNEL=skip
 
 **What it does:** the guest enters their identifier as usual, it is validated against the real guest list, and a session is issued immediately — no OTP is sent or verified. Guests not on the list still get a 422 error; the allowlist check is never skipped.
 
-**When to use it:** OTP provider is down or degraded and guests cannot receive codes. Toggle it on Vercel by updating the env var and triggering a redeploy, then revert once the provider recovers.
+**When to use it:** any time OTP is unnecessary or undesirable — not just during outages. Also useful as a fallback if the OTP provider (Twilio or Resend) goes down: toggle it on Vercel by updating the env var and triggering a redeploy, then revert once the provider recovers.
 
 **What it is not:** a substitute for real credentials. Real Google Sheets credentials are required to run the app.
 

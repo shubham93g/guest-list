@@ -12,31 +12,10 @@ interface Props {
   otpChannel: 'sms' | 'whatsapp' | 'email' | 'skip';
 }
 
-const RSVP_CHANNEL_COPY = {
-  phone: {
-    sendInstruction: 'Enter your phone number to access your invitation.',
-    sendLabel: 'Proceed',
-  },
-  email: {
-    sendInstruction: 'Enter your email address to access your invitation.',
-    sendLabel: 'Proceed',
-  },
-} as const;
-
-const OTP_CHANNEL_TITLE = {
-  sms: 'Check your messages',
-  whatsapp: 'Check WhatsApp',
-  email: 'Check your email',
-  skip: 'Check your messages',
-} as const;
-
 export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-
-  const channelCopy = RSVP_CHANNEL_COPY[rsvpChannel];
-  const otpTitle = OTP_CHANNEL_TITLE[otpChannel];
 
   function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string) {
     setPhone(submittedPhone);
@@ -57,15 +36,13 @@ export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
         <IdentifierForm
           channel={rsvpChannel}
           onSuccess={handleIdentifierSuccess}
-          sendInstruction={channelCopy.sendInstruction}
-          sendLabel={channelCopy.sendLabel}
         />
       ) : (
         <OTPForm
           phone={phone}
           email={email}
           onBack={() => setStep('identifier')}
-          otpTitle={otpTitle}
+          otpChannel={otpChannel as 'sms' | 'whatsapp' | 'email'}
         />
       )}
     </main>
