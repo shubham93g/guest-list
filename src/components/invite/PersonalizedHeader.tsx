@@ -9,15 +9,15 @@ export default function PersonalizedHeader({ name }: Props) {
 
   return (
     <div className="text-center px-6 pt-12 pb-8">
-      <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-6">
+      <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
         Dear {firstName},
       </p>
 
-      <h1 className="text-4xl sm:text-5xl font-serif text-stone-800 mb-3">
+      <h1 className="text-4xl sm:text-5xl font-serif text-white mb-3">
         {wedding.coupleNames}
       </h1>
 
-      <p className="text-stone-500 mb-10 text-sm">
+      <p className="text-white/70 mb-10 text-sm">
         request the pleasure of your company
       </p>
 

@@ -70,10 +70,10 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
 
   return (
     <div className="w-full max-w-sm mx-auto px-6">
-      <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
+      <h2 className="text-2xl font-serif text-white text-center mb-2">
         Welcome
       </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
+      <p className="text-sm text-white/70 text-center mb-8">
         {sendInstruction}
       </p>
 

@@ -56,11 +56,11 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
 
   return (
     <div className="w-full max-w-sm mx-auto px-6">
-      <h2 className="text-2xl font-serif text-stone-800 text-center mb-2">
+      <h2 className="text-2xl font-serif text-white text-center mb-2">
         {otpTitle}
       </h2>
-      <p className="text-sm text-stone-500 text-center mb-8">
-        <>We sent a 6-digit code to{' '}<span className="font-medium text-stone-700">{contact}</span></>
+      <p className="text-sm text-white/70 text-center mb-8">
+        <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{contact}</span></>
 
       </p>
 
@@ -93,7 +93,7 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
 
       <button
         onClick={onBack}
-        className="mt-6 w-full text-sm text-stone-400 hover:text-stone-600 transition-colors"
+        className="mt-6 w-full text-sm text-white/50 hover:text-white/80 transition-colors"
       >
         {backLabel}
       </button>
