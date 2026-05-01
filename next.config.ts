@@ -32,7 +32,15 @@ const nextConfig: NextConfig = {
       baseHeaders.push({ key: 'Content-Security-Policy', value: CSP_VALUE });
     }
 
-    return [{ source: '/(.*)', headers: baseHeaders }];
+    return [
+      { source: '/(.*)', headers: baseHeaders },
+      {
+        source: '/hero.mp4',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
   },
 };
 

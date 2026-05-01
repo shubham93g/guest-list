@@ -63,12 +63,13 @@ export default function ScrollBackground() {
       {/* Hero video — looping, muted, covers the full layer */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
-        src="/hero.mov"
         autoPlay
         loop
         muted
         playsInline
-      />
+      >
+        <source src="/hero.mp4" type="video/mp4" />
+      </video>
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
         ref={venueLayerRef}
