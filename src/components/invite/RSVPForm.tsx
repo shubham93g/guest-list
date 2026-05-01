@@ -58,10 +58,10 @@ export default function RSVPForm({ existingRSVP }: Props) {
     return (
       <div className="max-w-sm mx-auto px-6 py-8 text-center">
         <div className="text-3xl mb-4">🎉</div>
-        <h3 className="text-xl font-serif text-stone-800 mb-2">
+        <h3 className="text-xl font-serif text-white mb-2">
           {status === 'attending' ? "We can't wait to see you!" : 'Thank you for letting us know'}
         </h3>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-white/70">
           {status === 'attending'
             ? existingRSVP
               ? "Your RSVP has been updated. We can't wait to see you!"
@@ -76,7 +76,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
   return (
     <div className="max-w-sm mx-auto px-6 pb-12">
-      <h2 className="text-xl font-serif text-stone-800 text-center mb-6">RSVP</h2>
+      <h2 className="text-xl font-serif text-white text-center mb-6">RSVP</h2>
 
       {existingRSVP && (
         <p className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-600 text-center mb-4">
@@ -111,7 +111,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
           <>
             {/* Dietary notes */}
             <div>
-              <label className="block text-xs text-stone-500 mb-1.5 pl-1">
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">
                 Dietary requirements (optional)
               </label>
               <input
@@ -132,7 +132,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                   onChange={(e) => setPlusOne(e.target.checked)}
                   className="w-5 h-5 rounded accent-stone-700"
                 />
-                <span className="text-sm text-stone-700">I&apos;m bringing a plus one</span>
+                <span className="text-sm text-white/80">I&apos;m bringing a plus one</span>
               </label>
             </div>
 
@@ -148,7 +148,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
             {/* Additional notes */}
             <div>
-              <label className="block text-xs text-stone-500 mb-1.5 pl-1">
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">
                 Anything else you&apos;d like us to know? (optional)
               </label>
               <textarea

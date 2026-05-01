@@ -24,10 +24,12 @@ export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-stone-50 flex flex-col items-center justify-center py-12">
+    <main className="min-h-screen relative flex flex-col items-center justify-center py-12">
+      <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero_2.jpg')" }} />
+      <div className="fixed inset-0 -z-10 bg-black/50" />
       <Link
         href="/"
-        className="absolute top-6 left-6 text-xs text-stone-400 hover:text-stone-600 transition-colors"
+        className="absolute top-6 left-6 text-xs text-white/50 hover:text-white/80 transition-colors"
       >
         ← Back
       </Link>
