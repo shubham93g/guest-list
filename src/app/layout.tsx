@@ -18,6 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preload" as="image" href="/hero_2.jpg" />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );
