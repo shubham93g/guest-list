@@ -5,7 +5,7 @@
 export const wedding = {
   // ── Identity ──────────────────────────────────────────────────────────────
   // Displayed in the browser tab, hero heading, and invite page.
-  coupleNames: 'Shubham & Khaing Zin',
+  coupleNames: 'Khaing Zin & Shubham',
 
   // ── Date & Time ───────────────────────────────────────────────────────────
   date: '5th December 2026',   // e.g. 'November 15, 2025'
