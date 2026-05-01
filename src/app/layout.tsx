@@ -3,7 +3,7 @@ import { wedding } from '@/config/wedding';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: `Save the Date — ${wedding.coupleNames}`,
+  title: `Wedding of ${wedding.coupleNames}`,
 };
 
 export const viewport: Viewport = {

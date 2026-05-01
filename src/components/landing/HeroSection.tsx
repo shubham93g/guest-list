@@ -8,7 +8,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
-          Save the Date
+          The Wedding Of
         </p>
 
         <h1 className="text-5xl sm:text-6xl font-serif text-white mb-4 leading-tight">
@@ -19,11 +19,11 @@ export default function HeroSection() {
           <p className="text-lg text-white/75 mb-12">{wedding.date}</p>
         )}
 
-        <div className="w-12 h-px bg-white/30 mb-12" />
+        {/* <div className="w-12 h-px bg-white/30 mb-12" />
 
         <p className="text-xs text-white/50">
           Formal invitation to follow
-        </p>
+        </p> */}
       </div>
 
       <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-white/50 z-10">

@@ -2,29 +2,27 @@
 
 import { useEffect, useRef } from 'react';
 
-// Venue: The Fullerton Hotel Singapore at night (Pexels photo 10531440, free to use).
-const VENUE_IMAGE =
-  'https://images.pexels.com/photos/10531440/pexels-photo-10531440.jpeg?auto=compress&cs=tinysrgb&w=1920';
+const HERO_2_IMAGE = '/hero_2.jpg';
 
 export default function ScrollBackground() {
-  const venueLayerRef = useRef<HTMLDivElement>(null);
+  const hero2LayerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const update = () => {
       const venueEl = document.getElementById('venue');
-      if (!venueEl || !venueLayerRef.current) {
+      if (!venueEl || !hero2LayerRef.current) {
         return;
       }
 
       const vh = window.innerHeight;
       const venueTop = venueEl.getBoundingClientRect().top;
 
-      // Fade venue image in as venue section scrolls up into view (venueTop: vh → 0).
-      // No JS fade-out needed — RSVP and FAQ have solid section backgrounds that
-      // naturally cover the fixed image layer once the user scrolls past venue.
+      // Fade hero_2 image in as venue section scrolls up into view (venueTop: vh → 0).
+      // No JS fade-out needed — FAQ has a solid bg-stone-50 that naturally covers
+      // the fixed image layer. Venue and RSVP sections are transparent over the photo.
       const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
-      venueLayerRef.current.style.opacity = String(opacity);
+      hero2LayerRef.current.style.opacity = String(opacity);
     };
 
     const onScroll = () => {
@@ -72,9 +70,9 @@ export default function ScrollBackground() {
       </video>
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
-        ref={venueLayerRef}
+        ref={hero2LayerRef}
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${VENUE_IMAGE}')`, opacity: 0 }}
+        style={{ backgroundImage: `url('${HERO_2_IMAGE}')`, opacity: 0 }}
       />
     </div>
   );
