@@ -2,11 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-// Hero: wedding couple in landscape orientation (Pexels photo 4942920, free to use).
-// Replace with your own photo before launch.
 // Venue: The Fullerton Hotel Singapore at night (Pexels photo 10531440, free to use).
-const HERO_IMAGE =
-  'https://images.pexels.com/photos/4942920/pexels-photo-4942920.jpeg?auto=compress&cs=tinysrgb&w=1920';
 const VENUE_IMAGE =
   'https://images.pexels.com/photos/10531440/pexels-photo-10531440.jpeg?auto=compress&cs=tinysrgb&w=1920';
 
@@ -64,10 +60,14 @@ export default function ScrollBackground() {
       className="fixed top-0 left-0 w-full -z-10 overflow-hidden"
       style={{ height: '100lvh' }}
     >
-      {/* Hero image — always visible as the base layer */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
+      {/* Hero video — looping, muted, covers the full layer */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        src="/hero.mov"
+        autoPlay
+        loop
+        muted
+        playsInline
       />
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
