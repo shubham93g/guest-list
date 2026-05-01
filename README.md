@@ -4,7 +4,7 @@ A private wedding website with OTP-gated RSVP, personalized guest invitations, a
 
 ## Features
 
-- Public save-the-date landing page — hero, venue details, and FAQ
+- Public save-the-date landing page — looping hero video, venue details, and FAQ
 - Personalized `/invite` page, unlocked per guest via OTP auth
 - RSVP form with dietary notes, plus-one, and a message field; returning guests see their prior response
 - Multi-channel OTP: SMS, WhatsApp, or email — configurable per deployment without code changes
@@ -79,9 +79,20 @@ All required variables are documented in `.env.example`. Key notes:
 |---|---|
 | Wedding details (names, date, venue) | `src/config/wedding.ts` |
 | FAQ content | `faqs` array in `src/components/landing/FAQSection.tsx` |
-| Background photos | URLs at the top of `src/components/landing/ScrollBackground.tsx` |
+| Hero video | `public/hero.mp4` — replace the file to swap the video |
+| Venue background photo | URL at the top of `src/components/landing/ScrollBackground.tsx` |
 
-If background photos are loaded from an external host, add that hostname to the `img-src` directive in `next.config.ts`.
+**Hero video format:** the file must be H.264 MP4 encoded with `-movflags +faststart` so the browser can start playback before the full file downloads. Convert with:
+
+```bash
+ffmpeg -i input.mov \
+  -vcodec h264 -acodec aac \
+  -movflags +faststart \
+  -crf 28 \
+  public/hero.mp4
+```
+
+`-crf 28` is a good quality/size trade-off for a background video (lower = better quality, larger file). The resulting file is served with `Cache-Control: immutable` so repeat visitors play from the browser cache instantly.
 
 ## Commands
 
