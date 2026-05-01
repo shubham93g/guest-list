@@ -2,13 +2,15 @@ import Link from 'next/link';
 
 export default function RSVPSection() {
   return (
-    <section id="rsvp" className="py-24 px-6 bg-white text-center">
-      <div className="max-w-lg mx-auto">
-        <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-6">
+    <section id="rsvp" className="py-24 px-6 relative text-center">
+      {/* Dark overlay — matches venue section; keeps text readable over hero_2 photo */}
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="relative z-10 max-w-lg mx-auto">
+        <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
           You&rsquo;re Invited
         </p>
 
-        <p className="text-stone-500 text-sm mb-10 leading-relaxed">
+        <p className="text-white/75 text-sm mb-10 leading-relaxed">
           Please let us know if you can make it. It would mean the world to have you celebrate with us.
         </p>
 
