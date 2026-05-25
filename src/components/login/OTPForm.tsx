@@ -2,6 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { ui } from '@/lib/ui';
 
 interface Props {
   phone: string;
@@ -55,48 +56,50 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto px-6">
+    <div className={ui.formWrapper}>
       <h2 className="text-2xl font-serif text-white text-center mb-2">
         {otpTitle}
       </h2>
       <p className="text-sm text-white/70 text-center mb-8">
         <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{contact}</span></>
-
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          placeholder="123456"
-          maxLength={6}
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          disabled={loading}
-          required
-          className="w-full h-14 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-2xl text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
-        />
+      <div className={ui.formCard}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* OTP uses larger sizing (h-14, text-2xl) — not the standard h-12 */}
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="123456"
+            maxLength={6}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            disabled={loading}
+            required
+            className={`w-full h-14 px-4 text-2xl text-center tracking-widest ${ui.inputBase}`}
+          />
+
+          <button
+            type="submit"
+            disabled={loading || code.length !== 6}
+            className={ui.primaryButton}
+          >
+            {loading ? 'Verifying…' : 'Confirm'}
+          </button>
+        </form>
+
+        {error && (
+          <p className={`mt-4 ${ui.errorText}`}>{error}</p>
+        )}
 
         <button
-          type="submit"
-          disabled={loading || code.length !== 6}
-          className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
+          onClick={onBack}
+          className={`mt-6 w-full text-sm ${ui.secondaryLink}`}
         >
-          {loading ? 'Verifying…' : 'Confirm'}
+          {backLabel}
         </button>
-      </form>
-
-      {error && (
-        <p className="mt-4 text-sm text-rose-600 text-center">{error}</p>
-      )}
-
-      <button
-        onClick={onBack}
-        className="mt-6 w-full text-sm text-white/50 hover:text-white/80 transition-colors"
-      >
-        {backLabel}
-      </button>
+      </div>
     </div>
   );
 }
