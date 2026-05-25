@@ -1,4 +1,4 @@
-import { wedding } from '@/config/wedding';
+import { brideCoupleName, groomCoupleName, receptionEvent } from '@/config/wedding';
 
 export interface HeroContent {
   tagline: string;
@@ -9,12 +9,12 @@ export interface HeroContent {
 export const heroVariants: Record<string, HeroContent> = {
   default: {
     tagline: 'The Wedding Of',
-    heading: wedding.coupleNames,
-    subheading: wedding.date,
+    heading: brideCoupleName,
+    subheading: receptionEvent.date,
   },
   goyal: {
     tagline: 'The Goyal Family Invites You To The Wedding Of',
-    heading: 'Shubham & Khaing Zin',
+    heading: groomCoupleName,
     subheading: 'With Regards from Raghav Avtar Goyal, Rajeev Goyal and Ruchi Goyal',
   },
 };

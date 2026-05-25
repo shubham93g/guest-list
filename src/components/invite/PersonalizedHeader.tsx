@@ -1,4 +1,4 @@
-import { wedding } from '@/config/wedding';
+import { brideCoupleName, receptionEvent } from '@/config/wedding';
 
 interface Props {
   name: string;
@@ -14,7 +14,7 @@ export default function PersonalizedHeader({ name }: Props) {
       </p>
 
       <h1 className="text-4xl sm:text-5xl font-serif text-white mb-3">
-        {wedding.coupleNames}
+        {brideCoupleName}
       </h1>
 
       <p className="text-white/70 mb-10 text-sm">
@@ -22,18 +22,18 @@ export default function PersonalizedHeader({ name }: Props) {
       </p>
 
       <div className="max-w-xs mx-auto border border-stone-200 rounded-2xl p-6 bg-white shadow-sm space-y-3">
-        <p className="text-2xl font-serif text-stone-800">{wedding.date}</p>
-        {wedding.day && (
-          <p className="text-sm text-stone-400 uppercase tracking-wider">{wedding.day}</p>
+        <p className="text-2xl font-serif text-stone-800">{receptionEvent.date}</p>
+        {receptionEvent.day && (
+          <p className="text-sm text-stone-400 uppercase tracking-wider">{receptionEvent.day}</p>
         )}
-        {(wedding.venueName || wedding.venueCity) && (
+        {(receptionEvent.venueName || receptionEvent.venueCity) && (
           <>
             <div className="w-8 h-px bg-stone-200 mx-auto" />
-            {wedding.venueName && (
-              <p className="font-medium text-stone-700 text-sm">{wedding.venueName}</p>
+            {receptionEvent.venueName && (
+              <p className="font-medium text-stone-700 text-sm">{receptionEvent.venueName}</p>
             )}
-            {wedding.venueCity && (
-              <p className="text-xs text-stone-400">{wedding.venueCity}</p>
+            {receptionEvent.venueCity && (
+              <p className="text-xs text-stone-400">{receptionEvent.venueCity}</p>
             )}
           </>
         )}

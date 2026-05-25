@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { wedding } from '@/config/wedding';
+import { brideCoupleName, receptionEvent } from '@/config/wedding';
 import NavMenu from '@/components/landing/NavMenu';
 import ScrollBackground from '@/components/landing/ScrollBackground';
 import HeroSection from '@/components/landing/HeroSection';
-import VenueSection from '@/components/landing/VenueSection';
+import EventSection from '@/components/landing/EventSection';
 import RSVPSection from '@/components/landing/RSVPSection';
 import FAQSection from '@/components/landing/FAQSection';
 
 export const metadata: Metadata = {
-  title: `Save the Date — ${wedding.coupleNames}`,
-  description: 'You are invited. Mark your calendar.',
+  title: `${brideCoupleName}`,
+  description: 'You are invited',
 };
 
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
       <ScrollBackground />
       <NavMenu />
       <HeroSection />
-      <VenueSection />
+      <EventSection event={receptionEvent} coupleNames={brideCoupleName} sectionLabel="Venue & Date" />
       <RSVPSection />
       <FAQSection />
     </main>

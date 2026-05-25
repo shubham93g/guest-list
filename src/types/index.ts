@@ -21,3 +21,16 @@ export interface Guest extends RSVPData {
   email: string;
   rsvpSubmittedAt: ISOTimestamp | null;
 }
+
+export interface WeddingEvent {
+  title: string;
+  date: string;
+  day: string;
+  time: string;
+  venueName: string;
+  venueCity: string;
+  venueAddress: string;
+  venueMapUrl: string;
+  datetimeISO: string;
+  durationHours: number;
+}
