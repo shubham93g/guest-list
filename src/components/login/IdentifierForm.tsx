@@ -5,46 +5,30 @@ import { useRouter } from 'next/navigation';
 import { ui } from '@/lib/ui';
 
 interface Props {
-  channel: 'phone' | 'email';
-  onSuccess: (phone: string, email: string) => void;
+  onSuccess: (phone: string) => void;
 }
 
-const RSVP_CHANNEL_COPY = {
-  phone: {
-    sendInstruction: 'Enter your phone number to access your invitation.',
-    sendLabel: 'Proceed',
-  },
-  email: {
-    sendInstruction: 'Enter your email address to access your invitation.',
-    sendLabel: 'Proceed',
-  },
-} as const;
-
-export default function IdentifierForm({ channel, onSuccess }: Props) {
+export default function IdentifierForm({ onSuccess }: Props) {
   const router = useRouter();
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const { sendInstruction, sendLabel } = RSVP_CHANNEL_COPY[channel];
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // For phone channels: + prefix is required by Twilio (E.164 format).
+    // + prefix is required by Twilio (E.164 format).
     // Sheets stores digits-only, so sheets.ts normalises by stripping + before comparing.
-    const phoneValue = channel === 'phone' ? `+${countryCode}${phoneNumber}` : '';
-    const emailValue = channel === 'email' ? email.trim().toLowerCase() : '';
+    const phone = `+${countryCode}${phoneNumber}`;
 
     try {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneValue || undefined, email: emailValue || undefined }),
+        body: JSON.stringify({ phone }),
       });
       const data = await res.json();
 
@@ -57,7 +41,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
         router.push('/invite');
         return;
       }
-      onSuccess(phoneValue, emailValue);
+      onSuccess(phone);
     } catch {
       console.error('[IdentifierForm] send-otp request failed');
       setError('Something went wrong. Please try again.');
@@ -66,8 +50,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
     }
   }
 
-  const isPhoneChannel = channel === 'phone';
-  const submitDisabled = loading || (isPhoneChannel ? !countryCode || !phoneNumber : !email);
+  const submitDisabled = loading || !countryCode || !phoneNumber;
 
   return (
     <div className={ui.formWrapper}>
@@ -75,55 +58,43 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
         Welcome
       </h2>
       <p className="text-sm text-white/70 text-center mb-8">
-        {sendInstruction}
+        Enter your phone number to access your invitation.
       </p>
 
       <div className={ui.formCard}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {channel === 'email' ? (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-500 text-base select-none shrink-0">
+              +
+            </div>
             <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              placeholder="65"
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
               disabled={loading}
               required
-              className={`w-full h-12 px-4 text-base ${ui.inputBase}`}
+              className={`w-16 h-12 px-3 text-base text-center ${ui.inputBase}`}
             />
-          ) : (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-500 text-base select-none shrink-0">
-                +
-              </div>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="65"
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
-                disabled={loading}
-                required
-                className={`w-16 h-12 px-3 text-base text-center ${ui.inputBase}`}
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="98765 43210"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                disabled={loading}
-                required
-                className={`min-w-0 flex-1 h-12 px-4 text-base ${ui.inputBase}`}
-              />
-            </div>
-          )}
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="98765 43210"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+              disabled={loading}
+              required
+              className={`min-w-0 flex-1 h-12 px-4 text-base ${ui.inputBase}`}
+            />
+          </div>
 
           <button
             type="submit"
             disabled={submitDisabled}
             className={ui.primaryButton}
           >
-            {loading ? 'Logging in…' : sendLabel}
+            {loading ? 'Logging in…' : 'Proceed'}
           </button>
         </form>
 

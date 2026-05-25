@@ -57,14 +57,6 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   return rowToGuest(row);
 }
 
-export async function findGuestByEmail(email: string): Promise<Guest | null> {
-  const rows = await getAllGuestRows();
-  const row = rows.find((r) => (r[GUEST_COLS.EMAIL] ?? '').trim().toLowerCase() === email);
-  if (!row) {
-    return null;
-  }
-  return rowToGuest(row);
-}
 
 const VALID_RSVP_STATUSES = new Set<string>(['attending', 'declined', 'pending']);
 

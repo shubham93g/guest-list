@@ -23,16 +23,16 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 ## Architecture
 
-**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (SMS/WhatsApp OTP) · Resend (email OTP) · JWT cookie sessions (`jose`)
+**Stack:** Next.js 15 (App Router, TypeScript, `src/` dir) · Tailwind CSS · shadcn/ui · Google Sheets (data store) · Twilio Verify (SMS/WhatsApp OTP) · JWT cookie sessions (`jose`)
 
 **Hosting:** Vercel (target for production deployment)
 
 **Routes:**
 - `/` — Public save-the-date hero (Server Component)
-- `/login` — Identifier entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine; input is phone or email depending on `RSVP_CHANNEL`)
+- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
-- `/api/auth/send-otp` — POST: check allowlist → send OTP; email OTP uses Resend, sms/whatsapp use Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
+- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
@@ -46,7 +46,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 |------|---------|
 | `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. Caches guest rows in memory (5-minute TTL); invalidated on `updateGuestRSVP`. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
-| `src/lib/auth.ts` | OTP send/verify. Email channel uses Resend (stateless HMAC codes, 10-min window); sms/whatsapp use Twilio Verify. Re-exports JWT from `jwt.ts`. |
+| `src/lib/auth.ts` | OTP send/verify via Twilio Verify. Re-exports JWT from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
@@ -60,7 +60,7 @@ One tab only: **`Guests`** (header in row 1, frozen)
 |-----|------|-------|
 | A | `name` | Full name (admin fills before launch) |
 | B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Google Sheets strips `+` even in Plain Text cells. `sheets.ts` normalises by stripping `+` before comparing. |
-| C | `email` | Guest email address (admin fills before launch) |
+| C | `email` | Guest email address (admin reference only — not used for auth) |
 | D | `rsvp_status` | `attending` / `declined` (written by API) |
 | E | `rsvp_submitted_at` | ISO 8601 timestamp |
 | F | `dietary_notes` | |
@@ -75,26 +75,24 @@ Event details (couple names, date, venue) are **not** stored in Sheets — they 
 See `.env.example` for all required variables. Critical notes:
 - `GOOGLE_PRIVATE_KEY`: in `.env.local` use `\n`-escaped single line; `sheets.ts` calls `.replace(/\\n/g, '\n')` to restore newlines. On Vercel, paste the raw multi-line PEM as-is.
 - `TWILIO_VERIFY_SERVICE_SID`: created under Twilio Console → Verify → Services (not the Account SID).
-- `RSVP_CHANNEL`: `phone` (default) or `email`. Controls the login form identifier type and guest lookup.
-- `OTP_CHANNEL`: `sms` (default), `whatsapp`, `email`, or `skip`. Controls OTP delivery. `skip` issues a session immediately without sending or verifying a code — operational escape hatch for OTP provider outages. Valid combinations: `phone` + `sms|whatsapp|skip`; `email` + `email|skip`. Startup throws on invalid combinations.
-- `RESEND_FROM`: must be a sender address on a verified domain in your Resend account.
+- `OTP_CHANNEL`: `sms`, `whatsapp`, or `skip`. Controls OTP delivery. `skip` issues a session immediately without sending or verifying a code — operational escape hatch for OTP provider outages.
 - `JWT_SECRET`: generate with `openssl rand -hex 32`.
 
 ## Auth Flow
 
 **Normal flow:**
-1. Guest enters phone or email (depending on `RSVP_CHANNEL`) → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP (email: Resend; sms/whatsapp: Twilio Verify, controlled by `OTP_CHANNEL`)
-2. Guest enters 6-digit code → `POST /api/auth/login-otp` → verifies code → API issues 30-day `httpOnly` JWT cookie containing `{ name, phone, email }`
+1. Guest enters phone number → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (sms or whatsapp, controlled by `OTP_CHANNEL`)
+2. Guest enters 6-digit code → `POST /api/auth/login-otp` → verifies code → API issues 30-day `httpOnly` JWT cookie containing `{ name, phone }`
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
 **`OTP_CHANNEL=skip` (escape hatch):**
-1. Guest enters identifier → `POST /api/auth/send-otp` checks Sheets allowlist → issues JWT session immediately (no OTP sent or verified)
+1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → issues JWT session immediately (no OTP sent or verified)
 2. Client receives `{ skipOtp: true }` and redirects directly to `/invite` — the OTP form is never shown
 
 ## Testing API Routes
 
 ```bash
-# RSVP_CHANNEL=phone, OTP_CHANNEL=sms or whatsapp:
+# OTP_CHANNEL=sms or whatsapp:
 # 1. Send OTP (must use a phone number in the Guests sheet)
 curl -X POST http://localhost:3000/api/auth/send-otp \
   -H "Content-Type: application/json" \
@@ -104,22 +102,12 @@ curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210", "code": "123456"}'
 
-# RSVP_CHANNEL=email, OTP_CHANNEL=email:
-# 1. Send OTP (must use an email address in the Guests sheet)
-curl -X POST http://localhost:3000/api/auth/send-otp \
-  -H "Content-Type: application/json" \
-  -d '{"email": "guest@example.com"}'
-# 2. Verify OTP
-curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
-  -H "Content-Type: application/json" \
-  -d '{"email": "guest@example.com", "code": "123456"}'
-
-# OTP_CHANNEL=skip (either RSVP_CHANNEL): step 1 issues session immediately, no step 2 needed
+# OTP_CHANNEL=skip: step 1 issues session immediately, no step 2 needed
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/send-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
 
-# 3. Submit RSVP (uses session cookie from step 2)
+# Submit RSVP (uses session cookie from above)
 curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \
   -H "Content-Type: application/json" \
   -d '{"status": "attending", "dietaryNotes": "vegetarian", "plusOneAttending": false, "plusOneName": "", "notes": ""}'
