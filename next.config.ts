@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/(.*)', headers: baseHeaders },
       {
-        source: '/hero.mp4',
+        source: '/:file(hero\\d*\\.mp4)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
