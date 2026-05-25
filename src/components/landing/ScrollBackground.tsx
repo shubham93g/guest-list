@@ -27,7 +27,20 @@ export default function ScrollBackground() {
       show();
     }
     video.addEventListener('playing', show);
-    return () => video.removeEventListener('playing', show);
+
+    // Mobile browsers pause video when the page is hidden (e.g. user switches
+    // to Google Maps). Resume playback when the user returns to the tab.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        video.play().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      video.removeEventListener('playing', show);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
