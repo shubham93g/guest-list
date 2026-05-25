@@ -1,4 +1,4 @@
-import { brideCoupleName, receptionEvent } from '@/config/wedding';
+import { brideCoupleName } from '@/config/wedding';
 
 interface Props {
   name: string;
@@ -17,27 +17,9 @@ export default function PersonalizedHeader({ name }: Props) {
         {brideCoupleName}
       </h1>
 
-      <p className="text-white/70 mb-10 text-sm">
+      <p className="text-white/70 text-sm">
         request the pleasure of your company
       </p>
-
-      <div className="max-w-xs mx-auto border border-stone-200 rounded-2xl p-6 bg-white shadow-sm space-y-3">
-        <p className="text-2xl font-serif text-stone-800">{receptionEvent.date}</p>
-        {receptionEvent.day && (
-          <p className="text-sm text-stone-400 uppercase tracking-wider">{receptionEvent.day}</p>
-        )}
-        {(receptionEvent.venueName || receptionEvent.venueCity) && (
-          <>
-            <div className="w-8 h-px bg-stone-200 mx-auto" />
-            {receptionEvent.venueName && (
-              <p className="font-medium text-stone-700 text-sm">{receptionEvent.venueName}</p>
-            )}
-            {receptionEvent.venueCity && (
-              <p className="text-xs text-stone-400">{receptionEvent.venueCity}</p>
-            )}
-          </>
-        )}
-      </div>
     </div>
   );
 }

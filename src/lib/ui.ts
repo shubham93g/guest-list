@@ -4,8 +4,17 @@ export const ui = {
   // Outer centering wrapper used by all form pages
   formWrapper: 'w-full max-w-sm mx-auto px-6',
 
+  // Dark overlay applied over the hero background — used in ScrollBackground and full-page routes
+  overlay: 'bg-black/45',
+
   // Frosted glass card — wraps interactive inputs and buttons only
-  formCard: 'bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden',
+  formCard: 'bg-black/20 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden',
+
+  // Frosted glass container without padding — for accordions/lists where inner rows supply their own padding
+  glassCard: 'bg-black/20 backdrop-blur-sm border border-white/15 rounded-2xl overflow-hidden',
+
+  // Inset notice box — lighter glass for informational callouts nested inside a card
+  infoBox: 'bg-white/10 border border-white/20 rounded-xl',
 
   // Visual treatment for text inputs — add sizing (h-*, px-*, w-*, text-size) per component
   inputBase: 'bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50',

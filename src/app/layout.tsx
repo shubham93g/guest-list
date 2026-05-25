@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-black">
       <head>
         <link rel="preload" as="image" href="/hero.jpg" />
       </head>

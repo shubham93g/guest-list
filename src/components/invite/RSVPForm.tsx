@@ -83,7 +83,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
       <div className={ui.formCard}>
         {existingRSVP && (
-          <p className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white/75 text-center mb-4">
+          <p className={`${ui.infoBox} px-4 py-3 text-sm text-white/75 text-center mb-4`}>
             You previously responded as{' '}
             <span className="font-medium text-white/90">
               {existingRSVP.status === 'attending' ? 'Attending' : 'Unable to attend'}

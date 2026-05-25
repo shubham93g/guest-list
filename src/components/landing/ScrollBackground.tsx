@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { ui } from '@/lib/ui';
 
 const HERO_IMAGE = '/hero.jpg';
 
@@ -40,8 +41,6 @@ export default function ScrollBackground() {
       const venueTop = venueEl.getBoundingClientRect().top;
 
       // Fade hero image in as venue section scrolls up into view (venueTop: vh → 0).
-      // No JS fade-out needed — FAQ has a solid bg-stone-50 that naturally covers
-      // the fixed image layer. Venue and RSVP sections are transparent over the photo.
       const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
       heroLayerRef.current.style.opacity = String(opacity);
     };
@@ -104,6 +103,8 @@ export default function ScrollBackground() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${HERO_IMAGE}')`, opacity: 0 }}
       />
+      {/* Dark overlay — fixed with the background so it covers overscroll areas too */}
+      <div className={`absolute inset-0 ${ui.overlay}`} />
     </div>
   );
 }
