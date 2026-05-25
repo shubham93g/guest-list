@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { findGuestByPhone } from '@/lib/sheets';
+import { receptionEvent, brideCoupleName } from '@/config/wedding';
 import PersonalizedHeader from '@/components/invite/PersonalizedHeader';
+import EventSection from '@/components/landing/EventSection';
 import RSVPForm from '@/components/invite/RSVPForm';
 
 export default async function WelcomePage() {
@@ -21,6 +23,7 @@ export default async function WelcomePage() {
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')" }} />
       <div className="fixed inset-0 -z-10 bg-black/50" />
       <PersonalizedHeader name={session.name} />
+      <EventSection event={receptionEvent} coupleNames={brideCoupleName} overlay={false} />
       <div className="w-16 h-px bg-white/20 mx-auto mb-8" />
       <RSVPForm
         existingRSVP={rsvpData.status !== 'pending' ? rsvpData : null}

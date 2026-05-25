@@ -1,3 +1,5 @@
+import { ui } from '@/lib/ui';
+
 const faqs = [
   {
     q: 'What time should I arrive?',
@@ -35,24 +37,25 @@ const faqs = [
 
 export default function FAQSection() {
   return (
-    <section id="faq" className="py-24 px-6 bg-stone-50">
-      <div className="max-w-lg mx-auto">
-        <p className="text-xs uppercase tracking-[0.3em] text-stone-400 mb-10 text-center">
+    <section id="faq" className="py-24 px-6 relative">
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="relative z-10 max-w-lg mx-auto">
+        <p className="text-xs uppercase tracking-[0.3em] text-white mb-10 text-center">
           FAQ
         </p>
 
-        <div className="space-y-3">
+        <div className={ui.glassCard}>
           {faqs.map(({ q, a }) => (
-            <details key={q} className="group border border-stone-200 rounded-2xl bg-white overflow-hidden">
+            <details key={q} className="group border-b border-white/10 last:border-b-0">
               <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between px-6 py-4 cursor-pointer select-none gap-4">
-                <span className="text-sm font-medium text-stone-700">{q}</span>
-                <span className="flex-shrink-0 flex items-center text-stone-400">
+                <span className="text-sm font-medium text-white">{q}</span>
+                <span className="flex-shrink-0 flex items-center text-white">
                   <span className="group-open:hidden text-lg leading-none">+</span>
                   <span className="hidden group-open:flex text-lg leading-none">−</span>
                 </span>
               </summary>
-              <div className="border-t border-stone-100 px-6 py-4">
-                <p className="text-sm text-stone-500 leading-relaxed">{a}</p>
+              <div className="border-t border-white/10 px-6 py-4">
+                <p className="text-sm text-white leading-relaxed">{a}</p>
               </div>
             </details>
           ))}
