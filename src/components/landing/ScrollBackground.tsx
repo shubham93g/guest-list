@@ -87,11 +87,8 @@ export default function ScrollBackground() {
       videoA.removeEventListener('playing', handleInitialPlaying);
       preloadNext(videoB); // start buffering index 1 into Video B immediately
     };
-    if (!videoA.paused && !videoA.ended) {
-      videoA.style.opacity = '1';
-      preloadNext(videoB);
-    }
     videoA.addEventListener('playing', handleInitialPlaying);
+    videoA.play().catch(() => {}); // start imperatively — no autoPlay attribute on the element
 
     // Primary: trigger crossfade CROSSFADE_AHEAD seconds before the video ends
     // so the next video is already buffered and plays with no freeze frame.
@@ -216,12 +213,12 @@ export default function ScrollBackground() {
         style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
       />
       {/* Video A — fades in on initial play; crossfades with Video B on transitions.
-          Both start hidden; src and opacity are managed imperatively in the effect. */}
+          Both start hidden; src and playback are managed imperatively in the effect.
+          No autoPlay — avoids the browser auto-starting preloaded videos when src changes. */}
       <video
         ref={videoARef}
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
-        autoPlay
         muted
         playsInline
       />
