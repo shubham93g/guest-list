@@ -5,14 +5,13 @@ interface EventSectionProps {
   event: WeddingEvent;
   coupleNames: string;
   sectionLabel?: string;
-  overlay?: boolean;
 }
 
 function toGCalDatetime(date: Date): string {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
-export default function EventSection({ event, coupleNames, sectionLabel, overlay = true }: EventSectionProps) {
+export default function EventSection({ event, coupleNames, sectionLabel }: EventSectionProps) {
   if (!event.date && !event.venueName) {
     return null;
   }
@@ -51,8 +50,7 @@ export default function EventSection({ event, coupleNames, sectionLabel, overlay
   }
 
   return (
-    <section id="venue" className="py-24 px-6 relative">
-      {overlay && <div className="absolute inset-0 bg-black/40" />}
+    <section id="venue" className="py-24 px-6">
       <div className="relative z-10 max-w-sm mx-auto">
         {sectionLabel && (
           <p className="text-xs uppercase tracking-[0.3em] text-white mb-10 text-center">

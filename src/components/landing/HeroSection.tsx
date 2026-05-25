@@ -11,11 +11,8 @@ export default function HeroSection({ content }: HeroSectionProps) {
   const subheading = content?.subheading ?? receptionEvent.date;
 
   return (
-    <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
-      {/* Dark overlay — keeps white text sharp over the background photo */}
-      <div className="absolute inset-0 bg-black/45" />
-
-      <div className="relative z-10 flex flex-col items-center">
+    <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+      <div className="flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
           {tagline}
         </p>
@@ -30,7 +27,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
 
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-white/50 z-10">
+      <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-white/50">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
         </svg>

@@ -4,6 +4,9 @@ export const ui = {
   // Outer centering wrapper used by all form pages
   formWrapper: 'w-full max-w-sm mx-auto px-6',
 
+  // Dark overlay applied over the hero background — used in ScrollBackground and full-page routes
+  overlay: 'bg-black/45',
+
   // Frosted glass card — wraps interactive inputs and buttons only
   formCard: 'bg-black/20 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden',
 
