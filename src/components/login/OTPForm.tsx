@@ -61,42 +61,43 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
       </h2>
       <p className="text-sm text-white/70 text-center mb-8">
         <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{contact}</span></>
-
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          placeholder="123456"
-          maxLength={6}
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          disabled={loading}
-          required
-          className="w-full h-14 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-2xl text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
-        />
+      <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="123456"
+            maxLength={6}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            disabled={loading}
+            required
+            className="w-full h-14 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-2xl text-center tracking-widest focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+          />
+
+          <button
+            type="submit"
+            disabled={loading || code.length !== 6}
+            className="h-12 w-full bg-white text-stone-800 text-sm tracking-wide font-medium rounded-xl border border-white/60 hover:bg-stone-50 active:bg-stone-100 disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Verifying…' : 'Confirm'}
+          </button>
+        </form>
+
+        {error && (
+          <p className="mt-4 text-sm text-rose-300 text-center">{error}</p>
+        )}
 
         <button
-          type="submit"
-          disabled={loading || code.length !== 6}
-          className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
+          onClick={onBack}
+          className="mt-6 w-full text-sm text-white/60 hover:text-white/90 hover:underline underline-offset-4 transition-colors"
         >
-          {loading ? 'Verifying…' : 'Confirm'}
+          {backLabel}
         </button>
-      </form>
-
-      {error && (
-        <p className="mt-4 text-sm text-rose-600 text-center">{error}</p>
-      )}
-
-      <button
-        onClick={onBack}
-        className="mt-6 w-full text-sm text-white/50 hover:text-white/80 transition-colors"
-      >
-        {backLabel}
-      </button>
+      </div>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
       <div className="fixed inset-0 -z-10 bg-black/50" />
       <Link
         href="/"
-        className="absolute top-6 left-6 text-xs text-white/50 hover:text-white/80 transition-colors"
+        className="absolute top-6 left-6 text-xs text-white/60 hover:text-white/90 hover:underline underline-offset-4 transition-colors"
       >
         ← Back
       </Link>

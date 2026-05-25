@@ -16,7 +16,7 @@ export default function RSVPSection() {
 
         <Link
           href="/login"
-          className="inline-flex items-center justify-center h-12 px-10 bg-stone-800 text-white text-sm tracking-wide rounded-full hover:bg-stone-700 active:bg-stone-900 transition-colors"
+          className="inline-flex items-center justify-center h-12 px-10 bg-white text-stone-800 text-sm tracking-wide font-medium rounded-full border border-white/60 hover:bg-stone-50 active:bg-stone-100 transition-colors"
         >
           RSVP
         </Link>

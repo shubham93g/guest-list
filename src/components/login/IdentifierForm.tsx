@@ -77,57 +77,59 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
         {sendInstruction}
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {channel === 'email' ? (
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            required
-            className="w-full h-12 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
-          />
-        ) : (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center h-12 px-3 border border-stone-300 rounded-xl bg-stone-50 text-stone-500 text-base select-none shrink-0">
-              +
+      <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {channel === 'email' ? (
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required
+              className="w-full h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-500 text-base select-none shrink-0">
+                +
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="65"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
+                disabled={loading}
+                required
+                className="w-16 h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="98765 43210"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                disabled={loading}
+                required
+                className="min-w-0 flex-1 h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+              />
             </div>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="65"
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
-              disabled={loading}
-              required
-              className="w-16 h-12 px-3 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base text-center focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
-            />
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="98765 43210"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-              disabled={loading}
-              required
-              className="flex-1 h-12 px-4 border border-stone-300 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50"
-            />
-          </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitDisabled}
+            className="h-12 w-full bg-white text-stone-800 text-sm tracking-wide font-medium rounded-xl border border-white/60 hover:bg-stone-50 active:bg-stone-100 disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Logging in…' : sendLabel}
+          </button>
+        </form>
+
+        {error && (
+          <p className="mt-4 text-sm text-rose-300 text-center">{error}</p>
         )}
-
-        <button
-          type="submit"
-          disabled={submitDisabled}
-          className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Logging in…' : sendLabel}
-        </button>
-      </form>
-
-      {error && (
-        <p className="mt-4 text-sm text-rose-600 text-center">{error}</p>
-      )}
+      </div>
     </div>
   );
 }

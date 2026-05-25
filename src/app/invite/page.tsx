@@ -21,7 +21,7 @@ export default async function WelcomePage() {
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero_2.jpg')" }} />
       <div className="fixed inset-0 -z-10 bg-black/50" />
       <PersonalizedHeader name={session.name} />
-      <div className="w-16 h-px bg-stone-200 mx-auto mb-8" />
+      <div className="w-16 h-px bg-white/20 mx-auto mb-8" />
       <RSVPForm
         existingRSVP={rsvpData.status !== 'pending' ? rsvpData : null}
       />

@@ -56,20 +56,22 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
   if (formState === 'success') {
     return (
-      <div className="max-w-sm mx-auto px-6 py-8 text-center">
-        <div className="text-3xl mb-4">🎉</div>
-        <h3 className="text-xl font-serif text-white mb-2">
-          {status === 'attending' ? "We can't wait to see you!" : 'Thank you for letting us know'}
-        </h3>
-        <p className="text-sm text-white/70">
-          {status === 'attending'
-            ? existingRSVP
-              ? "Your RSVP has been updated. We can't wait to see you!"
-              : 'Your RSVP has been received. More details to follow.'
-            : existingRSVP
-              ? 'Your RSVP has been updated. Thank you for letting us know.'
-              : 'We will miss you. Wishing you all the best.'}
-        </p>
+      <div className="max-w-sm mx-auto px-6 pb-12">
+        <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 text-center">
+          <div className="text-3xl mb-4">🎉</div>
+          <h3 className="text-xl font-serif text-white mb-2">
+            {status === 'attending' ? "We can't wait to see you!" : 'Thank you for letting us know'}
+          </h3>
+          <p className="text-sm text-white/70">
+            {status === 'attending'
+              ? existingRSVP
+                ? "Your RSVP has been updated. We can't wait to see you!"
+                : 'Your RSVP has been received. More details to follow.'
+              : existingRSVP
+                ? 'Your RSVP has been updated. Thank you for letting us know.'
+                : 'We will miss you. Wishing you all the best.'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -78,17 +80,18 @@ export default function RSVPForm({ existingRSVP }: Props) {
     <div className="max-w-sm mx-auto px-6 pb-12">
       <h2 className="text-xl font-serif text-white text-center mb-6">RSVP</h2>
 
-      {existingRSVP && (
-        <p className="bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-600 text-center mb-4">
-          You previously responded as{' '}
-          <span className="font-medium">
-            {existingRSVP.status === 'attending' ? 'Attending' : 'Unable to attend'}
-          </span>
-          . Feel free to update your response below.
-        </p>
-      )}
+      <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden">
+        {existingRSVP && (
+          <p className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white/75 text-center mb-4">
+            You previously responded as{' '}
+            <span className="font-medium text-white/90">
+              {existingRSVP.status === 'attending' ? 'Attending' : 'Unable to attend'}
+            </span>
+            . Feel free to update your response below.
+          </p>
+        )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Attending or not */}
         <div className="grid grid-cols-2 gap-3">
           {RSVP_OPTIONS.map((opt) => (
@@ -98,8 +101,8 @@ export default function RSVPForm({ existingRSVP }: Props) {
               onClick={() => setStatus(opt)}
               className={`h-12 rounded-xl border text-sm font-medium transition-colors ${
                 status === opt
-                  ? 'bg-stone-800 text-white border-stone-800'
-                  : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                  ? 'bg-white text-stone-800 border-white shadow-sm'
+                  : 'bg-white/15 text-white/70 border-white/30 hover:bg-white/25 hover:border-white/45'
               }`}
             >
               {opt === 'attending' ? 'Attending' : 'Unable to attend'}
@@ -119,7 +122,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                 placeholder="e.g. vegetarian, nut allergy"
                 value={dietaryNotes}
                 onChange={(e) => setDietaryNotes(e.target.value)}
-                className="w-full h-12 px-4 border border-stone-200 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className="w-full h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40"
               />
             </div>
 
@@ -130,7 +133,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                   type="checkbox"
                   checked={plusOne}
                   onChange={(e) => setPlusOne(e.target.checked)}
-                  className="w-5 h-5 rounded accent-stone-700"
+                  className="w-5 h-5 rounded accent-stone-400"
                 />
                 <span className="text-sm text-white/80">I&apos;m bringing a plus one</span>
               </label>
@@ -142,7 +145,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                 placeholder="Plus one's name"
                 value={plusOneName}
                 onChange={(e) => setPlusOneName(e.target.value)}
-                className="w-full h-12 px-4 border border-stone-200 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                className="w-full h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40"
               />
             )}
 
@@ -156,7 +159,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300 resize-none"
+                className="w-full px-4 py-3 bg-white/90 border border-white/50 rounded-xl text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 resize-none"
               />
             </div>
           </>
@@ -165,15 +168,16 @@ export default function RSVPForm({ existingRSVP }: Props) {
         <button
           type="submit"
           disabled={!status || formState === 'loading'}
-          className="h-12 w-full bg-stone-800 text-white text-sm tracking-wide rounded-xl hover:bg-stone-700 active:bg-stone-900 disabled:opacity-40 transition-colors mt-2"
+          className="h-12 w-full bg-white text-stone-800 text-sm tracking-wide font-medium rounded-xl border border-white/60 hover:bg-stone-50 active:bg-stone-100 disabled:opacity-40 transition-colors mt-2"
         >
           {formState === 'loading' ? 'Submitting…' : 'Submit RSVP'}
         </button>
 
         {formState === 'error' && (
-          <p className="text-sm text-rose-600 text-center">{errorMsg}</p>
+          <p className="text-sm text-rose-300 text-center">{errorMsg}</p>
         )}
       </form>
+      </div>
     </div>
   );
 }
