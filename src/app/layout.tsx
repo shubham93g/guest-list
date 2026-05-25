@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
-import { wedding } from '@/config/wedding';
+import { brideCoupleName } from '@/config/wedding';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: `Wedding of ${wedding.coupleNames}`,
+  title: `Wedding of ${brideCoupleName}`,
 };
 
 export const viewport: Viewport = {

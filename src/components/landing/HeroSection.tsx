@@ -1,4 +1,4 @@
-import { wedding } from '@/config/wedding';
+import { brideCoupleName, receptionEvent } from '@/config/wedding';
 import type { HeroContent } from '@/config/heroVariants';
 
 interface HeroSectionProps {
@@ -7,8 +7,8 @@ interface HeroSectionProps {
 
 export default function HeroSection({ content }: HeroSectionProps) {
   const tagline = content?.tagline ?? 'The Wedding Of';
-  const heading = content?.heading ?? wedding.coupleNames;
-  const subheading = content?.subheading ?? wedding.date;
+  const heading = content?.heading ?? brideCoupleName;
+  const subheading = content?.subheading ?? receptionEvent.date;
 
   return (
     <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
