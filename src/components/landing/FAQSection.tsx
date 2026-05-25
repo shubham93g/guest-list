@@ -47,7 +47,7 @@ export default function FAQSection() {
         <div className={ui.glassCard}>
           {faqs.map(({ q, a }) => (
             <details key={q} className="group border-b border-white/10 last:border-b-0">
-              <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between px-6 py-4 cursor-pointer select-none gap-4">
+              <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between px-6 py-4 cursor-pointer select-none gap-4 hover:bg-white/5 transition-colors">
                 <span className="text-sm font-medium text-white">{q}</span>
                 <span className="flex-shrink-0 flex items-center text-white">
                   <span className="group-open:hidden text-lg leading-none">+</span>

@@ -107,7 +107,7 @@ export default function EventSection({ event, coupleNames, sectionLabel, overlay
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-white hover:text-white transition-colors mt-1"
+                  className="inline-flex items-center gap-1.5 text-xs text-white hover:text-white/70 transition-colors mt-1"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
@@ -122,7 +122,7 @@ export default function EventSection({ event, coupleNames, sectionLabel, overlay
           {/* Add to Calendar */}
           {calendarLinks && (
             <details className={`group ${ui.glassCard}`}>
-              <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between px-6 py-4 cursor-pointer select-none">
+              <summary className="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between px-6 py-4 cursor-pointer select-none hover:bg-white/5 transition-colors">
                 <span className="text-sm text-white">Add to Calendar</span>
                 <span className="flex items-center gap-1 text-white">
                   <span className="group-open:hidden text-lg leading-none">+</span>
@@ -134,14 +134,14 @@ export default function EventSection({ event, coupleNames, sectionLabel, overlay
                   href={calendarLinks.google}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-white hover:text-white transition-colors"
+                  className="text-sm text-white hover:text-white/70 transition-colors"
                 >
                   Google Calendar
                 </a>
                 <a
                   href={calendarLinks.ics}
                   download="wedding.ics"
-                  className="text-sm text-white hover:text-white transition-colors"
+                  className="text-sm text-white hover:text-white/70 transition-colors"
                 >
                   Download .ics file
                 </a>
