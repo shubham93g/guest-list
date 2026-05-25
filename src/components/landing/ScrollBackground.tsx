@@ -4,42 +4,159 @@ import { useEffect, useRef } from 'react';
 import { ui } from '@/lib/ui';
 
 const HERO_IMAGE = '/hero.jpg';
+const CROSSFADE_AHEAD = 1.5; // seconds before end to trigger the crossfade; matches CSS transition duration
+const HERO_VIDEOS = [
+  '/hero.mp4',
+  '/hero3.mp4',
+  '/hero4.mp4',
+  '/hero2.mp4',
+  // Add more video filenames here as you drop them into /public
+];
 
 export default function ScrollBackground() {
   const heroLayerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoARef = useRef<HTMLVideoElement>(null);
+  const videoBRef = useRef<HTMLVideoElement>(null);
+  const activeRef = useRef<'a' | 'b'>('a');
+  const videoIndexRef = useRef(0);
+  const transitioningRef = useRef(false);
   const rafRef = useRef<number | null>(null);
 
-  // Hide the video until the browser confirms it is actually playing.
-  // If autoplay is blocked (e.g. Safari Low Power Mode) the video stays
-  // hidden and the base photo fallback shows through instead.
+  // Two video elements crossfade on each transition so the background image
+  // never shows through. Video A starts; when it ends, Video B fades in while
+  // A fades out. They then alternate roles for every subsequent video.
+  // The inactive element always preloads the upcoming video so the crossfade
+  // can begin immediately with no buffering delay.
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
+    const videoA = videoARef.current;
+    const videoB = videoBRef.current;
+    if (!videoA || !videoB) {
       return;
     }
-    const show = () => {
-      video.style.opacity = '1';
-    };
-    // The `playing` event may fire before this effect runs (e.g. cached video
-    // or fast load) — check immediately as well as listening for future events.
-    if (!video.paused && !video.ended) {
-      show();
-    }
-    video.addEventListener('playing', show);
 
-    // Mobile browsers pause video when the page is hidden (e.g. user switches
-    // to Google Maps). Resume playback when the user returns to the tab.
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        video.play().catch(() => {});
+    const getActive = (): HTMLVideoElement => activeRef.current === 'a' ? videoA : videoB;
+    const getInactive = (): HTMLVideoElement => activeRef.current === 'a' ? videoB : videoA;
+
+    // Buffer the next video in the playlist into `intoElement` without playing it.
+    const preloadNext = (intoElement: HTMLVideoElement) => {
+      const nextIndex = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
+      intoElement.src = HERO_VIDEOS[nextIndex];
+      intoElement.load();
+    };
+
+    // Crossfade to the next video. Called by timeupdate (primary) and ended (fallback).
+    const startTransition = () => {
+      if (transitioningRef.current) {
+        return;
+      }
+      transitioningRef.current = true;
+
+      const prev = getActive();
+      const next = getInactive();
+      videoIndexRef.current = (videoIndexRef.current + 1) % HERO_VIDEOS.length;
+
+      // Only set src if preload didn't run (safety net for very short videos).
+      if (!next.src.endsWith(HERO_VIDEOS[videoIndexRef.current])) {
+        next.src = HERO_VIDEOS[videoIndexRef.current];
+      }
+
+      const onNextPlaying = () => {
+        next.style.opacity = '1';
+        prev.style.opacity = '0';
+        activeRef.current = activeRef.current === 'a' ? 'b' : 'a';
+        transitioningRef.current = false;
+        next.removeEventListener('playing', onNextPlaying);
+        // Wait for prev's fade-out to complete before calling load() on it —
+        // load() blanks the element, which would flash through the still-visible fade.
+        const onFadeOut = () => {
+          prev.removeEventListener('transitionend', onFadeOut);
+          preloadNext(prev);
+        };
+        prev.addEventListener('transitionend', onFadeOut);
+      };
+      next.addEventListener('playing', onNextPlaying);
+      next.play().catch(() => {});
+    };
+
+    // Set initial source on Video A and fade it in once playback is confirmed.
+    // If autoplay is blocked (e.g. Safari Low Power Mode) it stays hidden and
+    // the base photo fallback shows through instead.
+    videoA.src = HERO_VIDEOS[videoIndexRef.current];
+    const handleInitialPlaying = () => {
+      videoA.style.opacity = '1';
+      videoA.removeEventListener('playing', handleInitialPlaying);
+      preloadNext(videoB); // start buffering index 1 into Video B immediately
+    };
+    if (!videoA.paused && !videoA.ended) {
+      videoA.style.opacity = '1';
+      preloadNext(videoB);
+    }
+    videoA.addEventListener('playing', handleInitialPlaying);
+
+    // Primary: trigger crossfade CROSSFADE_AHEAD seconds before the video ends
+    // so the next video is already buffered and plays with no freeze frame.
+    const handleTimeUpdate = () => {
+      const active = getActive();
+      if (active.duration && active.duration - active.currentTime <= CROSSFADE_AHEAD) {
+        startTransition();
       }
     };
+
+    // Fallback: catches very short videos or slow-buffer edge cases.
+    // Only fires if the ending video is still the active one — prevents a
+    // double-trigger when ended fires after timeupdate has already completed
+    // the transition and reset transitioningRef to false.
+    const handleEndedA = () => { if (getActive() === videoA) { startTransition(); } };
+    const handleEndedB = () => { if (getActive() === videoB) { startTransition(); } };
+
+    videoA.addEventListener('timeupdate', handleTimeUpdate);
+    videoB.addEventListener('timeupdate', handleTimeUpdate);
+    videoA.addEventListener('ended', handleEndedA);
+    videoB.addEventListener('ended', handleEndedB);
+
+    // Mobile browsers pause video when the page is hidden (e.g. user switches
+    // to another app). Resume the active video; also resume the inactive one if
+    // a crossfade was in progress when the page was hidden.
+    //
+    // On Chrome iOS, visibilitychange can fire before the browser has fully
+    // restored the foreground context, causing play() to be rejected. A short
+    // delay gives it time to settle. window 'focus' is also used as an
+    // additional trigger since it fires more reliably on iOS for app-switching.
+    let resumeTimer: ReturnType<typeof setTimeout> | null = null;
+    const resumePlayback = () => {
+      if (resumeTimer !== null) {
+        clearTimeout(resumeTimer);
+      }
+      resumeTimer = setTimeout(() => {
+        resumeTimer = null;
+        getActive().play().catch(() => {});
+        if (transitioningRef.current) {
+          getInactive().play().catch(() => {});
+        }
+      }, 100);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        resumePlayback();
+      }
+    };
+    const handleFocus = () => { resumePlayback(); };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
 
     return () => {
-      video.removeEventListener('playing', show);
+      videoA.removeEventListener('playing', handleInitialPlaying);
+      videoA.removeEventListener('timeupdate', handleTimeUpdate);
+      videoB.removeEventListener('timeupdate', handleTimeUpdate);
+      videoA.removeEventListener('ended', handleEndedA);
+      videoB.removeEventListener('ended', handleEndedB);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      if (resumeTimer !== null) {
+        clearTimeout(resumeTimer);
+      }
     };
   }, []);
 
@@ -98,18 +215,24 @@ export default function ScrollBackground() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
       />
-      {/* Hero video — hidden until the browser confirms it is playing */}
+      {/* Video A — fades in on initial play; crossfades with Video B on transitions.
+          Both start hidden; src and opacity are managed imperatively in the effect. */}
       <video
-        ref={videoRef}
+        ref={videoARef}
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
         autoPlay
-        loop
         muted
         playsInline
-      >
-        <source src="/hero.mp4" type="video/mp4" />
-      </video>
+      />
+      {/* Video B — starts hidden; swaps in during crossfade */}
+      <video
+        ref={videoBRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
+        muted
+        playsInline
+      />
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
         ref={heroLayerRef}

@@ -159,6 +159,21 @@ Always follow these steps when delivering any change, no matter how small:
   ```
   This is enforced by the `curly: ['error', 'all']` ESLint rule in `eslint.config.mjs`.
 
+## Hero Videos
+
+Background videos live in `public/` and are listed in `HERO_VIDEOS` inside `src/components/landing/ScrollBackground.tsx`. They play sequentially with a crossfade and loop back to the start.
+
+**Adding a new video:**
+1. Drop the file into `public/` as `.mp4`
+2. If converting from `.mov`, encode it first (see below) — raw `.mov` files are not supported in Chrome/Firefox
+3. Append the filename to `HERO_VIDEOS` in `ScrollBackground.tsx`
+
+**Required ffmpeg encoding** (no audio, CRF 28 for web-appropriate file size):
+```bash
+ffmpeg -i input.mov -vcodec h264 -crf 28 -an output.mp4
+```
+Always use `-crf 28`. Omitting it preserves the source bitrate, which can be 3–5× larger than necessary. Never use `-acodec` — these are muted background videos.
+
 ## Important Patterns
 
 - **sheets.ts auth client**: uses a factory function `getAuthClient()` — not a module-level singleton — to be safe in serverless environments.
