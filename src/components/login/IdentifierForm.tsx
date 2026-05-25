@@ -2,6 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { ui } from '@/lib/ui';
 
 interface Props {
   channel: 'phone' | 'email';
@@ -69,7 +70,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
   const submitDisabled = loading || (isPhoneChannel ? !countryCode || !phoneNumber : !email);
 
   return (
-    <div className="w-full max-w-sm mx-auto px-6">
+    <div className={ui.formWrapper}>
       <h2 className="text-2xl font-serif text-white text-center mb-2">
         Welcome
       </h2>
@@ -77,7 +78,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
         {sendInstruction}
       </p>
 
-      <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden">
+      <div className={ui.formCard}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {channel === 'email' ? (
             <input
@@ -87,7 +88,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               required
-              className="w-full h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+              className={`w-full h-12 px-4 text-base ${ui.inputBase}`}
             />
           ) : (
             <div className="flex items-center gap-2">
@@ -102,7 +103,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
                 onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
                 disabled={loading}
                 required
-                className="w-16 h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base text-center focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+                className={`w-16 h-12 px-3 text-base text-center ${ui.inputBase}`}
               />
               <input
                 type="text"
@@ -112,7 +113,7 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                 disabled={loading}
                 required
-                className="min-w-0 flex-1 h-12 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-base focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+                className={`min-w-0 flex-1 h-12 px-4 text-base ${ui.inputBase}`}
               />
             </div>
           )}
@@ -120,14 +121,14 @@ export default function IdentifierForm({ channel, onSuccess }: Props) {
           <button
             type="submit"
             disabled={submitDisabled}
-            className="h-12 w-full bg-white text-stone-800 text-sm tracking-wide font-medium rounded-xl border border-white/60 hover:bg-stone-50 active:bg-stone-100 disabled:opacity-50 transition-colors"
+            className={ui.primaryButton}
           >
             {loading ? 'Logging in…' : sendLabel}
           </button>
         </form>
 
         {error && (
-          <p className="mt-4 text-sm text-rose-300 text-center">{error}</p>
+          <p className={`mt-4 ${ui.errorText}`}>{error}</p>
         )}
       </div>
     </div>

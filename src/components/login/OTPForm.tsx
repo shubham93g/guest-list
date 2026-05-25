@@ -2,6 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { ui } from '@/lib/ui';
 
 interface Props {
   phone: string;
@@ -55,7 +56,7 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto px-6">
+    <div className={ui.formWrapper}>
       <h2 className="text-2xl font-serif text-white text-center mb-2">
         {otpTitle}
       </h2>
@@ -63,8 +64,9 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
         <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{contact}</span></>
       </p>
 
-      <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-6 overflow-hidden">
+      <div className={ui.formCard}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* OTP uses larger sizing (h-14, text-2xl) — not the standard h-12 */}
           <input
             type="text"
             inputMode="numeric"
@@ -75,25 +77,25 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
             disabled={loading}
             required
-            className="w-full h-14 px-4 bg-white/90 border border-white/50 rounded-xl text-stone-800 placeholder-stone-400 text-2xl text-center tracking-widest focus:outline-none focus:bg-white focus:ring-2 focus:ring-white/40 disabled:opacity-50"
+            className={`w-full h-14 px-4 text-2xl text-center tracking-widest ${ui.inputBase}`}
           />
 
           <button
             type="submit"
             disabled={loading || code.length !== 6}
-            className="h-12 w-full bg-white text-stone-800 text-sm tracking-wide font-medium rounded-xl border border-white/60 hover:bg-stone-50 active:bg-stone-100 disabled:opacity-50 transition-colors"
+            className={ui.primaryButton}
           >
             {loading ? 'Verifying…' : 'Confirm'}
           </button>
         </form>
 
         {error && (
-          <p className="mt-4 text-sm text-rose-300 text-center">{error}</p>
+          <p className={`mt-4 ${ui.errorText}`}>{error}</p>
         )}
 
         <button
           onClick={onBack}
-          className="mt-6 w-full text-sm text-white/60 hover:text-white/90 hover:underline underline-offset-4 transition-colors"
+          className={`mt-6 w-full text-sm ${ui.secondaryLink}`}
         >
           {backLabel}
         </button>
