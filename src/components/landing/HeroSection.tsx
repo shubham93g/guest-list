@@ -1,6 +1,15 @@
 import { wedding } from '@/config/wedding';
+import type { HeroContent } from '@/config/heroVariants';
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  content?: HeroContent;
+}
+
+export default function HeroSection({ content }: HeroSectionProps) {
+  const tagline = content?.tagline ?? 'The Wedding Of';
+  const heading = content?.heading ?? wedding.coupleNames;
+  const subheading = content?.subheading ?? wedding.date;
+
   return (
     <section id="hero" className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
       {/* Dark overlay — keeps white text sharp over the background photo */}
@@ -8,22 +17,17 @@ export default function HeroSection() {
 
       <div className="relative z-10 flex flex-col items-center">
         <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
-          The Wedding Of
+          {tagline}
         </p>
 
         <h1 className="text-5xl sm:text-6xl font-serif text-white mb-4 leading-tight">
-          {wedding.coupleNames}
+          {heading}
         </h1>
 
-        {wedding.date && (
-          <p className="text-lg text-white/75 mb-12">{wedding.date}</p>
+        {subheading && (
+          <p className="text-lg text-white/75 mb-12">{subheading}</p>
         )}
 
-        {/* <div className="w-12 h-px bg-white/30 mb-12" />
-
-        <p className="text-xs text-white/50">
-          Formal invitation to follow
-        </p> */}
       </div>
 
       <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-white/50 z-10">
