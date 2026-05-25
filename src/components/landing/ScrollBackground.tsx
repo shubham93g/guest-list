@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 const HERO_IMAGE = '/hero.jpg';
 
 export default function ScrollBackground() {
-  const hero2LayerRef = useRef<HTMLDivElement>(null);
+  const heroLayerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -32,7 +32,7 @@ export default function ScrollBackground() {
   useEffect(() => {
     const update = () => {
       const venueEl = document.getElementById('venue');
-      if (!venueEl || !hero2LayerRef.current) {
+      if (!venueEl || !heroLayerRef.current) {
         return;
       }
 
@@ -43,7 +43,7 @@ export default function ScrollBackground() {
       // No JS fade-out needed — FAQ has a solid bg-stone-50 that naturally covers
       // the fixed image layer. Venue and RSVP sections are transparent over the photo.
       const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
-      hero2LayerRef.current.style.opacity = String(opacity);
+      heroLayerRef.current.style.opacity = String(opacity);
     };
 
     const onScroll = () => {
@@ -100,7 +100,7 @@ export default function ScrollBackground() {
       </video>
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
-        ref={hero2LayerRef}
+        ref={heroLayerRef}
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${HERO_IMAGE}')`, opacity: 0 }}
       />
