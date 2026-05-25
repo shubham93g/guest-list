@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { findGuestByPhone, findGuestByEmail } from '@/lib/sheets';
-import { sendOTP, RSVP_CHANNEL, OTP_CHANNEL, signJWT } from '@/lib/auth';
+import { findGuestByPhone } from '@/lib/sheets';
+import { sendOTP, OTP_CHANNEL, signJWT } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { setSessionCookie } from '@/lib/session';
 
-// Each schema validates only the field needed for the active channel.
-// Extra fields in the body are ignored by zod (stripped by default).
-const emailSchema = z.object({
-  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
-});
 const phoneSchema = z.object({
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/),
 });
@@ -41,39 +36,6 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-
-    if (RSVP_CHANNEL === 'email') {
-      const parsed = emailSchema.safeParse(body);
-      if (!parsed.success) {
-        return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
-      }
-      // Normalise at the route boundary so HMAC derivation and sheet lookups use the same key.
-      const email = parsed.data.email.trim().toLowerCase();
-
-      const emailLimit = checkRateLimit(`send-otp:email:${email}`, 3, 15 * 60);
-      if (emailLimit.limited) {
-        return NextResponse.json(
-          { error: 'Too many requests. Please try again later.' },
-          { status: 429, headers: { 'Retry-After': String(emailLimit.retryAfterSeconds) } }
-        );
-      }
-
-      const guest = await findGuestByEmail(email);
-      if (!guest) {
-        return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
-      }
-
-      if (OTP_CHANNEL === 'skip') {
-        const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
-        const res = NextResponse.json({ skipOtp: true });
-        return setSessionCookie(res, token);
-      }
-
-      await sendOTP(email);
-      return NextResponse.json({});
-    }
-
-    // phone (sms / whatsapp)
     const parsed = phoneSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
@@ -95,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (OTP_CHANNEL === 'skip') {
-      const token = await signJWT({ name: guest.name, phone: guest.phone, email: guest.email });
+      const token = await signJWT({ name: guest.name, phone: guest.phone });
       const res = NextResponse.json({ skipOtp: true });
       return setSessionCookie(res, token);
     }

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate-limit by authenticated identifier: 10 per 15 min to prevent Sheets quota abuse (M3).
-    const identifier = session.phone || session.email || 'unknown';
+    const identifier = session.phone ?? 'unknown';
     const limit = checkRateLimit(`rsvp:${identifier}`, 10, 15 * 60);
     if (limit.limited) {
       return NextResponse.json(

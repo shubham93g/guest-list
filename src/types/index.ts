@@ -5,7 +5,6 @@ export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 export interface SessionPayload {
   name: string;
   phone: string;
-  email?: string;
 }
 
 export interface RSVPData {

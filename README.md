@@ -7,7 +7,7 @@ A private wedding website with OTP-gated RSVP, personalized guest invitations, a
 - Public save-the-date landing page — looping hero video, venue details, and FAQ
 - Personalized `/invite` page, unlocked per guest via OTP auth
 - RSVP form with dietary notes, plus-one, and a message field; returning guests see their prior response
-- Multi-channel OTP: SMS, WhatsApp, or email — configurable per deployment without code changes
+- Multi-channel OTP: SMS or WhatsApp — configurable per deployment without code changes
 - iCal export so guests can add the event to their calendar
 - Guest data lives in Google Sheets — admin-accessible without a separate dashboard
 
@@ -20,31 +20,25 @@ A private wedding website with OTP-gated RSVP, personalized guest invitations, a
 | Tailwind CSS + shadcn/ui | Styling and components | — |
 | Google Sheets | Guest data store | Keeps data admin-accessible; avoids standing up a database for a single-event app |
 | Twilio Verify | SMS / WhatsApp OTP | Managed OTP delivery with no token storage required |
-| Resend | Email OTP | Stateless HMAC codes — no database or Redis required |
 | jose | JWT sessions | Edge-compatible (no Node.js-only APIs); required for use in middleware |
 | Zod | Input validation | All API request bodies validated at the boundary |
 | Vercel | Hosting + CI | Native GitHub integration; preview URLs per PR |
 
 ## Architecture
 
-Three public-facing routes: `/` (landing), `/login` (identifier + OTP entry), and `/invite` (personalized RSVP). Auth routing is handled in Edge middleware — a valid JWT redirects away from `/login`, a missing JWT redirects away from `/invite` — keeping route handlers clean.
+Three public-facing routes: `/` (landing), `/login` (phone + OTP entry), and `/invite` (personalized RSVP). Auth routing is handled in Edge middleware — a valid JWT redirects away from `/login`, a missing JWT redirects away from `/invite` — keeping route handlers clean.
 
 The Google Sheets client uses a factory pattern (one auth client per invocation) for serverless safety. A 5-minute in-memory cache sits in front of Sheets reads and is invalidated on every RSVP write, avoiding per-request API calls without introducing a caching layer. Three API routes handle auth and RSVP submission; event details (couple names, date, venue) live in `src/config/wedding.ts` as static config — not in the Sheet.
 
 ## Auth and OTP
 
-Login identifier is controlled by `RSVP_CHANNEL` (`phone` or `email`). OTP delivery is controlled independently by `OTP_CHANNEL`:
+Guests log in with their phone number. OTP delivery is controlled by `OTP_CHANNEL`:
 
 | `OTP_CHANNEL` | Delivery | Notes |
 |---|---|---|
-| `sms` | Twilio Verify | Requires `RSVP_CHANNEL=phone` |
+| `sms` | Twilio Verify | Default for live deployments |
 | `whatsapp` | Twilio Verify (WhatsApp) | Requires Meta-approved WhatsApp Business Account |
-| `email` | Resend | Requires `RSVP_CHANNEL=email` |
 | `skip` | None | Valid first-class mode — see below |
-
-Channel combinations are validated at startup so misconfiguration fails immediately rather than at request time.
-
-**Email OTP is stateless.** Codes are HMAC-derived from `JWT_SECRET + identifier + a 10-minute time window` — no token storage, no Redis, no cleanup job.
 
 **`OTP_CHANNEL=skip`** issues a session immediately after the allowlist check passes — no code is sent or verified. Guests not on the list still get a 422. Useful for trusted guest lists or as an operational fallback if the OTP provider goes down (toggle in Vercel env vars, redeploy, revert when the provider recovers — no code changes).
 
@@ -71,7 +65,7 @@ npm run dev                  # http://localhost:3000
 
 All required variables are documented in `.env.example`. Key notes:
 - `JWT_SECRET` — generate with `openssl rand -hex 32`
-- `OTP_CHANNEL` and `RSVP_CHANNEL` must be a valid combination (see table above); the app throws at startup otherwise
+- `OTP_CHANNEL` defaults to `skip` — set to `sms` or `whatsapp` for live OTP delivery
 
 ## Customising
 

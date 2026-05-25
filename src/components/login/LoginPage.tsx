@@ -9,18 +9,15 @@ import { ui } from '@/lib/ui';
 type Step = 'identifier' | 'otp';
 
 interface Props {
-  rsvpChannel: 'phone' | 'email';
-  otpChannel: 'sms' | 'whatsapp' | 'email' | 'skip';
+  otpChannel: 'sms' | 'whatsapp' | 'skip';
 }
 
-export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
+export default function LoginPage({ otpChannel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
 
-  function handleIdentifierSuccess(submittedPhone: string, submittedEmail: string) {
+  function handleIdentifierSuccess(submittedPhone: string) {
     setPhone(submittedPhone);
-    setEmail(submittedEmail);
     setStep('otp');
   }
 
@@ -37,15 +34,13 @@ export default function LoginPage({ rsvpChannel, otpChannel }: Props) {
 
       {step === 'identifier' ? (
         <IdentifierForm
-          channel={rsvpChannel}
           onSuccess={handleIdentifierSuccess}
         />
       ) : (
         <OTPForm
           phone={phone}
-          email={email}
           onBack={() => setStep('identifier')}
-          otpChannel={otpChannel as 'sms' | 'whatsapp' | 'email'}
+          otpChannel={otpChannel as 'sms' | 'whatsapp'}
         />
       )}
     </main>

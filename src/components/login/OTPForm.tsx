@@ -6,26 +6,21 @@ import { ui } from '@/lib/ui';
 
 interface Props {
   phone: string;
-  email: string;
   onBack: () => void;
-  otpChannel: 'sms' | 'whatsapp' | 'email';
+  otpChannel: 'sms' | 'whatsapp';
 }
 
 const OTP_CHANNEL_TITLE = {
   sms: 'Check your messages',
   whatsapp: 'Check WhatsApp',
-  email: 'Check your email',
 } as const;
 
-export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
+export default function OTPForm({ phone, onBack, otpChannel }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // The non-empty field is the one the server will validate against RSVP_CHANNEL.
-  const contact = email || phone;
-  const backLabel = email ? '← Use a different address' : '← Use a different number';
   const otpTitle = OTP_CHANNEL_TITLE[otpChannel];
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
@@ -37,7 +32,7 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
       const res = await fetch('/api/auth/login-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone || undefined, email: email || undefined, code }),
+        body: JSON.stringify({ phone, code }),
       });
 
       if (!res.ok) {
@@ -61,7 +56,7 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
         {otpTitle}
       </h2>
       <p className="text-sm text-white/70 text-center mb-8">
-        <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{contact}</span></>
+        <>We sent a 6-digit code to{' '}<span className="font-medium text-white/90">{phone}</span></>
       </p>
 
       <div className={ui.formCard}>
@@ -97,7 +92,7 @@ export default function OTPForm({ phone, email, onBack, otpChannel }: Props) {
           onClick={onBack}
           className={`mt-6 w-full text-sm ${ui.secondaryLink}`}
         >
-          {backLabel}
+          ← Use a different number
         </button>
       </div>
     </div>
