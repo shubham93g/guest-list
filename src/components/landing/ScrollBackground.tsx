@@ -6,9 +6,9 @@ import { ui } from '@/lib/ui';
 const HERO_IMAGE = '/hero.jpg';
 const CROSSFADE_AHEAD = 1.5; // seconds before end to trigger the crossfade; matches CSS transition duration
 const HERO_VIDEOS = [
+  '/hero4.mp4',
   '/hero.mp4',
   '/hero3.mp4',
-  '/hero4.mp4',
   '/hero2.mp4',
   // Add more video filenames here as you drop them into /public
 ];
