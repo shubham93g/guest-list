@@ -80,7 +80,7 @@ All required variables are documented in `.env.example`. Key notes:
 
 ```bash
 ffmpeg -i input.mov \
-  -vcodec h264 -acodec aac \
+  -vcodec h264 -an \
   -movflags +faststart \
   -crf 28 \
   public/hero.mp4
