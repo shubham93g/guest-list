@@ -3,7 +3,6 @@ import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
 import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 const CACHE_TTL_MS = 5 * 60 * 1_000; // 5 minutes
-const PHONE_SET_CACHE_TTL_MS = 10 * 60 * 1_000; // 10 minutes — longer to allow new guests to appear
 
 interface GuestRowsCache {
   rows: string[][];
@@ -44,7 +43,7 @@ async function getAllGuestRows(): Promise<string[][]> {
 }
 
 async function getPhoneSet(): Promise<Set<string>> {
-  if (phoneSetCache && Date.now() - phoneSetCache.cachedAt < PHONE_SET_CACHE_TTL_MS) {
+  if (phoneSetCache && Date.now() - phoneSetCache.cachedAt < CACHE_TTL_MS) {
     return phoneSetCache.phones;
   }
   console.log('[sheets] phone-set cache miss — fetching from Sheets API');
