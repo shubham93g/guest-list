@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import IdentifierForm from '@/components/login/IdentifierForm';
 import OTPForm from '@/components/login/OTPForm';
@@ -15,6 +15,10 @@ interface Props {
 export default function LoginPage({ otpChannel }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    void fetch('/api/auth/pre-otp');
+  }, []);
 
   function handleIdentifierSuccess(submittedPhone: string) {
     setPhone(submittedPhone);
