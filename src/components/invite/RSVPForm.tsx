@@ -52,13 +52,6 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
   function handleStatusChange(newStatus: AttendingStatus) {
     setStatus(newStatus);
-    if (newStatus === 'declined') {
-      setGuestCount(1);
-      setPlusOneNames([]);
-      setRequiresParking(false);
-      setRequiresAccommodation(false);
-      setDietaryNotes('');
-    }
   }
 
   function handleCountChange(newCount: number) {
@@ -82,17 +75,24 @@ export default function RSVPForm({ existingRSVP }: Props) {
     setErrorMsg('');
 
     try {
+      const declined = status === 'declined';
+      const submitGuestCount = declined ? 1 : guestCount;
+      const submitPlusOneNames = declined ? [] : plusOneNames.filter((n) => n.trim());
+      const submitRequiresParking = declined ? false : requiresParking;
+      const submitRequiresAccommodation = declined ? false : requiresAccommodation;
+      const submitDietaryNotes = declined ? '' : dietaryNotes;
+
       const res = await fetch('/api/rsvp/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           status,
-          guestCount,
-          plusOneNames: plusOneNames.filter((n) => n.trim()).join(', '),
-          requiresParking,
-          requiresAccommodation,
-          dietaryNotes,
+          guestCount: submitGuestCount,
+          plusOneNames: submitPlusOneNames.join(', '),
+          requiresParking: submitRequiresParking,
+          requiresAccommodation: submitRequiresAccommodation,
+          dietaryNotes: submitDietaryNotes,
           message,
         }),
       });
@@ -103,6 +103,11 @@ export default function RSVPForm({ existingRSVP }: Props) {
         return;
       }
 
+      setGuestCount(submitGuestCount);
+      setPlusOneNames(submitPlusOneNames);
+      setRequiresParking(submitRequiresParking);
+      setRequiresAccommodation(submitRequiresAccommodation);
+      setDietaryNotes(submitDietaryNotes);
       setFormState('success');
     } catch {
       setErrorMsg('Something went wrong. Please try again.');

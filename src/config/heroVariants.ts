@@ -1,4 +1,4 @@
-import { brideCoupleName, groomCoupleName, receptionEvent } from '@/config/wedding';
+import { brideCoupleName, groomCoupleName } from '@/config/wedding';
 
 export interface HeroContent {
   tagline: string;
