@@ -113,7 +113,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
     range: `${SHEETS.GUESTS}!C${sheetRow}:K${sheetRow}`,
-    valueInputOption: 'USER_ENTERED',
+    valueInputOption: 'RAW',
     requestBody: {
       values: [[
         data.email,
