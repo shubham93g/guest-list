@@ -32,7 +32,8 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
 - `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
-- `/api/auth/send-otp` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
+- `/api/auth/login-id` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
+- `/api/auth/pre-login-id` — GET: warms the Sheets phone cache before the user submits their phone number
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
@@ -83,12 +84,12 @@ See `.env.example` for all required variables. Critical notes:
 ## Auth Flow
 
 **Normal flow:**
-1. Guest enters phone number → `POST /api/auth/send-otp` checks Sheets allowlist → sends OTP via Twilio Verify (sms or whatsapp, controlled by `OTP_CHANNEL`)
+1. Guest enters phone number → `POST /api/auth/login-id` checks Sheets allowlist → sends OTP via Twilio Verify (sms or whatsapp, controlled by `OTP_CHANNEL`)
 2. Guest enters 6-digit code → `POST /api/auth/login-otp` → verifies code → API issues 30-day `httpOnly` JWT cookie containing `{ phone }`
 3. `/invite` reads cookie server-side via `getSession()` → fetches guest data from Sheets
 
 **`OTP_CHANNEL=skip` (escape hatch):**
-1. Guest enters phone → `POST /api/auth/send-otp` checks Sheets allowlist → issues JWT session immediately (no OTP sent or verified)
+1. Guest enters phone → `POST /api/auth/login-id` checks Sheets allowlist → issues JWT session immediately (no OTP sent or verified)
 2. Client receives `{ skipOtp: true }` and redirects directly to `/invite` — the OTP form is never shown
 
 ## Testing API Routes
@@ -96,7 +97,7 @@ See `.env.example` for all required variables. Critical notes:
 ```bash
 # OTP_CHANNEL=sms or whatsapp:
 # 1. Send OTP (must use a phone number in the Guests sheet)
-curl -X POST http://localhost:3000/api/auth/send-otp \
+curl -X POST http://localhost:3000/api/auth/login-id \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
 # 2. Verify OTP
@@ -105,7 +106,7 @@ curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-otp \
   -d '{"phone": "+919876543210", "code": "123456"}'
 
 # OTP_CHANNEL=skip: step 1 issues session immediately, no step 2 needed
-curl -c cookies.txt -X POST http://localhost:3000/api/auth/send-otp \
+curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-id \
   -H "Content-Type: application/json" \
   -d '{"phone": "+919876543210"}'
 

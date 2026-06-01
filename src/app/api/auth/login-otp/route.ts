@@ -4,7 +4,7 @@ import { verifyOTP, signJWT } from '@/lib/auth';
 import { setSessionCookie } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rate-limit';
 
-// Keep format validation consistent with send-otp (M2).
+// Keep format validation consistent with login-id (M2).
 const phoneSchema = z.object({
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Please enter a valid phone number.'),
   code: z.string().length(6, 'Code must be 6 digits'),
