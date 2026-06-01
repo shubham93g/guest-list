@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   try {
     // Rate-limit by IP (10 per 15 min) to slow enumeration attempts.
     const ip = getClientIP(req);
-    const ipLimit = checkRateLimit(`send-otp:ip:${ip}`, 10, 15 * 60);
+    const ipLimit = checkRateLimit(`login-id:ip:${ip}`, 10, 15 * 60);
     if (ipLimit.limited) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     const { phone } = parsed.data;
 
     // Rate-limit by phone (3 per 15 min) to prevent SMS-bombing a specific guest.
-    const phoneLimit = checkRateLimit(`send-otp:phone:${phone}`, 3, 15 * 60);
+    const phoneLimit = checkRateLimit(`login-id:phone:${phone}`, 3, 15 * 60);
     if (phoneLimit.limited) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     await sendOTP(phone);
     return NextResponse.json({});
   } catch (err) {
-    console.error('[send-otp]', err);
+    console.error('[login-id]', err);
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }

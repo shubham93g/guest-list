@@ -25,7 +25,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
     const phone = `+${countryCode}${phoneNumber}`;
 
     try {
-      const res = await fetch('/api/auth/send-otp', {
+      const res = await fetch('/api/auth/login-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -44,7 +44,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
       }
       onSuccess(phone);
     } catch {
-      console.error('[IdentifierForm] send-otp request failed');
+      console.error('[IdentifierForm] login-id request failed');
       setError('Something went wrong. Please try again.');
       setLoading(false);
     }

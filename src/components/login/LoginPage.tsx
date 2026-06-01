@@ -17,7 +17,7 @@ export default function LoginPage({ otpChannel }: Props) {
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    void fetch('/api/auth/pre-otp');
+    void fetch('/api/auth/pre-login-id');
   }, []);
 
   function handleIdentifierSuccess(submittedPhone: string) {

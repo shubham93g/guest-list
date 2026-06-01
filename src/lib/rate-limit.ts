@@ -17,7 +17,7 @@ export interface RateLimitResult {
 /**
  * Check (and record) a request against a rate limit.
  *
- * @param key           Unique key, e.g. "send-otp:phone:+919876543210"
+ * @param key           Unique key, e.g. "login-id:phone:+919876543210"
  * @param maxRequests   Maximum allowed requests within the window.
  * @param windowSeconds Sliding window duration in seconds.
  */
