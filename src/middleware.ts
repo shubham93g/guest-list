@@ -3,8 +3,8 @@
 // or API route executes), so jwt.ts must stay Edge-compatible (no Node.js-only APIs).
 //
 // Auth routing rules:
-//   /verify  + valid session → redirect to /welcome (skip unnecessary re-auth)
-//   /welcome + no session    → redirect to /verify
+//   /login  + valid session → redirect to /invite (skip unnecessary re-auth)
+//   /invite + no session    → redirect to /login
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/jwt';
 import { SESSION_COOKIE } from '@/lib/constants';
