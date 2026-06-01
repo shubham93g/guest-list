@@ -3,35 +3,41 @@ import { ui } from '@/lib/ui';
 const faqs = [
   {
     q: 'What time should I arrive?',
-    a: 'We recommend arriving by [time] to find your seat before the ceremony begins at [ceremony start time].',
+    a: `5th December 2026 - Fullerton Hotel 
+    11:00 to 12:00 Registration and Cocktail Reception
+    12:00 to 15:00 Lunch
+    
+    Please be seated by 11:50am`,
   },
   {
     q: 'What is the dress code?',
-    a: '[Dress code — e.g. "Black tie optional" or "Smart casual"]. We want you to feel comfortable, so when in doubt, err on the side of more formal.',
+    a: `We'd love for guests to dress in smart formal attire.
+    We also warmly welcome guests who would like to honour our heritage by wearing traditional Indian or Burmese dress. 
+    
+    If you'd like tips, just ask!`,
   },
   {
-    q: 'Can I bring a plus one?',
-    a: 'Due to venue capacity, we are only able to accommodate the guests named on the invitation. Your invitation will indicate whether a plus one has been included.',
-  },
-  {
-    q: 'Are children welcome?',
-    a: '[Children policy — e.g. "We love your little ones! Children are welcome." or "We have organised an adults-only celebration. We hope you enjoy a rare night off!"]',
-  },
-  {
-    q: 'Where should I stay?',
-    a: 'We recommend [hotel name or area]. A room block has [been / not been] arranged — details will be included in the formal invitation.',
+    q: 'Can I being a plus one ?',
+    a : `We're happy to accommodate plus one, just let us know when you RSVP!`,
   },
   {
     q: 'Is there parking available?',
-    a: '[Parking details — e.g. "Free on-site parking is available." or "Street parking is available nearby. We recommend arriving early or using a rideshare service."]',
+    a: `5th December - Fullerton Hotel
+    Parking is available at The Fullerton Hotel. 
+    Please indicate in the RSVP form if you need a parking coupon.
+    
+    For easy access to The Fullerton Hotel Singapore, please use the car park facilities at One Fullerton located at 1 Fullerton Road. The Hotel is accessible from the car park via a vehicular tunnel and an air-conditioned walkway (5-10min walk).
+    
+    4th December - Plume
+    Parking is available at the public carpark associated with Singapore Flyer. We are unable to provide parking coupons for the 4th of December.`,
   },
   {
-    q: 'Can I post photos on social media?',
-    a: '[Photo policy — e.g. "Please feel free to share your photos using the hashtag #[YourHashtag]." or "We are having an unplugged ceremony — please keep phones away during the ceremony itself, but feel free to snap away at the reception!"]',
+    q: 'How to get to The Fullerton Ballroom ?',
+    a: 'The Ballroom at The Fullerton Hotel Singapore is located on the Basement Level, accessible via the main hotel lifts or the grand staircase from the lobby. You will find the registration and cocktail reception area on Basement Level. From there, the ballroom is a short flight of stairs down. A lift is also available at the end of the reception area for guests who need it. \r\n\r\nIf you have any accessibility needs, feel free to let us know!',
   },
   {
-    q: 'Who should I contact if I have questions?',
-    a: 'Please reach out to [contact name] at [email or phone number] for any questions not answered here.',
+    q: 'I am travelling from overseas. Where should I stay?',
+    a: 'Please indicate in the RSVP form if you would like us to help you with accomodation. We will reach out to you later',
   },
 ];
 
@@ -54,7 +60,7 @@ export default function FAQSection() {
                 </span>
               </summary>
               <div className="border-t border-white/10 px-6 py-4">
-                <p className="text-sm text-white leading-relaxed">{a}</p>
+                <p className="text-sm text-white leading-relaxed whitespace-pre-line">{a}</p>
               </div>
             </details>
           ))}
