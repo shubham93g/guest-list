@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { brideCoupleName, receptionEvent } from '@/config/wedding';
+import { brideCoupleName, indianEvent, receptionEvent } from '@/config/wedding';
 import NavMenu from '@/components/landing/NavMenu';
 import ScrollBackground from '@/components/landing/ScrollBackground';
 import HeroSection from '@/components/landing/HeroSection';
 import EventSection from '@/components/landing/EventSection';
 import RSVPSection from '@/components/landing/RSVPSection';
 import FAQSection from '@/components/landing/FAQSection';
+import { heroVariants } from '@/config/heroVariants';
 
 export const metadata: Metadata = {
   title: `${brideCoupleName}`,
@@ -17,8 +18,9 @@ export default function HomePage() {
     <main>
       <ScrollBackground />
       <NavMenu />
-      <HeroSection />
-      <EventSection event={receptionEvent} coupleNames={brideCoupleName} sectionLabel="Venue & Date" />
+      <HeroSection content={heroVariants.default}/>
+      <EventSection event={indianEvent} coupleNames={brideCoupleName} sectionLabel="Venue & Date" />
+      <EventSection event={receptionEvent} coupleNames={brideCoupleName}/>
       <RSVPSection />
       <FAQSection />
     </main>
