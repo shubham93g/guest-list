@@ -27,7 +27,7 @@ const PHONE_MAP_TAG = 'phone-map';
 
 // Fetches column B only and builds a normalised phone → 1-indexed sheet row map.
 // Stored in Next.js Data Cache (shared across all route bundles and Lambda instances).
-// Expires after 5 minutes; RSVP writes do not invalidate it (column B is never modified).
+// Expires after 10 minutes; RSVP writes do not invalidate it (column B is never modified).
 const getPhoneMap = unstable_cache(
   async (): Promise<Record<string, number>> => {
     console.log('[sheets] phone-map cache miss — fetching from Sheets API');
@@ -47,7 +47,7 @@ const getPhoneMap = unstable_cache(
     return phoneToRow;
   },
   [PHONE_MAP_TAG],
-  { revalidate: 300, tags: [PHONE_MAP_TAG] }
+  { revalidate: 600, tags: [PHONE_MAP_TAG] }
 );
 
 export async function warmPhoneCache(): Promise<void> {
