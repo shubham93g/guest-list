@@ -44,7 +44,7 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 
 | File | Purpose |
 |------|---------|
-| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. Caches guest rows in memory (10-minute TTL); invalidated on `updateGuestRSVP`. |
+| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. Caches phone→row map (10-minute TTL); not invalidated on RSVP writes (phone column is never modified). |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
 | `src/lib/auth.ts` | OTP send/verify via Twilio Verify. Re-exports JWT from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
