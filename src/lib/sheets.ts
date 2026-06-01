@@ -34,7 +34,7 @@ async function getAllGuestRows(): Promise<string[][]> {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!A2:I`,
+    range: `${SHEETS.GUESTS}!A2:K`,
   });
   const rows = (res.data.values as string[][]) ?? [];
   guestRowsCache = { rows, cachedAt: Date.now() };
@@ -58,7 +58,7 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
 }
 
 
-const VALID_RSVP_STATUSES = new Set<string>(['attending', 'declined', 'pending']);
+const VALID_RSVP_STATUSES = new Set<string>(['attending_both', 'attending_5th', 'declined', 'pending']);
 
 function toRSVPStatus(value: string | undefined): Guest['status'] {
   return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['status']) : 'pending';
@@ -71,10 +71,12 @@ function rowToGuest(row: string[]): Guest {
     email: row[GUEST_COLS.EMAIL] ?? '',
     status: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
     rsvpSubmittedAt: (row[GUEST_COLS.RSVP_SUBMITTED_AT] as ISOTimestamp) ?? null,
+    message: row[GUEST_COLS.MESSAGE] ?? '',
+    guestCount: parseInt(row[GUEST_COLS.GUEST_COUNT] ?? '1', 10) || 1,
+    plusOneNames: row[GUEST_COLS.PLUS_ONE_NAMES] ?? '',
+    requiresParking: row[GUEST_COLS.REQUIRES_PARKING] === 'yes',
+    requiresAccommodation: row[GUEST_COLS.REQUIRES_ACCOMMODATION] === 'yes',
     dietaryNotes: row[GUEST_COLS.DIETARY_NOTES] ?? '',
-    plusOneAttending: row[GUEST_COLS.PLUS_ONE_ATTENDING] === 'yes',
-    plusOneName: row[GUEST_COLS.PLUS_ONE_NAME] ?? '',
-    notes: row[GUEST_COLS.NOTES] ?? '',
   };
 }
 
@@ -95,14 +97,20 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
       valueInputOption: 'USER_ENTERED',
       data: [
         {
-          range: `${SHEETS.GUESTS}!D${sheetRow}:I${sheetRow}`,
+          range: `${SHEETS.GUESTS}!C${sheetRow}`,
+          values: [[data.email]],
+        },
+        {
+          range: `${SHEETS.GUESTS}!D${sheetRow}:K${sheetRow}`,
           values: [[
             data.status,
+            String(data.guestCount),
+            data.guestCount > 1 ? data.plusOneNames : '',
             new Date().toISOString() as ISOTimestamp,
+            data.requiresParking ? 'yes' : 'no',
+            data.requiresAccommodation ? 'yes' : 'no',
             data.dietaryNotes,
-            data.plusOneAttending ? 'yes' : 'no',
-            data.plusOneName,
-            data.notes,
+            data.message,
           ]],
         },
       ],

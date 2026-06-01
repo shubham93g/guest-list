@@ -1,4 +1,4 @@
-export type RSVPStatus = 'attending' | 'declined' | 'pending';
+export type RSVPStatus = 'attending_both' | 'attending_5th' | 'declined' | 'pending';
 
 export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 
@@ -8,17 +8,19 @@ export interface SessionPayload {
 }
 
 export interface RSVPData {
+  email: string;
   status: RSVPStatus;
+  guestCount: number;
+  plusOneNames: string;
+  requiresParking: boolean;
+  requiresAccommodation: boolean;
   dietaryNotes: string;
-  plusOneAttending: boolean;
-  plusOneName: string;
-  notes: string;
+  message: string;
 }
 
 export interface Guest extends RSVPData {
   name: string;
   phone: string;
-  email: string;
   rsvpSubmittedAt: ISOTimestamp | null;
 }
 

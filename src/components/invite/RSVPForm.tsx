@@ -1,27 +1,79 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { RSVPData, RSVPStatus } from '@/types';
 import { ui } from '@/lib/ui';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
-const RSVP_OPTIONS = ['attending', 'declined'] as const satisfies RSVPStatus[];
+type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
+
+const STATUS_LABELS: Record<AttendingStatus, string> = {
+  attending_both: 'Attending 4th & 5th',
+  attending_5th: 'Attending 5th',
+  declined: 'Unable to attend',
+};
+
+const RSVP_OPTIONS: AttendingStatus[] = ['attending_both', 'attending_5th', 'declined'];
 
 interface Props {
   existingRSVP?: RSVPData | null;
 }
 
 export default function RSVPForm({ existingRSVP }: Props) {
-  const [status, setStatus] = useState<RSVPStatus | ''>(existingRSVP?.status ?? '');
+  const [email, setEmail] = useState(existingRSVP?.email ?? '');
+  const [status, setStatus] = useState<AttendingStatus | ''>(
+    existingRSVP?.status && existingRSVP.status !== 'pending' ? existingRSVP.status : ''
+  );
+  const [guestCount, setGuestCount] = useState<number>(existingRSVP?.guestCount ?? 1);
+  const [plusOneNames, setPlusOneNames] = useState<string[]>(() => {
+    const needed = Math.max(0, (existingRSVP?.guestCount ?? 1) - 1);
+    const names = existingRSVP?.plusOneNames
+      ? existingRSVP.plusOneNames.split(',').map((n) => n.trim())
+      : [];
+    while (names.length < needed) { names.push(''); }
+    return names.slice(0, needed);
+  });
+  const [requiresParking, setRequiresParking] = useState(existingRSVP?.requiresParking ?? false);
+  const [requiresAccommodation, setRequiresAccommodation] = useState(existingRSVP?.requiresAccommodation ?? false);
   const [dietaryNotes, setDietaryNotes] = useState(existingRSVP?.dietaryNotes ?? '');
-  const [plusOne, setPlusOne] = useState(existingRSVP?.plusOneAttending ?? false);
-  const [plusOneName, setPlusOneName] = useState(existingRSVP?.plusOneName ?? '');
-  const [notes, setNotes] = useState(existingRSVP?.notes ?? '');
+  const [message, setMessage] = useState(existingRSVP?.message ?? '');
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const successRef = useRef<HTMLDivElement>(null);
 
-  async function handleSubmit(e: FormEvent) {
+  useEffect(() => {
+    if (formState === 'success') {
+      successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [formState]);
+
+  const isAttending = status === 'attending_both' || status === 'attending_5th';
+
+  function handleStatusChange(newStatus: AttendingStatus) {
+    setStatus(newStatus);
+    if (newStatus === 'declined') {
+      setGuestCount(1);
+      setPlusOneNames([]);
+      setRequiresParking(false);
+      setRequiresAccommodation(false);
+      setDietaryNotes('');
+    }
+  }
+
+  function handleCountChange(newCount: number) {
+    setGuestCount(newCount);
+    const needed = newCount - 1;
+    setPlusOneNames((prev) => {
+      const next = [...prev];
+      while (next.length < needed) {
+        next.push('');
+      }
+      return next.slice(0, needed);
+    });
+  }
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!status) {
       return;
@@ -34,11 +86,14 @@ export default function RSVPForm({ existingRSVP }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email,
           status,
+          guestCount,
+          plusOneNames: plusOneNames.filter((n) => n.trim()).join(', '),
+          requiresParking,
+          requiresAccommodation,
           dietaryNotes,
-          plusOneAttending: plusOne,
-          plusOneName,
-          notes,
+          message,
         }),
       });
       if (!res.ok) {
@@ -57,14 +112,14 @@ export default function RSVPForm({ existingRSVP }: Props) {
 
   if (formState === 'success') {
     return (
-      <div className="max-w-sm mx-auto px-6 pb-12">
+      <div ref={successRef} className="max-w-sm mx-auto px-6 pb-12">
         <div className={`${ui.formCard} text-center`}>
-          <div className="text-3xl mb-4">🎉</div>
+          <div className="text-3xl mb-4">{isAttending ? '🎉' : '💌'}</div>
           <h3 className="text-xl font-serif text-white mb-2">
-            {status === 'attending' ? "We can't wait to see you!" : 'Thank you for letting us know'}
+            {isAttending ? "We can't wait to see you!" : 'Thank you for letting us know'}
           </h3>
           <p className="text-sm text-white/70">
-            {status === 'attending'
+            {isAttending
               ? existingRSVP
                 ? "Your RSVP has been updated. We can't wait to see you!"
                 : 'Your RSVP has been received. More details to follow.'
@@ -86,31 +141,105 @@ export default function RSVPForm({ existingRSVP }: Props) {
           <p className={`${ui.infoBox} px-4 py-3 text-sm text-white/75 text-center mb-4`}>
             You previously responded as{' '}
             <span className="font-medium text-white/90">
-              {existingRSVP.status === 'attending' ? 'Attending' : 'Unable to attend'}
+              {STATUS_LABELS[existingRSVP.status as AttendingStatus] ?? existingRSVP.status}
             </span>
             . Feel free to update your response below.
           </p>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Attending or not */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Email */}
+          <div>
+            <label className="block text-xs text-white/70 mb-1.5 pl-1">
+              Email address (optional)
+            </label>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+            />
+          </div>
+
+          {/* Attendance status */}
+          <div className="flex flex-col gap-3">
             {RSVP_OPTIONS.map((opt) => (
               <button
                 key={opt}
                 type="button"
-                onClick={() => setStatus(opt)}
+                onClick={() => handleStatusChange(opt)}
                 className={`h-12 rounded-xl border text-sm font-medium transition-colors ${
                   status === opt ? ui.toggleSelected : ui.toggleUnselected
                 }`}
               >
-                {opt === 'attending' ? 'Attending' : 'Unable to attend'}
+                {STATUS_LABELS[opt]}
               </button>
             ))}
           </div>
 
-          {status === 'attending' && (
+          {isAttending && (
             <>
+              {/* How many people attending */}
+              <div>
+                <label className="block text-xs text-white/70 mb-1.5 pl-1">
+                  How many people are attending?
+                </label>
+                <select
+                  value={guestCount}
+                  onChange={(e) => handleCountChange(Number(e.target.value))}
+                  className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+                >
+                  {[1, 2, 3, 4].map((n) => (
+                    <option key={n} value={n}>
+                      {n === 1 ? 'Just me' : `${n} people`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Additional guest names */}
+              {plusOneNames.map((name, i) => (
+                <div key={i}>
+                  <label className="block text-xs text-white/70 mb-1.5 pl-1">
+                    Guest {i + 2}&apos;s name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={`Guest ${i + 2}'s name`}
+                    value={name}
+                    onChange={(e) => {
+                      const next = [...plusOneNames];
+                      next[i] = e.target.value;
+                      setPlusOneNames(next);
+                    }}
+                    className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+                  />
+                </div>
+              ))}
+
+              {/* Logistics */}
+              <div className="flex flex-col gap-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requiresParking}
+                    onChange={(e) => setRequiresParking(e.target.checked)}
+                    className="w-5 h-5 rounded accent-stone-400"
+                  />
+                  <span className="text-sm text-white/80">I will need parking</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requiresAccommodation}
+                    onChange={(e) => setRequiresAccommodation(e.target.checked)}
+                    className="w-5 h-5 rounded accent-stone-400"
+                  />
+                  <span className="text-sm text-white/80">I will need accommodation</span>
+                </label>
+              </div>
+
               {/* Dietary notes */}
               <div>
                 <label className="block text-xs text-white/70 mb-1.5 pl-1">
@@ -124,45 +253,22 @@ export default function RSVPForm({ existingRSVP }: Props) {
                   className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
                 />
               </div>
-
-              {/* Plus one */}
-              <div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={plusOne}
-                    onChange={(e) => setPlusOne(e.target.checked)}
-                    className="w-5 h-5 rounded accent-stone-400"
-                  />
-                  <span className="text-sm text-white/80">I&apos;m bringing a plus one</span>
-                </label>
-              </div>
-
-              {plusOne && (
-                <input
-                  type="text"
-                  placeholder="Plus one's name"
-                  value={plusOneName}
-                  onChange={(e) => setPlusOneName(e.target.value)}
-                  className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
-                />
-              )}
-
-              {/* Additional notes */}
-              <div>
-                <label className="block text-xs text-white/70 mb-1.5 pl-1">
-                  Anything else you&apos;d like us to know? (optional)
-                </label>
-                <textarea
-                  placeholder="Message for the couple…"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  className={`w-full px-4 py-3 text-sm resize-none ${ui.inputBase}`}
-                />
-              </div>
             </>
           )}
+
+          {/* Message */}
+          <div>
+            <label className="block text-xs text-white/70 mb-1.5 pl-1">
+              Anything you&apos;d like us to know? (optional)
+            </label>
+            <textarea
+              placeholder="A message for the couple…"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+              className={`w-full px-4 py-3 text-sm resize-none ${ui.inputBase}`}
+            />
+          </div>
 
           <button
             type="submit"
