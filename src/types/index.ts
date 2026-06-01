@@ -3,7 +3,6 @@ export type RSVPStatus = 'attending_both' | 'attending_5th' | 'declined' | 'pend
 export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 
 export interface SessionPayload {
-  name: string;
   phone: string;
 }
 

@@ -4,42 +4,45 @@ import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 const CACHE_TTL_MS = 5 * 60 * 1_000; // 5 minutes
 
-interface GuestRowsCache {
-  rows: string[][];
-  cachedAt: number;
-}
+// phone (normalised, no +) → 1-indexed sheet row number (accounting for header row)
+let phoneMapCache: { phoneToRow: Map<string, number>; cachedAt: number } | null = null;
 
-let guestRowsCache: GuestRowsCache | null = null;
-
-function getAuthClient() {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-}
+// Module-level singleton — persists across warm Vercel invocations so the
+// internal OAuth token cache is reused rather than re-fetched each call.
+const authClient = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
 
 async function getSheetsClient() {
-  const auth = getAuthClient();
-  return google.sheets({ version: 'v4', auth });
+  return google.sheets({ version: 'v4', auth: authClient });
 }
 
-async function getAllGuestRows(): Promise<string[][]> {
-  if (guestRowsCache && Date.now() - guestRowsCache.cachedAt < CACHE_TTL_MS) {
-    return guestRowsCache.rows;
+// Fetches column B only and builds a map of normalised phone → sheet row number.
+// Cached for CACHE_TTL_MS; invalidated on RSVP write.
+async function getPhoneMap(): Promise<Map<string, number>> {
+  if (phoneMapCache && Date.now() - phoneMapCache.cachedAt < CACHE_TTL_MS) {
+    return phoneMapCache.phoneToRow;
   }
-  console.log('[sheets] cache miss — fetching from Sheets API');
+  console.log('[sheets] phone-map cache miss — fetching from Sheets API');
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!A2:K`,
+    range: `${SHEETS.GUESTS}!B2:B`,
   });
-  const rows = (res.data.values as string[][]) ?? [];
-  guestRowsCache = { rows, cachedAt: Date.now() };
-  console.log(`[sheets] cache populated with ${rows.length} row(s)`);
-  return rows;
+  const phoneToRow = new Map<string, number>();
+  ((res.data.values as string[][]) ?? []).forEach((r, i) => {
+    const phone = normalisePhone(r[0] ?? '');
+    if (phone) {
+      phoneToRow.set(phone, i + 2); // +1 for 1-indexing, +1 for header row
+    }
+  });
+  phoneMapCache = { phoneToRow, cachedAt: Date.now() };
+  console.log(`[sheets] phone-map cache populated with ${phoneToRow.size} entry(s)`);
+  return phoneToRow;
 }
 
 // Strips the leading + so phone numbers stored without it in Sheets (e.g. 6591234567)
@@ -48,15 +51,28 @@ function normalisePhone(phone: string): string {
   return phone.replace(/^\+/, '').trim();
 }
 
-export async function findGuestByPhone(phone: string): Promise<Guest | null> {
-  const rows = await getAllGuestRows();
-  const row = rows.find((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
-  if (!row) {
-    return null;
-  }
-  return rowToGuest(row);
+export async function isPhoneAllowed(phone: string): Promise<boolean> {
+  const phoneToRow = await getPhoneMap();
+  return phoneToRow.has(normalisePhone(phone));
 }
 
+export async function findGuestByPhone(phone: string): Promise<Guest | null> {
+  const phoneToRow = await getPhoneMap();
+  const sheetRow = phoneToRow.get(normalisePhone(phone));
+  if (sheetRow === undefined) {
+    return null;
+  }
+  const sheets = await getSheetsClient();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${SHEETS.GUESTS}!A${sheetRow}:K${sheetRow}`,
+  });
+  const rowData = res.data.values?.[0] as string[] | undefined;
+  if (!rowData) {
+    return null;
+  }
+  return rowToGuest(rowData);
+}
 
 const VALID_RSVP_STATUSES = new Set<string>(['attending_both', 'attending_5th', 'declined', 'pending']);
 
@@ -80,15 +96,13 @@ function rowToGuest(row: string[]): Guest {
   };
 }
 
-
 export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<void> {
-  const rows = await getAllGuestRows();
-  const rowIndex = rows.findIndex((r) => normalisePhone(r[GUEST_COLS.PHONE] ?? '') === normalisePhone(phone));
-  if (rowIndex === -1) {
+  const phoneToRow = await getPhoneMap();
+  const sheetRow = phoneToRow.get(normalisePhone(phone));
+  if (sheetRow === undefined) {
     throw new Error('Guest not found');
   }
 
-  const sheetRow = rowIndex + 2; // +1 for 1-indexing, +1 for header row
   const sheets = await getSheetsClient();
 
   await sheets.spreadsheets.values.batchUpdate({
@@ -116,6 +130,6 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
       ],
     },
   });
-  guestRowsCache = null;
-  console.log('[sheets] cache invalidated after RSVP write');
+  phoneMapCache = null;
+  console.log('[sheets] phone-map cache invalidated after RSVP write');
 }

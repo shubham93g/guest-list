@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { verifyOTP, signJWT } from '@/lib/auth';
-import { findGuestByPhone } from '@/lib/sheets';
 import { setSessionCookie } from '@/lib/session';
 import { checkRateLimit } from '@/lib/rate-limit';
 
@@ -40,13 +39,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const guest = await findGuestByPhone(phone);
-    if (!guest) {
-      // Generic 500 — do not reveal whether the phone exists (anti-enumeration M1).
-      return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
-    }
-
-    const token = await signJWT({ name: guest.name, phone: guest.phone });
+    const token = await signJWT({ phone });
     return setSessionCookie(new NextResponse(null, { status: 200 }), token);
   } catch (err) {
     console.error('[login-otp]', err);
