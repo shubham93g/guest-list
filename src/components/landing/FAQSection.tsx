@@ -6,8 +6,10 @@ const faqs = [
     a: `5th December 2026 - Fullerton Hotel 
     11:00 to 12:00 Registration and Cocktail Reception
     12:00 to 15:00 Lunch
+    Please be seated by 11:50am
     
-    Please be seated by 11:50am`,
+    4th December 2026 - Plume
+    Please arrive by 11am.`,
   },
   {
     q: 'What is the dress code?',
