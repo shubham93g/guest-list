@@ -17,7 +17,7 @@ const faqs = [
     If you'd like tips, just ask!`,
   },
   {
-    q: 'Can I being a plus one ?',
+    q: 'Can I bring a plus one ?',
     a : `We're happy to accommodate plus one, just let us know when you RSVP!`,
   },
   {

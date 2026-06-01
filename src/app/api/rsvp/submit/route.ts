@@ -5,11 +5,14 @@ import { updateGuestRSVP } from '@/lib/sheets';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 const schema = z.object({
-  status: z.enum(['attending', 'declined']),
+  email: z.string().email().max(200).or(z.literal('')).default(''),
+  status: z.enum(['attending_both', 'attending_5th', 'declined']),
+  guestCount: z.number().int().min(1).max(4).default(1),
+  plusOneNames: z.string().max(300).default(''),
+  requiresParking: z.boolean().default(false),
+  requiresAccommodation: z.boolean().default(false),
   dietaryNotes: z.string().max(500).default(''),
-  plusOneAttending: z.boolean().default(false),
-  plusOneName: z.string().max(100).default(''),
-  notes: z.string().max(500).default(''),
+  message: z.string().max(500).default(''),
 });
 
 export async function POST(req: NextRequest) {
@@ -41,10 +44,16 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data;
 
-    // M6: Clear plusOneName server-side when plusOneAttending is false so stale
-    // names are never written to Sheets regardless of what the client sends.
-    if (!data.plusOneAttending) {
-      data.plusOneName = '';
+    if (data.guestCount <= 1) {
+      data.plusOneNames = '';
+    }
+
+    if (data.status === 'declined') {
+      data.guestCount = 1;
+      data.plusOneNames = '';
+      data.requiresParking = false;
+      data.requiresAccommodation = false;
+      data.dietaryNotes = '';
     }
 
     await updateGuestRSVP(session.phone, data);
