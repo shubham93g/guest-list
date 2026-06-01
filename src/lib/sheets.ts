@@ -57,8 +57,9 @@ export async function isPhoneAllowed(phone: string): Promise<boolean> {
 }
 
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {
+  const normPhone = normalisePhone(phone);
   const phoneToRow = await getPhoneMap();
-  const sheetRow = phoneToRow.get(normalisePhone(phone));
+  const sheetRow = phoneToRow.get(normPhone);
   if (sheetRow === undefined) {
     return null;
   }
@@ -70,6 +71,10 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   const rowData = res.data.values?.[0] as string[] | undefined;
   if (!rowData) {
     return null;
+  }
+  const rowPhone = normalisePhone(rowData[GUEST_COLS.PHONE] ?? '');
+  if (rowPhone !== normPhone) {
+    throw new Error(`[sheets] phone mismatch at row ${sheetRow}: cache said ${normPhone}, sheet has ${rowPhone}`);
   }
   return rowToGuest(rowData);
 }
@@ -105,31 +110,22 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
 
   const sheets = await getSheetsClient();
 
-  await sheets.spreadsheets.values.batchUpdate({
+  await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
+    range: `${SHEETS.GUESTS}!C${sheetRow}:K${sheetRow}`,
+    valueInputOption: 'USER_ENTERED',
     requestBody: {
-      valueInputOption: 'USER_ENTERED',
-      data: [
-        {
-          range: `${SHEETS.GUESTS}!C${sheetRow}`,
-          values: [[data.email]],
-        },
-        {
-          range: `${SHEETS.GUESTS}!D${sheetRow}:K${sheetRow}`,
-          values: [[
-            data.status,
-            String(data.guestCount),
-            data.guestCount > 1 ? data.plusOneNames : '',
-            new Date().toISOString() as ISOTimestamp,
-            data.requiresParking ? 'yes' : 'no',
-            data.requiresAccommodation ? 'yes' : 'no',
-            data.dietaryNotes,
-            data.message,
-          ]],
-        },
-      ],
+      values: [[
+        data.email,
+        data.status,
+        String(data.guestCount),
+        data.guestCount > 1 ? data.plusOneNames : '',
+        new Date().toISOString() as ISOTimestamp,
+        data.requiresParking ? 'yes' : 'no',
+        data.requiresAccommodation ? 'yes' : 'no',
+        data.dietaryNotes,
+        data.message,
+      ]],
     },
   });
-  phoneMapCache = null;
-  console.log('[sheets] phone-map cache invalidated after RSVP write');
 }
