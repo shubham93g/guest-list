@@ -38,6 +38,7 @@ export default function OTPForm({ phone, onBack, otpChannel }: Props) {
       if (!res.ok) {
         const data = await res.json();
         setError(data.error ?? 'Something went wrong.');
+        setLoading(false);
         return;
       }
 
@@ -45,7 +46,6 @@ export default function OTPForm({ phone, onBack, otpChannel }: Props) {
     } catch {
       console.error('[OTPForm] login-otp request failed');
       setError('Something went wrong. Please try again.');
-    } finally {
       setLoading(false);
     }
   }

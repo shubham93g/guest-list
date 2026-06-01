@@ -34,6 +34,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
 
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong.');
+        setLoading(false);
         return;
       }
 
@@ -45,7 +46,6 @@ export default function IdentifierForm({ onSuccess }: Props) {
     } catch {
       console.error('[IdentifierForm] send-otp request failed');
       setError('Something went wrong. Please try again.');
-    } finally {
       setLoading(false);
     }
   }
