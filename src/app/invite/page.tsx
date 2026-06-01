@@ -24,7 +24,7 @@ export default async function WelcomePage() {
     <main className="min-h-screen relative">
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')" }} />
       <div className={`fixed inset-0 -z-10 ${ui.overlay}`} />
-      <PersonalizedHeader name={session.name} />
+      <PersonalizedHeader name={rsvpData.name} />
       <EventSection event={indianEvent} coupleNames={brideCoupleName} />
       <EventSection event={receptionEvent} coupleNames={brideCoupleName} />
       <div className="w-16 h-px bg-white/20 mx-auto mb-8" />

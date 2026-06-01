@@ -3,6 +3,7 @@ import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
 import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 const CACHE_TTL_MS = 5 * 60 * 1_000; // 5 minutes
+const PHONE_SET_CACHE_TTL_MS = 10 * 60 * 1_000; // 10 minutes — longer to allow new guests to appear
 
 interface GuestRowsCache {
   rows: string[][];
@@ -10,27 +11,27 @@ interface GuestRowsCache {
 }
 
 let guestRowsCache: GuestRowsCache | null = null;
+let phoneSetCache: { phones: Set<string>; cachedAt: number } | null = null;
 
-function getAuthClient() {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-}
+// Module-level singleton — persists across warm Vercel invocations so the
+// internal OAuth token cache is reused rather than re-fetched each call.
+const authClient = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
 
 async function getSheetsClient() {
-  const auth = getAuthClient();
-  return google.sheets({ version: 'v4', auth });
+  return google.sheets({ version: 'v4', auth: authClient });
 }
 
 async function getAllGuestRows(): Promise<string[][]> {
   if (guestRowsCache && Date.now() - guestRowsCache.cachedAt < CACHE_TTL_MS) {
     return guestRowsCache.rows;
   }
-  console.log('[sheets] cache miss — fetching from Sheets API');
+  console.log('[sheets] guest-rows cache miss — fetching from Sheets API');
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -38,14 +39,37 @@ async function getAllGuestRows(): Promise<string[][]> {
   });
   const rows = (res.data.values as string[][]) ?? [];
   guestRowsCache = { rows, cachedAt: Date.now() };
-  console.log(`[sheets] cache populated with ${rows.length} row(s)`);
+  console.log(`[sheets] guest-rows cache populated with ${rows.length} row(s)`);
   return rows;
+}
+
+async function getPhoneSet(): Promise<Set<string>> {
+  if (phoneSetCache && Date.now() - phoneSetCache.cachedAt < PHONE_SET_CACHE_TTL_MS) {
+    return phoneSetCache.phones;
+  }
+  console.log('[sheets] phone-set cache miss — fetching from Sheets API');
+  const sheets = await getSheetsClient();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${SHEETS.GUESTS}!B2:B`,
+  });
+  const phones = new Set(
+    ((res.data.values as string[][]) ?? []).map((r) => normalisePhone(r[0] ?? ''))
+  );
+  phoneSetCache = { phones, cachedAt: Date.now() };
+  console.log(`[sheets] phone-set cache populated with ${phones.size} entry(s)`);
+  return phones;
 }
 
 // Strips the leading + so phone numbers stored without it in Sheets (e.g. 6591234567)
 // match E.164 values from the API (e.g. +6591234567).
 function normalisePhone(phone: string): string {
   return phone.replace(/^\+/, '').trim();
+}
+
+export async function isPhoneAllowed(phone: string): Promise<boolean> {
+  const phones = await getPhoneSet();
+  return phones.has(normalisePhone(phone));
 }
 
 export async function findGuestByPhone(phone: string): Promise<Guest | null> {

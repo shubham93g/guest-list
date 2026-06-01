@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { findGuestByPhone } from '@/lib/sheets';
+import { isPhoneAllowed } from '@/lib/sheets';
 import { sendOTP, OTP_CHANNEL, signJWT } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { setSessionCookie } from '@/lib/session';
@@ -51,13 +51,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const guest = await findGuestByPhone(phone);
-    if (!guest) {
+    const allowed = await isPhoneAllowed(phone);
+    if (!allowed) {
       return NextResponse.json({ error: NOT_FOUND_MSG }, { status: 422 });
     }
 
     if (OTP_CHANNEL === 'skip') {
-      const token = await signJWT({ name: guest.name, phone: guest.phone });
+      const token = await signJWT({ phone });
       const res = NextResponse.json({ skipOtp: true });
       return setSessionCookie(res, token);
     }
