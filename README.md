@@ -44,8 +44,8 @@ Guests log in with their phone number. OTP delivery is controlled by `OTP_CHANNE
 
 ## Security
 
-- **Rate limiting**: in-memory sliding window; per-IP on `send-otp` (10/15 min), per-identifier on `login-otp` (5/10 min), per-IP on RSVP submit (10/15 min)
-- **Anti-enumeration**: `send-otp` and `login-otp` return identical error messages for format validation failures and not-found errors
+- **Rate limiting**: in-memory sliding window; per-IP on `login-id` (10/15 min), per-identifier on `login-otp` (5/10 min), per-IP on RSVP submit (10/15 min)
+- **Anti-enumeration**: `login-id` and `login-otp` return identical error messages for format validation failures and not-found errors
 - **HTTP security headers**: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `HSTS` applied to all routes via `next.config.ts`
 - **CSP** (production only): allowlisted `script-src`, `style-src`, `img-src`, `connect-src`; `frame-ancestors 'none'`
 - **Sessions**: `httpOnly` JWT cookie, 30-day expiry, `Secure` flag in production

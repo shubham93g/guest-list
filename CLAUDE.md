@@ -31,13 +31,14 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/` — Public save-the-date hero (Server Component)
 - `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
-- `/logout` — GET: clears session cookie and redirects to `/` (browser-navigable)
+- `/logout` — GET: handled by middleware — clears session cookie and redirects to `/`
 - `/api/auth/login-id` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
 - `/api/auth/pre-login-id` — GET: warms the Sheets phone cache before the user submits their phone number
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
 
-**Middleware** (`src/middleware.ts`) handles auth routing for both protected routes:
+**Middleware** (`src/middleware.ts`) handles auth routing:
+- `/logout` — clears session cookie, redirects to `/`
 - `/invite` — redirects to `/login` if no valid JWT
 - `/login` — redirects to `/invite` if a valid JWT exists (skips unnecessary re-auth)
 
