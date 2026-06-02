@@ -14,6 +14,12 @@ export async function middleware(req: NextRequest) {
   const session = token ? await verifyJWT(token) : null;
   const { pathname } = req.nextUrl;
 
+  if (pathname === '/logout') {
+    const res = NextResponse.redirect(new URL('/', req.url));
+    res.cookies.delete(SESSION_COOKIE);
+    return res;
+  }
+
   if (pathname === '/login' && session) {
     return NextResponse.redirect(new URL('/invite', req.url));
   }
@@ -26,5 +32,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/invite', '/login'],
+  matcher: ['/invite', '/login', '/logout'],
 };

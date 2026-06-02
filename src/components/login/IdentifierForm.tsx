@@ -62,7 +62,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
       </p>
 
       <div className={ui.formCard}>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" suppressHydrationWarning>
           <div className="flex items-center gap-2">
             <div className="flex items-center h-12 px-3 bg-white/90 border border-white/50 rounded-xl text-stone-500 text-base select-none shrink-0">
               +
@@ -76,6 +76,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
               disabled={loading}
               required
               className={`w-16 h-12 px-3 text-base text-center ${ui.inputBase}`}
+              suppressHydrationWarning
             />
             <input
               type="text"
@@ -86,6 +87,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
               disabled={loading}
               required
               className={`min-w-0 flex-1 h-12 px-4 text-base ${ui.inputBase}`}
+              suppressHydrationWarning
             />
           </div>
 

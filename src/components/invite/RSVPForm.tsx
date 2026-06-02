@@ -152,7 +152,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5" suppressHydrationWarning>
           {/* Email */}
           <div>
             <label className="block text-xs text-white/70 mb-1.5 pl-1">
@@ -164,6 +164,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+              suppressHydrationWarning
             />
           </div>
 
@@ -194,6 +195,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                   value={guestCount}
                   onChange={(e) => handleCountChange(Number(e.target.value))}
                   className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+                  suppressHydrationWarning
                 >
                   {[1, 2, 3, 4].map((n) => (
                     <option key={n} value={n}>
@@ -219,6 +221,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                       setPlusOneNames(next);
                     }}
                     className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+                    suppressHydrationWarning
                   />
                 </div>
               ))}
@@ -231,6 +234,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                     checked={requiresParking}
                     onChange={(e) => setRequiresParking(e.target.checked)}
                     className="w-5 h-5 rounded accent-stone-400"
+                    suppressHydrationWarning
                   />
                   <span className="text-sm text-white/80">I will need parking</span>
                 </label>
@@ -240,6 +244,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                     checked={requiresAccommodation}
                     onChange={(e) => setRequiresAccommodation(e.target.checked)}
                     className="w-5 h-5 rounded accent-stone-400"
+                    suppressHydrationWarning
                   />
                   <span className="text-sm text-white/80">I will need accommodation</span>
                 </label>
@@ -256,6 +261,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                   value={dietaryNotes}
                   onChange={(e) => setDietaryNotes(e.target.value)}
                   className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+                  suppressHydrationWarning
                 />
               </div>
             </>
@@ -272,6 +278,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
               className={`w-full px-4 py-3 text-sm resize-none ${ui.inputBase}`}
+              suppressHydrationWarning
             />
           </div>
 

@@ -60,7 +60,7 @@ export default function OTPForm({ phone, onBack, otpChannel }: Props) {
       </p>
 
       <div className={ui.formCard}>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" suppressHydrationWarning>
           {/* OTP uses larger sizing (h-14, text-2xl) — not the standard h-12 */}
           <input
             type="text"
@@ -73,6 +73,7 @@ export default function OTPForm({ phone, onBack, otpChannel }: Props) {
             disabled={loading}
             required
             className={`w-full h-14 px-4 text-2xl text-center tracking-widest ${ui.inputBase}`}
+            suppressHydrationWarning
           />
 
           <button

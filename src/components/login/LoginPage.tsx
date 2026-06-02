@@ -27,8 +27,8 @@ export default function LoginPage({ otpChannel }: Props) {
 
   return (
     <main className="min-h-screen relative flex flex-col items-center justify-center py-12">
-      <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')" }} />
-      <div className={`fixed inset-0 -z-10 ${ui.overlay}`} />
+      <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')", height: '100lvh' }} />
+      <div className={`fixed top-0 left-0 w-full -z-10 ${ui.overlay}`} style={{ height: '100lvh' }} />
       <Link
         href="/"
         className={`absolute top-6 left-6 text-xs ${ui.secondaryLink}`}
