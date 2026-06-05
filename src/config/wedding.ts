@@ -43,7 +43,7 @@ export const receptionEvent = {
   time: '11:00 am',               // e.g. '6:00 PM IST'
 
   // Venue
-  venueName: 'Fullerton Hotel',
+  venueName: 'Ballroom, Fullerton Hotel',
   venueCity: 'Singapore',
   venueAddress: '1 Fullerton Sq, Singapore 049178',
   venueMapUrl: 'https://maps.app.goo.gl/QKoW6gL6dRsUUrHy9',
