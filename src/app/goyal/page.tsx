@@ -3,6 +3,7 @@ import { heroVariants } from '@/config/heroVariants';
 import NavMenu from '@/components/landing/NavMenu';
 import ScrollBackground from '@/components/landing/ScrollBackground';
 import HeroSection from '@/components/landing/HeroSection';
+import EventSection from '@/components/landing/EventSection';
 import { groomCoupleName, indianEvent, receptionEvent } from '@/config/wedding';
 import RSVPSection from '@/components/landing/RSVPSection';
 import FAQSection from '@/components/landing/FAQSection';
