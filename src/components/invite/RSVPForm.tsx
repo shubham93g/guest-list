@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { RSVPData, RSVPStatus } from '@/types';
 import { ui } from '@/lib/ui';
+import ScrollIndicator from '@/components/ScrollIndicator';
+
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -133,6 +135,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
                 : 'We will miss you. Wishing you all the best.'}
           </p>
         </div>
+        <ScrollIndicator className="flex justify-center mt-10 animate-bounce text-white/50" />
       </div>
     );
   }

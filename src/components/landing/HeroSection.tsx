@@ -1,4 +1,5 @@
 import type { HeroContent } from '@/config/heroVariants';
+import ScrollIndicator from '@/components/ScrollIndicator';
 
 interface HeroSectionProps {
   content: HeroContent;
@@ -21,11 +22,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
 
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 flex justify-center animate-bounce text-white/50">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </div>
+      <ScrollIndicator />
     </section>
   );
 }
