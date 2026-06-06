@@ -25,22 +25,22 @@ function normalisePhone(phone: string): string {
 
 const PHONE_MAP_TAG = 'phone-map';
 
-// Fetches column B only and builds a normalised phone → 1-indexed sheet row map.
+// Fetches columns B:C (country_code + phone) and builds a normalised phone → 1-indexed sheet row map.
 // Stored in Next.js Data Cache (shared across all route bundles and Lambda instances).
-// Expires after 10 minutes; RSVP writes do not invalidate it (column B is never modified).
+// Expires after 10 minutes; RSVP writes do not invalidate it (columns B and C are never modified).
 const getPhoneMap = unstable_cache(
   async (): Promise<Record<string, number>> => {
     console.log('[sheets] phone-map cache miss — fetching from Sheets API');
     const sheets = await getSheetsClient();
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEETS.GUESTS}!B2:B`,
+      range: `${SHEETS.GUESTS}!B2:C`,
     });
     const phoneToRow: Record<string, number> = {};
     ((res.data.values as string[][]) ?? []).forEach((r, i) => {
-      const phone = normalisePhone(r[0] ?? '');
-      if (phone) {
-        phoneToRow[phone] = i + 2; // +1 for 1-indexing, +1 for header row
+      const combined = normalisePhone((r[0] ?? '') + (r[1] ?? ''));
+      if (combined) {
+        phoneToRow[combined] = i + 2; // +1 for 1-indexing, +1 for header row
       }
     });
     console.log(`[sheets] phone-map cache populated with ${Object.keys(phoneToRow).length} entry(s)`);
@@ -69,13 +69,15 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!A${sheetRow}:K${sheetRow}`,
+    range: `${SHEETS.GUESTS}!A${sheetRow}:L${sheetRow}`,
   });
   const rowData = res.data.values?.[0] as string[] | undefined;
   if (!rowData) {
     return null;
   }
-  const rowPhone = normalisePhone(rowData[GUEST_COLS.PHONE] ?? '');
+  const rowPhone = normalisePhone(
+    (rowData[GUEST_COLS.COUNTRY_CODE] ?? '') + (rowData[GUEST_COLS.PHONE] ?? '')
+  );
   if (rowPhone !== normPhone) {
     throw new Error(`[sheets] phone mismatch at row ${sheetRow}: cache said ${normPhone}, sheet has ${rowPhone}`);
   }
@@ -91,6 +93,7 @@ function toRSVPStatus(value: string | undefined): Guest['status'] {
 function rowToGuest(row: string[]): Guest {
   return {
     name: row[GUEST_COLS.NAME] ?? '',
+    countryCode: row[GUEST_COLS.COUNTRY_CODE] ?? '',
     phone: row[GUEST_COLS.PHONE] ?? '',
     email: row[GUEST_COLS.EMAIL] ?? '',
     status: toRSVPStatus(row[GUEST_COLS.RSVP_STATUS]),
@@ -115,7 +118,7 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
 
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
-    range: `${SHEETS.GUESTS}!C${sheetRow}:K${sheetRow}`,
+    range: `${SHEETS.GUESTS}!D${sheetRow}:L${sheetRow}`,
     valueInputOption: 'RAW',
     requestBody: {
       values: [[
