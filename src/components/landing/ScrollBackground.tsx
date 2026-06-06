@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { ui } from '@/lib/ui';
 
 const HERO_IMAGE = '/hero.jpg';
-const CROSSFADE_AHEAD = 1.5; // seconds before end to trigger the crossfade; matches CSS transition duration
+const CROSSFADE_AHEAD = 1; // seconds before end to trigger the crossfade; matches CSS transition duration
 const HERO_VIDEOS = [
   '/hero4.mp4',
   '/hero3.mp4',
@@ -61,18 +61,28 @@ export default function ScrollBackground() {
       }
 
       const onNextPlaying = () => {
+        next.removeEventListener('playing', onNextPlaying);
+        // Always bring next above prev so the fade-in-on-top approach works regardless
+        // of DOM order (A and B alternate roles each cycle).
+        next.style.zIndex = '2';
+        prev.style.zIndex = '1';
+        // Fade next in while prev stays fully opaque — prevents hero.jpg from showing
+        // through during the transition (simultaneous fades create a transparency window
+        // where neither video fully covers the background).
         next.style.opacity = '1';
-        prev.style.opacity = '0';
         activeRef.current = activeRef.current === 'a' ? 'b' : 'a';
         transitioningRef.current = false;
-        next.removeEventListener('playing', onNextPlaying);
-        // Wait for prev's fade-out to complete before calling load() on it —
-        // load() blanks the element, which would flash through the still-visible fade.
-        const onFadeOut = () => {
-          prev.removeEventListener('transitionend', onFadeOut);
-          preloadNext(prev);
+        const onNextFadedIn = () => {
+          next.removeEventListener('transitionend', onNextFadedIn);
+          // next is now fully opaque — safe to fade prev out underneath it.
+          prev.style.opacity = '0';
+          const onPrevFadedOut = () => {
+            prev.removeEventListener('transitionend', onPrevFadedOut);
+            preloadNext(prev);
+          };
+          prev.addEventListener('transitionend', onPrevFadedOut);
         };
-        prev.addEventListener('transitionend', onFadeOut);
+        next.addEventListener('transitionend', onNextFadedIn);
       };
       next.addEventListener('playing', onNextPlaying);
       next.play().catch(() => {});
@@ -170,6 +180,16 @@ export default function ScrollBackground() {
       // Fade hero image in as venue section scrolls up into view (venueTop: vh → 0).
       const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
       heroLayerRef.current.style.opacity = String(opacity);
+
+      // Pause video when scrolled past the first viewport — the fixed hero layer is
+      // completely covered by page content below, so decoding serves no purpose.
+      const offScreen = window.scrollY >= vh;
+      const activeVideo = activeRef.current === 'a' ? videoARef.current : videoBRef.current;
+      if (offScreen && activeVideo && !activeVideo.paused) {
+        activeVideo.pause();
+      } else if (!offScreen && activeVideo && activeVideo.paused && document.visibilityState === 'visible') {
+        activeVideo.play().catch(() => {});
+      }
     };
 
     const onScroll = () => {
@@ -220,7 +240,7 @@ export default function ScrollBackground() {
       <video
         ref={videoARef}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
+        style={{ opacity: 0, transition: 'opacity 1s ease', zIndex: 1 }}
         muted
         playsInline
         preload="none"
@@ -229,7 +249,7 @@ export default function ScrollBackground() {
       <video
         ref={videoBRef}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
+        style={{ opacity: 0, transition: 'opacity 1s ease', zIndex: 2 }}
         muted
         playsInline
         preload="none"
@@ -238,10 +258,10 @@ export default function ScrollBackground() {
       <div
         ref={heroLayerRef}
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${HERO_IMAGE}')`, opacity: 0 }}
+        style={{ backgroundImage: `url('${HERO_IMAGE}')`, opacity: 0, zIndex: 3 }}
       />
       {/* Dark overlay — fixed with the background so it covers overscroll areas too */}
-      <div className={`absolute inset-0 ${ui.overlay}`} />
+      <div className={`absolute inset-0 ${ui.overlay}`} style={{ zIndex: 4 }} />
     </div>
   );
 }
