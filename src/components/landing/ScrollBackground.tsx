@@ -180,6 +180,16 @@ export default function ScrollBackground() {
       // Fade hero image in as venue section scrolls up into view (venueTop: vh → 0).
       const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
       heroLayerRef.current.style.opacity = String(opacity);
+
+      // Pause video when scrolled past the first viewport — the fixed hero layer is
+      // completely covered by page content below, so decoding serves no purpose.
+      const offScreen = window.scrollY >= vh;
+      const activeVideo = activeRef.current === 'a' ? videoARef.current : videoBRef.current;
+      if (offScreen && activeVideo && !activeVideo.paused) {
+        activeVideo.pause();
+      } else if (!offScreen && activeVideo && activeVideo.paused && document.visibilityState === 'visible') {
+        activeVideo.play().catch(() => {});
+      }
     };
 
     const onScroll = () => {
