@@ -214,13 +214,16 @@ export default function ScrollBackground() {
       />
       {/* Video A — fades in on initial play; crossfades with Video B on transitions.
           Both start hidden; src and playback are managed imperatively in the effect.
-          No autoPlay — avoids the browser auto-starting preloaded videos when src changes. */}
+          No autoPlay — avoids the browser auto-starting preloaded videos when src changes.
+          preload="none" — prevents the browser from speculatively fetching video data when
+          src is set; all loading is driven by the explicit load() calls in the effect. */}
       <video
         ref={videoARef}
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
         muted
         playsInline
+        preload="none"
       />
       {/* Video B — starts hidden; swaps in during crossfade */}
       <video
@@ -229,6 +232,7 @@ export default function ScrollBackground() {
         style={{ opacity: 0, transition: 'opacity 1.5s ease' }}
         muted
         playsInline
+        preload="none"
       />
       {/* Venue image — crossfades in as venue section scrolls into view */}
       <div
