@@ -61,16 +61,17 @@ One tab only: **`Guests`** (header in row 1, frozen)
 | Col | Name | Notes |
 |-----|------|-------|
 | A | `name` | Full name (admin fills before launch) |
-| B | `phone` | Digits only, no `+` prefix — e.g. `919876543210`. Google Sheets strips `+` even in Plain Text cells. `sheets.ts` normalises by stripping `+` before comparing. |
-| C | `email` | Guest email address (written by RSVP API) |
-| D | `rsvp_status` | `attending_both` / `attending_5th` / `declined` / `pending` (written by API) |
-| E | `guest_count` | Total attendees including the main guest (1–4) |
-| F | `plus_one_names` | Comma-separated names of additional guests |
-| G | `rsvp_submitted_at` | ISO 8601 timestamp |
-| H | `requires_parking` | `yes` / `no` |
-| I | `requires_accommodation` | `yes` / `no` |
-| J | `dietary_notes` | |
-| K | `message` | Guest message |
+| B | `country_code` | Country code digits only, no `+` prefix — e.g. `91`. Admin fills before launch. |
+| C | `phone` | Subscriber number digits only — e.g. `9876543210`. Admin fills before launch. `sheets.ts` combines `country_code + phone` for lookups. |
+| D | `email` | Guest email address (written by RSVP API) |
+| E | `rsvp_status` | `attending_both` / `attending_5th` / `declined` / `pending` (written by API) |
+| F | `guest_count` | Total attendees including the main guest (1–4) |
+| G | `plus_one_names` | Comma-separated names of additional guests |
+| H | `rsvp_submitted_at` | ISO 8601 timestamp |
+| I | `requires_parking` | `yes` / `no` |
+| J | `requires_accommodation` | `yes` / `no` |
+| K | `dietary_notes` | |
+| L | `message` | Guest message |
 
 Event details (couple names, date, venue) are **not** stored in Sheets — they are static env var config read via `src/lib/event.ts`.
 
