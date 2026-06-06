@@ -173,11 +173,11 @@ Background videos live in `public/` and are listed in `HERO_VIDEOS` inside `src/
 2. If converting from `.mov`, encode it first (see below) — raw `.mov` files are not supported in Chrome/Firefox
 3. Append the filename to `HERO_VIDEOS` in `ScrollBackground.tsx`
 
-**Required ffmpeg encoding** (no audio, CRF 28 for web-appropriate file size):
+**Required ffmpeg encoding** (H.265/HEVC, 1920-wide, no audio, CRF 28 for web-appropriate file size):
 ```bash
-ffmpeg -i input.mov -vcodec h264 -crf 28 -an output.mp4
+ffmpeg -i input.mov -vcodec libx265 -crf 28 -an -tag:v hvc1 -vf scale=1920:-2 output.mp4
 ```
-Always use `-crf 28`. Omitting it preserves the source bitrate, which can be 3–5× larger than necessary. Never use `-acodec` — these are muted background videos.
+Always use `-crf 28`. Omitting it preserves the source bitrate, which can be 3–5× larger than necessary. `-vf scale=1920:-2` caps width at 1920px while preserving the source aspect ratio (the `-2` ensures height is divisible by 2, required by H.265). Never use `-acodec` — these are muted background videos. `-tag:v hvc1` is required for Safari/iOS compatibility. Firefox has no H.265 support and falls back to `hero.jpg` gracefully.
 
 ## Important Patterns
 

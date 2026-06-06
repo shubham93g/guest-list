@@ -76,17 +76,18 @@ All required variables are documented in `.env.example`. Key notes:
 | Hero video | `public/hero.mp4` — replace the file to swap the video |
 | Venue background photo | URL at the top of `src/components/landing/ScrollBackground.tsx` |
 
-**Hero video format:** the file must be H.264 MP4 encoded with `-movflags +faststart` so the browser can start playback before the full file downloads. Convert with:
+**Hero video format:** the file must be H.265 (HEVC) MP4, scaled to 1920px wide. Convert with:
 
 ```bash
 ffmpeg -i input.mov \
-  -vcodec h264 -an \
-  -movflags +faststart \
+  -vcodec libx265 -an \
+  -tag:v hvc1 \
+  -vf scale=1920:-2 \
   -crf 28 \
   public/hero.mp4
 ```
 
-`-crf 28` is a good quality/size trade-off for a background video (lower = better quality, larger file). The resulting file is served with `Cache-Control: immutable` so repeat visitors play from the browser cache instantly.
+`-crf 28` is a good quality/size trade-off for a background video (lower = better quality, larger file). `-vf scale=1920:-2` caps width at 1920px while preserving the source aspect ratio. `-tag:v hvc1` is required for Safari/iOS compatibility. The file is served with `Cache-Control: immutable` so repeat visitors play from the browser cache instantly. Firefox has no H.265 support and falls back to the static `hero.jpg` background gracefully.
 
 ## Commands
 
