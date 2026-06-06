@@ -7,7 +7,7 @@ interface Props {
 export default function PersonalizedHeader({ name }: Props) {
   return (
     <div className="text-center px-6 pt-12 pb-8">
-      <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-6">
+      <p className="text-s uppercase tracking-[0.3em] text-white/60 mb-6">
         Dear {name || 'guest'},
       </p>
 
