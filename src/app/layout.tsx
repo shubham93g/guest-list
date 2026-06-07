@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { brideCoupleName } from '@/config/wedding';
+import { CDN_BASE } from '@/lib/cdn';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black" suppressHydrationWarning>
       <head>
-        <link rel="preload" as="image" href="/hero.jpg" />
+        <link rel="preload" as="image" href={`${CDN_BASE}/hero.jpg`} />
       </head>
       <body className="antialiased">{children}</body>
     </html>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import IdentifierForm from '@/components/login/IdentifierForm';
 import OTPForm from '@/components/login/OTPForm';
 import { ui } from '@/lib/ui';
+import { CDN_BASE } from '@/lib/cdn';
 
 type Step = 'identifier' | 'otp';
 
@@ -27,7 +28,7 @@ export default function LoginPage({ otpChannel }: Props) {
 
   return (
     <main className="min-h-screen relative flex flex-col items-center justify-center py-12">
-      <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')", height: '100lvh' }} />
+      <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: `url('${CDN_BASE}/hero.jpg')`, height: '100lvh' }} />
       <div className={`fixed top-0 left-0 w-full -z-10 ${ui.overlay}`} style={{ height: '100lvh' }} />
       <Link
         href="/"

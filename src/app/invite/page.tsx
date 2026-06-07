@@ -3,6 +3,7 @@ import { getSession } from '@/lib/session';
 import { findGuestByPhone } from '@/lib/sheets';
 import { receptionEvent, brideCoupleName, indianEvent } from '@/config/wedding';
 import { ui } from '@/lib/ui';
+import { CDN_BASE } from '@/lib/cdn';
 import PersonalizedHeader from '@/components/invite/PersonalizedHeader';
 import EventSection from '@/components/landing/EventSection';
 import RSVPForm from '@/components/invite/RSVPForm';
@@ -22,7 +23,7 @@ export default async function WelcomePage() {
 
   return (
     <main className="min-h-screen relative">
-      <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')", height: '100lvh' }} />
+      <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: `url('${CDN_BASE}/hero.jpg')`, height: '100lvh' }} />
       <div className={`fixed top-0 left-0 w-full -z-10 ${ui.overlay}`} style={{ height: '100lvh' }} />
       <PersonalizedHeader name={rsvpData.name} />
       <EventSection event={indianEvent} coupleNames={brideCoupleName} />
