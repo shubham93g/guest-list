@@ -11,8 +11,8 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
 
 const STATUS_LABELS: Record<AttendingStatus, string> = {
-  attending_5th: 'Saturday Lunch',
-  attending_both: 'Friday & Saturday Lunch',
+  attending_5th: 'Attending Saturday Lunch',
+  attending_both: 'Attending Friday & Saturday Lunch',
   declined: 'Unable to attend',
 };
 
