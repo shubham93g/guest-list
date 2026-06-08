@@ -11,12 +11,12 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
 
 const STATUS_LABELS: Record<AttendingStatus, string> = {
-  attending_both: 'Attending 4th & 5th',
-  attending_5th: 'Attending 5th',
+  attending_5th: 'Attending Saturday Lunch',
+  attending_both: 'Attending Friday & Saturday Lunch',
   declined: 'Unable to attend',
 };
 
-const RSVP_OPTIONS: AttendingStatus[] = ['attending_both', 'attending_5th', 'declined'];
+const RSVP_OPTIONS: AttendingStatus[] = ['attending_5th', 'attending_both', 'declined'];
 
 interface Props {
   existingRSVP?: RSVPData | null;
