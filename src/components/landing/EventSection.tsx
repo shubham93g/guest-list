@@ -74,11 +74,11 @@ export default function EventSection({ event, coupleNames, sectionLabel }: Event
                 {event.date && (
                   <p className="font-medium text-white">{event.date}</p>
                 )}
-                {event.day && (
-                  <p className="text-sm text-white">{event.day}</p>
-                )}
                 {event.time && (
                   <p className="text-sm text-white">{event.time}</p>
+                )}
+                {event.day && (
+                  <p className="text-sm text-white">{event.day}</p>
                 )}
               </div>
             )}

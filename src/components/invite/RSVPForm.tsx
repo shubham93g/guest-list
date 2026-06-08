@@ -11,18 +11,19 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
 
 const STATUS_LABELS: Record<AttendingStatus, string> = {
-  attending_both: 'Attending 4th & 5th',
-  attending_5th: 'Attending 5th',
+  attending_5th: 'Attending Saturday Lunch',
+  attending_both: 'Attending Friday & Saturday Lunch',
   declined: 'Unable to attend',
 };
 
-const RSVP_OPTIONS: AttendingStatus[] = ['attending_both', 'attending_5th', 'declined'];
+const RSVP_OPTIONS: AttendingStatus[] = ['attending_5th', 'attending_both', 'declined'];
 
 interface Props {
+  guestName: string;
   existingRSVP?: RSVPData | null;
 }
 
-export default function RSVPForm({ existingRSVP }: Props) {
+export default function RSVPForm({ guestName, existingRSVP }: Props) {
   const [email, setEmail] = useState(existingRSVP?.email ?? '');
   const [status, setStatus] = useState<AttendingStatus | ''>(
     existingRSVP?.status && existingRSVP.status !== 'pending' ? existingRSVP.status : ''
@@ -208,6 +209,18 @@ export default function RSVPForm({ existingRSVP }: Props) {
                 </select>
               </div>
 
+              {/* Primary guest name (read-only) */}
+              <div>
+                <label className="block text-xs text-white/70 mb-1.5 pl-1">
+                  Guest 1&apos;s name
+                </label>
+                <div
+                  className={`w-full h-12 px-4 flex items-center text-sm opacity-50 cursor-not-allowed ${ui.inputBase}`}
+                >
+                  {guestName}
+                </div>
+              </div>
+
               {/* Additional guest names */}
               {plusOneNames.map((name, i) => (
                 <div key={i}>
@@ -276,7 +289,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
               Anything you&apos;d like us to know? (optional)
             </label>
             <textarea
-              placeholder="A message for the couple…"
+              placeholder="A message for the couple, your travel details if you require accommodation"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
