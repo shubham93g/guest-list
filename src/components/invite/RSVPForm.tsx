@@ -276,7 +276,7 @@ export default function RSVPForm({ existingRSVP }: Props) {
               Anything you&apos;d like us to know? (optional)
             </label>
             <textarea
-              placeholder="A message for the couple…"
+              placeholder="A message for the couple, your travel details if you require accommodation"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
