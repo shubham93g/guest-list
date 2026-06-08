@@ -15,7 +15,7 @@ export const groomCoupleName = 'Shubham & Khaing Zin';
 // events (e.g. reception, sangeet) when needed.
 
 export const indianEvent = {
-  title: 'Indian Wedding',
+  title: 'Indian Wedding Lunch',
 
   // Date & Time
   date: '4th December 2026',   // e.g. 'November 15, 2025'
@@ -35,7 +35,7 @@ export const indianEvent = {
 } satisfies WeddingEvent;
 
 export const receptionEvent = {
-  title: 'Reception',
+  title: 'Reception Lunch',
 
   // Date & Time
   date: '5th December 2026',   // e.g. 'November 15, 2025'
