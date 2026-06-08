@@ -29,6 +29,7 @@ export default async function WelcomePage() {
       <EventSection event={receptionEvent} coupleNames={brideCoupleName} />
       <div className="w-16 h-px bg-white/20 mx-auto mb-8" />
       <RSVPForm
+        guestName={rsvpData.name}
         existingRSVP={rsvpData.status !== 'pending' ? rsvpData : null}
       />
       <FAQSection />
