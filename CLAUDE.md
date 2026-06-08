@@ -52,6 +52,8 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
 | `src/lib/session.ts` | Server-side helper: reads JWT from cookie via `next/headers`. |
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
+| `src/lib/cdn.ts` | Public Vercel Blob store URLs for the hero background videos (`HERO_VIDEOS`); `hero.jpg` stays in `public/` and is served locally. |
+| `scripts/upload-hero-media.mjs` | Local script: uploads a file to the public Blob store with a random suffix and 1-year `cacheControlMaxAge` — run via `npm run upload-hero-media -- <file...>`. |
 | `src/types/index.ts` | Shared TypeScript types (Guest, EventDetails, RSVPData, SessionPayload). |
 
 ## Google Sheets Structure
@@ -166,12 +168,13 @@ Always follow these steps when delivering any change, no matter how small:
 
 ## Hero Videos
 
-Background videos live in `public/` and are listed in `HERO_VIDEOS` inside `src/components/landing/ScrollBackground.tsx`. They play sequentially with a crossfade and loop back to the start.
+Background videos are hosted on a public Vercel Blob store and listed as full URLs in `HERO_VIDEOS` inside `src/lib/cdn.ts` (imported by `ScrollBackground.tsx`). They play sequentially with a crossfade and loop back to the start. `hero.jpg` is the only hero asset that stays in `public/` — it's small and preloaded on every page, so local serving is fine.
 
 **Adding a new video:**
-1. Drop the file into `public/` as `.mp4`
-2. If converting from `.mov`, encode it first (see below) — raw `.mov` files are not supported in Chrome/Firefox
-3. Append the filename to `HERO_VIDEOS` in `ScrollBackground.tsx`
+1. Encode it into `public/` as `.mp4` (see ffmpeg command below) — `public/*.mp4` is gitignored, so the file stays local for future re-encoding/re-uploading without being tracked or shipped in the deploy bundle
+2. If converting from `.mov`, encode it first — raw `.mov` files are not supported in Chrome/Firefox
+3. Run `npm run upload-hero-media -- public/<file>.mp4` (requires `BLOB_READ_WRITE_TOKEN` in `.env.local` — see `.env.example`) and copy the printed URL
+4. Paste the URL into `HERO_VIDEOS` in `src/lib/cdn.ts`
 
 **Required ffmpeg encoding** (H.265/HEVC, 1920-wide, no audio, CRF 28 for web-appropriate file size):
 ```bash
