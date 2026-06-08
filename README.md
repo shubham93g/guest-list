@@ -73,7 +73,7 @@ All required variables are documented in `.env.example`. Key notes:
 |---|---|
 | Wedding details (names, date, venue) | `src/config/wedding.ts` |
 | FAQ content | `faqs` array in `src/components/landing/FAQSection.tsx` |
-| Hero video | `public/hero.mp4` — replace the file to swap the video |
+| Hero videos | encode into `public/` (gitignored), `npm run upload-hero-media`, then update `HERO_VIDEOS` in `src/lib/cdn.ts` with the printed URL |
 | Venue background photo | URL at the top of `src/components/landing/ScrollBackground.tsx` |
 
 **Hero video format:** the file must be H.265 (HEVC) MP4, scaled to 1920px wide. Convert with:
@@ -87,7 +87,7 @@ ffmpeg -i input.mov \
   public/hero.mp4
 ```
 
-`-crf 28` is a good quality/size trade-off for a background video (lower = better quality, larger file). `-vf scale=1920:-2` caps width at 1920px while preserving the source aspect ratio. `-tag:v hvc1` is required for Safari/iOS compatibility. The file is served with `Cache-Control: immutable` so repeat visitors play from the browser cache instantly. Firefox has no H.265 support and falls back to the static `hero.jpg` background gracefully.
+`-crf 28` is a good quality/size trade-off for a background video (lower = better quality, larger file). `-vf scale=1920:-2` caps width at 1920px while preserving the source aspect ratio. `-tag:v hvc1` is required for Safari/iOS compatibility. The encoded files live in `public/` for local access (gitignored — see `.gitignore`) and are uploaded to a public Vercel Blob store via `npm run upload-hero-media`; each upload gets a random suffix and a 1-year `Cache-Control: max-age`, so the resulting content-addressed URL can be cached by the browser indefinitely — a re-encoded file gets a new URL, so there's no staleness risk. Firefox has no H.265 support and falls back to the static `hero.jpg` background gracefully.
 
 ## Commands
 

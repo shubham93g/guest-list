@@ -2,17 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import { ui } from '@/lib/ui';
-import { CDN_BASE } from '@/lib/cdn';
+import { HERO_VIDEOS } from '@/lib/cdn';
 
-const HERO_IMAGE = `${CDN_BASE}/hero.jpg`;
+const HERO_IMAGE = '/hero.jpg';
 const CROSSFADE_AHEAD = 1; // seconds before end to trigger the crossfade; matches CSS transition duration
-const HERO_VIDEOS = [
-  `${CDN_BASE}/hero4.mp4`,
-  `${CDN_BASE}/hero3.mp4`,
-  `${CDN_BASE}/hero.mp4`,
-  `${CDN_BASE}/hero6.mp4`,
-  // Add more video filenames here as you upload them to the R2 bucket
-];
 
 export default function ScrollBackground() {
   const heroLayerRef = useRef<HTMLDivElement>(null);
