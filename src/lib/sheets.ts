@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { unstable_cache } from 'next/cache';
-import { SHEET_ID, SHEETS, GUEST_COLS } from './constants';
+import { SHEET_ID, SHEETS, GUEST_COLS, RSVP_STATUS } from './constants';
 import type { Guest, ISOTimestamp, RSVPData } from '@/types';
 
 // Module-level singleton — persists across warm Vercel invocations so the
@@ -84,10 +84,10 @@ export async function findGuestByPhone(phone: string): Promise<Guest | null> {
   return rowToGuest(rowData);
 }
 
-const VALID_RSVP_STATUSES = new Set<string>(['attending_both', 'attending_5th', 'declined', 'pending']);
+const VALID_RSVP_STATUSES = new Set<string>(Object.values(RSVP_STATUS));
 
 function toRSVPStatus(value: string | undefined): Guest['status'] {
-  return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['status']) : 'pending';
+  return VALID_RSVP_STATUSES.has(value ?? '') ? (value as Guest['status']) : RSVP_STATUS.PENDING;
 }
 
 function rowToGuest(row: string[]): Guest {

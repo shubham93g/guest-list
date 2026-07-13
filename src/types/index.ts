@@ -1,4 +1,5 @@
-export type RSVPStatus = 'attending_both' | 'attending_5th' | 'declined' | 'pending';
+import { RSVP_STATUS } from '@/lib/constants';
+export type RSVPStatus = typeof RSVP_STATUS[keyof typeof RSVP_STATUS];
 
 export type ISOTimestamp = string & { readonly _brand: 'ISOTimestamp' };
 
