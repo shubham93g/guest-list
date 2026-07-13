@@ -3,11 +3,11 @@
 // or API route executes), so jwt.ts must stay Edge-compatible (no Node.js-only APIs).
 //
 // Auth routing rules:
-//   /login  + valid session → redirect to /invite (skip unnecessary re-auth)
-//   /invite + no session    → redirect to /login
+//   /login  + valid session → redirect to /invite (or /invite?mode=reception if mode param present)
+//   /invite + no session    → redirect to /login  (or /login?mode=reception if mode param present)
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/jwt';
-import { SESSION_COOKIE } from '@/lib/constants';
+import { SESSION_COOKIE, INVITE_MODE_PARAM, inviteHref, loginHref } from '@/lib/constants';
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
@@ -21,11 +21,13 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname === '/login' && session) {
-    return NextResponse.redirect(new URL('/invite', req.url));
+    const mode = req.nextUrl.searchParams.get(INVITE_MODE_PARAM);
+    return NextResponse.redirect(new URL(inviteHref(mode), req.url));
   }
 
   if (pathname === '/invite' && !session) {
-    return NextResponse.redirect(new URL('/login', req.url));
+    const mode = req.nextUrl.searchParams.get(INVITE_MODE_PARAM);
+    return NextResponse.redirect(new URL(loginHref(mode), req.url));
   }
 
   return NextResponse.next();

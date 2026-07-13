@@ -2,13 +2,15 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { inviteHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
   onSuccess: (phone: string) => void;
+  mode?: string;
 }
 
-export default function IdentifierForm({ onSuccess }: Props) {
+export default function IdentifierForm({ onSuccess, mode }: Props) {
   const router = useRouter();
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -39,7 +41,7 @@ export default function IdentifierForm({ onSuccess }: Props) {
       }
 
       if (data.skipOtp === true) {
-        router.push('/invite');
+        router.push(inviteHref(mode));
         return;
       }
       onSuccess(phone);

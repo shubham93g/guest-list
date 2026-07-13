@@ -25,4 +25,9 @@ export const heroVariants: Record<string, HeroContent> = {
     4th & 5th December 2026
     `,
   },
+  reception: {
+    tagline: 'The Wedding Of',
+    heading: groomCoupleName,
+    subheading: '5th December 2026',
+  },
 };

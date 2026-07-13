@@ -24,3 +24,18 @@ export const GUEST_COLS = {
 
 export const SESSION_COOKIE = 'session';
 export const SESSION_EXPIRY_DAYS = 30;
+
+export const INVITE_MODE_PARAM = 'mode' as const;
+export const RECEPTION_MODE = 'reception' as const;
+
+export function inviteHref(mode?: string | null): string {
+  return mode === RECEPTION_MODE
+    ? `/invite?${INVITE_MODE_PARAM}=${RECEPTION_MODE}`
+    : '/invite';
+}
+
+export function loginHref(mode?: string | null): string {
+  return mode === RECEPTION_MODE
+    ? `/login?${INVITE_MODE_PARAM}=${RECEPTION_MODE}`
+    : '/login';
+}

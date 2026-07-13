@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { RSVPData, RSVPStatus } from '@/types';
+import { RECEPTION_MODE } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 import ScrollIndicator from '@/components/ScrollIndicator';
 
@@ -21,9 +22,13 @@ const RSVP_OPTIONS: AttendingStatus[] = ['attending_5th', 'attending_both', 'dec
 interface Props {
   guestName: string;
   existingRSVP?: RSVPData | null;
+  mode?: string;
 }
 
-export default function RSVPForm({ guestName, existingRSVP }: Props) {
+export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {
+  const rsvpOptions = mode === RECEPTION_MODE
+    ? RSVP_OPTIONS.filter((o) => o !== 'attending_both')
+    : RSVP_OPTIONS;
   const [email, setEmail] = useState(existingRSVP?.email ?? '');
   const [status, setStatus] = useState<AttendingStatus | ''>(
     existingRSVP?.status && existingRSVP.status !== 'pending' ? existingRSVP.status : ''
@@ -174,7 +179,7 @@ export default function RSVPForm({ guestName, existingRSVP }: Props) {
 
           {/* Attendance status */}
           <div className="flex flex-col gap-3">
-            {RSVP_OPTIONS.map((opt) => (
+            {rsvpOptions.map((opt) => (
               <button
                 key={opt}
                 type="button"

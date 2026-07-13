@@ -48,3 +48,10 @@
 - [ ] RSVP form (returning guest): all fields pre-filled from existing RSVP data
 - [ ] RSVP form (returning guest): success screen shows "has been updated" copy
 - [ ] RSVP form (new guest): no banner shown, form starts empty, success screen shows "has been received" copy
+- [ ] `/reception` loads publicly without a session (no redirect)
+- [ ] `/reception` RSVP button navigates to `/login?mode=reception`
+- [ ] `/login?mode=reception` + existing session → redirects to `/invite?mode=reception`
+- [ ] `/login?mode=reception` OTP flow completes → lands on `/invite?mode=reception`
+- [ ] `/invite?mode=reception` shows only the reception EventSection (no Indian Wedding section)
+- [ ] `/invite?mode=reception` RSVPForm hides the "Attending Friday & Saturday Lunch" button
+- [ ] `/invite?mode=reception` guest with `attending_both` sees the full form (both events, all 3 RSVP options)
