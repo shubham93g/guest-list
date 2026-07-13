@@ -2,11 +2,12 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { RECEPTION_MODE, inviteHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
   onSuccess: (phone: string) => void;
-  mode?: 'reception';
+  mode?: typeof RECEPTION_MODE;
 }
 
 export default function IdentifierForm({ onSuccess, mode }: Props) {
@@ -40,7 +41,7 @@ export default function IdentifierForm({ onSuccess, mode }: Props) {
       }
 
       if (data.skipOtp === true) {
-        router.push(mode === 'reception' ? '/invite?mode=reception' : '/invite');
+        router.push(inviteHref(mode));
         return;
       }
       onSuccess(phone);

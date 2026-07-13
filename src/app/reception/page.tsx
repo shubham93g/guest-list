@@ -5,6 +5,7 @@ import ScrollBackground from '@/components/landing/ScrollBackground';
 import HeroSection from '@/components/landing/HeroSection';
 import EventSection from '@/components/landing/EventSection';
 import { groomCoupleName, receptionEvent } from '@/config/wedding';
+import { RECEPTION_MODE, loginHref } from '@/lib/constants';
 import RSVPSection from '@/components/landing/RSVPSection';
 import FAQSection from '@/components/landing/FAQSection';
 
@@ -20,8 +21,8 @@ export default function ReceptionPage() {
       <NavMenu />
       <HeroSection content={heroVariants.reception} />
       <EventSection event={receptionEvent} coupleNames={groomCoupleName} sectionLabel="Venue & Date" />
-      <RSVPSection loginHref="/login?mode=reception" />
-      <FAQSection mode="reception" />
+      <RSVPSection loginHref={loginHref(RECEPTION_MODE)} />
+      <FAQSection mode={RECEPTION_MODE} />
     </main>
   );
 }

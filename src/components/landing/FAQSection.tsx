@@ -1,3 +1,4 @@
+import { RECEPTION_MODE } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 const faqs = [
@@ -80,11 +81,11 @@ const receptionFaqs = [
 ];
 
 interface Props {
-  mode?: 'reception';
+  mode?: typeof RECEPTION_MODE;
 }
 
 export default function FAQSection({ mode }: Props = {}) {
-  const items = mode === 'reception' ? receptionFaqs : faqs;
+  const items = mode === RECEPTION_MODE ? receptionFaqs : faqs;
   return (
     <section id="faq" className="py-24 px-6">
       <div className="max-w-lg mx-auto">

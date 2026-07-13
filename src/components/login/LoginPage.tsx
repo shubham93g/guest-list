@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import IdentifierForm from '@/components/login/IdentifierForm';
 import OTPForm from '@/components/login/OTPForm';
+import { RECEPTION_MODE } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 type Step = 'identifier' | 'otp';
 
 interface Props {
   otpChannel: 'sms' | 'whatsapp' | 'skip';
-  mode?: 'reception';
+  mode?: typeof RECEPTION_MODE;
 }
 
 export default function LoginPage({ otpChannel, mode }: Props) {

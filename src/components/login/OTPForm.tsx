@@ -2,13 +2,14 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { RECEPTION_MODE, inviteHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
   phone: string;
   onBack: () => void;
   otpChannel: 'sms' | 'whatsapp';
-  mode?: 'reception';
+  mode?: typeof RECEPTION_MODE;
 }
 
 const OTP_CHANNEL_TITLE = {
@@ -43,7 +44,7 @@ export default function OTPForm({ phone, onBack, otpChannel, mode }: Props) {
         return;
       }
 
-      router.push(mode === 'reception' ? '/invite?mode=reception' : '/invite');
+      router.push(inviteHref(mode));
     } catch {
       console.error('[OTPForm] login-otp request failed');
       setError('Something went wrong. Please try again.');

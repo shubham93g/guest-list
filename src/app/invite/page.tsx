@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { findGuestByPhone } from '@/lib/sheets';
 import { receptionEvent, brideCoupleName, indianEvent } from '@/config/wedding';
+import { RECEPTION_MODE, INVITE_MODE_PARAM, loginHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 import PersonalizedHeader from '@/components/invite/PersonalizedHeader';
 import EventSection from '@/components/landing/EventSection';
@@ -11,21 +12,23 @@ import FAQSection from '@/components/landing/FAQSection';
 export default async function WelcomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
+  const params = await searchParams;
+  const mode = params[INVITE_MODE_PARAM] === RECEPTION_MODE ? RECEPTION_MODE : undefined;
+
   const session = await getSession();
   if (!session) {
-    redirect('/login');
+    redirect(loginHref(mode));
   }
 
   const rsvpData = await findGuestByPhone(session.phone);
 
   if (!rsvpData) {
-    redirect('/login');
+    redirect(loginHref(mode));
   }
 
-  const { mode } = await searchParams;
-  const isReceptionOnly = mode === 'reception' && rsvpData.status !== 'attending_both';
+  const isReceptionOnly = !!mode && rsvpData.status !== 'attending_both';
 
   return (
     <main className="min-h-screen relative">
@@ -40,9 +43,9 @@ export default async function WelcomePage({
       <RSVPForm
         guestName={rsvpData.name}
         existingRSVP={rsvpData.status !== 'pending' ? rsvpData : null}
-        mode={isReceptionOnly ? 'reception' : undefined}
+        mode={isReceptionOnly ? RECEPTION_MODE : undefined}
       />
-      <FAQSection mode={isReceptionOnly ? 'reception' : undefined} />
+      <FAQSection mode={isReceptionOnly ? RECEPTION_MODE : undefined} />
     </main>
   );
 }
