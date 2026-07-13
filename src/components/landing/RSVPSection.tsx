@@ -2,18 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginHref } from '@/lib/constants';
 
 interface Props {
-  loginHref?: string;
+  mode?: string;
 }
 
-export default function RSVPSection({ loginHref = '/login' }: Props) {
+export default function RSVPSection({ mode }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   function handleClick() {
     setLoading(true);
-    router.push(loginHref);
+    router.push(loginHref(mode));
   }
 
   return (
