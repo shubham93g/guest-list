@@ -15,7 +15,7 @@ export default async function WelcomePage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const mode = params[INVITE_MODE_PARAM] === RECEPTION_MODE ? RECEPTION_MODE : undefined;
+  const mode = params[INVITE_MODE_PARAM];
 
   const session = await getSession();
   if (!session) {
@@ -28,7 +28,7 @@ export default async function WelcomePage({
     redirect(loginHref(mode));
   }
 
-  const isReceptionOnly = !!mode && rsvpData.status !== 'attending_both';
+  const isReceptionOnly = mode === RECEPTION_MODE && rsvpData.status !== 'attending_both';
 
   return (
     <main className="min-h-screen relative">

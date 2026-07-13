@@ -2,12 +2,12 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { RECEPTION_MODE, inviteHref } from '@/lib/constants';
+import { inviteHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
   onSuccess: (phone: string) => void;
-  mode?: typeof RECEPTION_MODE;
+  mode?: string;
 }
 
 export default function IdentifierForm({ onSuccess, mode }: Props) {

@@ -81,7 +81,7 @@ const receptionFaqs = [
 ];
 
 interface Props {
-  mode?: typeof RECEPTION_MODE;
+  mode?: string;
 }
 
 export default function FAQSection({ mode }: Props = {}) {

@@ -22,7 +22,7 @@ const RSVP_OPTIONS: AttendingStatus[] = ['attending_5th', 'attending_both', 'dec
 interface Props {
   guestName: string;
   existingRSVP?: RSVPData | null;
-  mode?: typeof RECEPTION_MODE;
+  mode?: string;
 }
 
 export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {

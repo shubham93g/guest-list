@@ -2,14 +2,14 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { RECEPTION_MODE, inviteHref } from '@/lib/constants';
+import { inviteHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
   phone: string;
   onBack: () => void;
   otpChannel: 'sms' | 'whatsapp';
-  mode?: typeof RECEPTION_MODE;
+  mode?: string;
 }
 
 const OTP_CHANNEL_TITLE = {
