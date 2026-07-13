@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { RSVPData, RSVPStatus } from '@/types';
-import { RECEPTION_MODE } from '@/lib/constants';
+import { RECEPTION_MODE, RSVP_STATUS } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 import ScrollIndicator from '@/components/ScrollIndicator';
 
@@ -12,12 +12,12 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
 
 const STATUS_LABELS: Record<AttendingStatus, string> = {
-  attending_5th: 'Attending Saturday Lunch',
-  attending_both: 'Attending Friday & Saturday Lunch',
-  declined: 'Unable to attend',
+  [RSVP_STATUS.ATTENDING_5TH]: 'Attending Saturday Lunch',
+  [RSVP_STATUS.ATTENDING_BOTH]: 'Attending Friday & Saturday Lunch',
+  [RSVP_STATUS.DECLINED]: 'Unable to attend',
 };
 
-const RSVP_OPTIONS: AttendingStatus[] = ['attending_5th', 'attending_both', 'declined'];
+const RSVP_OPTIONS: AttendingStatus[] = [RSVP_STATUS.ATTENDING_5TH, RSVP_STATUS.ATTENDING_BOTH, RSVP_STATUS.DECLINED];
 
 interface Props {
   guestName: string;
@@ -27,11 +27,11 @@ interface Props {
 
 export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {
   const rsvpOptions = mode === RECEPTION_MODE
-    ? RSVP_OPTIONS.filter((o) => o !== 'attending_both')
+    ? RSVP_OPTIONS.filter((o) => o !== RSVP_STATUS.ATTENDING_BOTH)
     : RSVP_OPTIONS;
   const [email, setEmail] = useState(existingRSVP?.email ?? '');
   const [status, setStatus] = useState<AttendingStatus | ''>(
-    existingRSVP?.status && existingRSVP.status !== 'pending' ? existingRSVP.status : ''
+    existingRSVP?.status && existingRSVP.status !== RSVP_STATUS.PENDING ? existingRSVP.status : ''
   );
   const [guestCount, setGuestCount] = useState<number>(existingRSVP?.guestCount ?? 1);
   const [plusOneNames, setPlusOneNames] = useState<string[]>(() => {
@@ -56,7 +56,7 @@ export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {
     }
   }, [formState]);
 
-  const isAttending = status === 'attending_both' || status === 'attending_5th';
+  const isAttending = status === RSVP_STATUS.ATTENDING_BOTH || status === RSVP_STATUS.ATTENDING_5TH;
 
   function handleStatusChange(newStatus: AttendingStatus) {
     setStatus(newStatus);
@@ -83,7 +83,7 @@ export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {
     setErrorMsg('');
 
     try {
-      const declined = status === 'declined';
+      const declined = status === RSVP_STATUS.DECLINED;
       const submitGuestCount = declined ? 1 : guestCount;
       const submitPlusOneNames = declined ? [] : plusOneNames.filter((n) => n.trim());
       const submitRequiresParking = declined ? false : requiresParking;
