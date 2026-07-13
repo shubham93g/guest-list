@@ -9,7 +9,7 @@ import ScrollIndicator from '@/components/ScrollIndicator';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
-type AttendingStatus = Exclude<RSVPStatus, 'pending'>;
+type AttendingStatus = Exclude<RSVPStatus, typeof RSVP_STATUS.PENDING>;
 
 const STATUS_LABELS: Record<AttendingStatus, string> = {
   [RSVP_STATUS.ATTENDING_5TH]: 'Attending Saturday Lunch',
