@@ -28,9 +28,11 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 **Hosting:** Vercel (target for production deployment)
 
 **Routes:**
-- `/` — Public save-the-date hero (Server Component)
-- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine)
-- `/invite` — Personalized save-the-date + RSVP form (Server Component, protected)
+- `/` — Public save-the-date hero (Server Component); shows both events
+- `/goyal` — Public save-the-date hero with Goyal family branding; shows both events
+- `/reception` — Public save-the-date hero showing only the reception (Dec 5th) event; RSVP button links to `/login?mode=reception`
+- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine); accepts optional `?mode=reception` query param that is threaded through the login flow and used to redirect to `/invite?mode=reception` after auth
+- `/invite` — Personalized save-the-date + RSVP form (Server Component, protected); accepts optional `?mode=reception` to show a reception-only view (single event section, two RSVP options). Guests with status `attending_both` always see the full form regardless of mode.
 - `/logout` — GET: handled by middleware — clears session cookie and redirects to `/`
 - `/api/auth/login-id` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
 - `/api/auth/pre-login-id` — GET: warms the Sheets phone cache before the user submits their phone number
@@ -40,7 +42,10 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 **Middleware** (`src/middleware.ts`) handles auth routing:
 - `/logout` — clears session cookie, redirects to `/`
 - `/invite` — redirects to `/login` if no valid JWT
-- `/login` — redirects to `/invite` if a valid JWT exists (skips unnecessary re-auth)
+- `/login` — redirects to `/invite` (or `/invite?mode=reception` if `?mode=reception` is present) if a valid JWT exists
+
+**Reception mode toggle (`?mode=reception`):**
+The `mode=reception` URL param is a display-only toggle — no changes to the JWT, session, or Sheets schema. It hides the Indian Wedding (Dec 4th) event section and the `attending_both` RSVP option. `FAQSection` and `RSVPForm` both accept a `mode?: 'reception'` prop. Hero variants are configured in `src/config/heroVariants.ts`.
 
 ## Key Files
 

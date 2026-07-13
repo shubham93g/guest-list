@@ -8,6 +8,7 @@ interface Props {
   phone: string;
   onBack: () => void;
   otpChannel: 'sms' | 'whatsapp';
+  mode?: 'reception';
 }
 
 const OTP_CHANNEL_TITLE = {
@@ -15,7 +16,7 @@ const OTP_CHANNEL_TITLE = {
   whatsapp: 'Check WhatsApp',
 } as const;
 
-export default function OTPForm({ phone, onBack, otpChannel }: Props) {
+export default function OTPForm({ phone, onBack, otpChannel, mode }: Props) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -42,7 +43,7 @@ export default function OTPForm({ phone, onBack, otpChannel }: Props) {
         return;
       }
 
-      router.push('/invite');
+      router.push(mode === 'reception' ? '/invite?mode=reception' : '/invite');
     } catch {
       console.error('[OTPForm] login-otp request failed');
       setError('Something went wrong. Please try again.');

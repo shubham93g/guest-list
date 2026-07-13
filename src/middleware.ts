@@ -21,7 +21,9 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname === '/login' && session) {
-    return NextResponse.redirect(new URL('/invite', req.url));
+    const mode = req.nextUrl.searchParams.get('mode');
+    const dest = mode === 'reception' ? '/invite?mode=reception' : '/invite';
+    return NextResponse.redirect(new URL(dest, req.url));
   }
 
   if (pathname === '/invite' && !session) {

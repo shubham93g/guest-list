@@ -10,9 +10,10 @@ type Step = 'identifier' | 'otp';
 
 interface Props {
   otpChannel: 'sms' | 'whatsapp' | 'skip';
+  mode?: 'reception';
 }
 
-export default function LoginPage({ otpChannel }: Props) {
+export default function LoginPage({ otpChannel, mode }: Props) {
   const [step, setStep] = useState<Step>('identifier');
   const [phone, setPhone] = useState('');
 
@@ -39,12 +40,14 @@ export default function LoginPage({ otpChannel }: Props) {
       {step === 'identifier' ? (
         <IdentifierForm
           onSuccess={handleIdentifierSuccess}
+          mode={mode}
         />
       ) : (
         <OTPForm
           phone={phone}
           onBack={() => setStep('identifier')}
           otpChannel={otpChannel as 'sms' | 'whatsapp'}
+          mode={mode}
         />
       )}
     </main>
