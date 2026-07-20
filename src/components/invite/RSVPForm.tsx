@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { RSVPData, RSVPStatus } from '@/types';
-import { RECEPTION_MODE, RSVP_STATUS } from '@/lib/constants';
+import { MAX_GUEST_COUNT, RECEPTION_MODE, RSVP_STATUS } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 import ScrollIndicator from '@/components/ScrollIndicator';
 
@@ -206,7 +206,7 @@ export default function RSVPForm({ guestName, existingRSVP, mode }: Props) {
                   className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
                   suppressHydrationWarning
                 >
-                  {[1, 2, 3, 4].map((n) => (
+                  {Array.from({ length: MAX_GUEST_COUNT }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
                       {n === 1 ? 'Just me' : `${n} people`}
                     </option>
