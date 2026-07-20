@@ -13,7 +13,7 @@ export const GUEST_COLS = {
   PHONE: 2,                  // col C — subscriber number only, e.g. "9876543210"
   EMAIL: 3,                  // col D
   RSVP_STATUS: 4,
-  GUEST_COUNT: 5,            // col F — total attendees including the main guest (1-4)
+  GUEST_COUNT: 5,            // col F — total attendees including the main guest (1-5, see MAX_GUEST_COUNT)
   PLUS_ONE_NAMES: 6,         // col G — comma-separated names of additional guests
   RSVP_SUBMITTED_AT: 7,      // col H
   REQUIRES_PARKING: 8,       // col I
@@ -21,6 +21,9 @@ export const GUEST_COLS = {
   DIETARY_NOTES: 10,         // col K
   MESSAGE: 11,               // col L — general message (last)
 } as const;
+
+// Single source of truth for max party size — enforced in both the RSVP form UI and the submit API's zod schema.
+export const MAX_GUEST_COUNT = 5;
 
 export const SESSION_COOKIE = 'session';
 export const SESSION_EXPIRY_DAYS = 30;
