@@ -10,9 +10,11 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 interface Props {
   existingFlight?: FlightDetails | null;
+  existingEmail?: string;
 }
 
-export default function FlightsForm({ existingFlight }: Props) {
+export default function FlightsForm({ existingFlight, existingEmail }: Props) {
+  const [email, setEmail] = useState(existingEmail ?? '');
   const [arrivalFrom, setArrivalFrom] = useState(existingFlight?.arrivalFrom ?? '');
   const [arrivalDate, setArrivalDate] = useState(
     existingFlight?.arrivalDate ?? indianEvent.datetimeISO.slice(0, 10)
@@ -45,6 +47,7 @@ export default function FlightsForm({ existingFlight }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email,
           arrivalFrom,
           arrivalDate,
           arrivalTime,
@@ -88,6 +91,7 @@ export default function FlightsForm({ existingFlight }: Props) {
 
   const submitDisabled =
     formState === 'loading' ||
+    !email ||
     !arrivalFrom ||
     !arrivalDate ||
     !arrivalTime ||
@@ -111,6 +115,23 @@ export default function FlightsForm({ existingFlight }: Props) {
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5" suppressHydrationWarning>
+          {/* Email */}
+          <div>
+            <label className="block text-xs text-white/70 mb-1.5 pl-1">Email address</label>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full h-12 px-4 text-sm ${ui.inputBase}`}
+              required
+              suppressHydrationWarning
+            />
+            <p className="text-xs text-white/50 mt-1.5 pl-1">
+              We&apos;ll use this to reach out with updates on hotel check-in, check-out, and other travel logistics.
+            </p>
+          </div>
+
           {/* Arrival */}
           <div className="flex flex-col gap-3">
             <p className="text-xs uppercase tracking-wide text-white/60 pl-1">Arrival</p>

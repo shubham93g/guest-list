@@ -33,13 +33,13 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/reception` — Public save-the-date hero showing only the reception (Dec 5th) event; RSVP button links to `/login?mode=reception`
 - `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine); accepts optional `?mode=` query param (`reception` or `flights`) that is threaded through the login flow and determines the post-auth redirect (`postLoginHref` in `constants.ts`) — `reception` redirects to `/invite?mode=reception`, `flights` redirects to `/flights`, anything else redirects to `/invite`
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected); accepts optional `?mode=reception` to show a reception-only view (single event section, two RSVP options). Guests with status `attending_both` always see the full form regardless of mode.
-- `/flights` — Flight-details form for hotel check-in/check-out coordination (Server Component, protected); no RSVP-status gating, standalone URL (no link from `/invite`). Reads/writes the `Flights` sheet tab, copying `name`/`country_code`/`phone` from `Guests`.
+- `/flights` — Flight-details form for hotel check-in/check-out coordination (Server Component, protected); no RSVP-status gating, standalone URL (no link from `/invite`). Reads/writes the `Flights` sheet tab, copying `name`/`country_code`/`phone` from `Guests`. Includes a mandatory email field, pre-filled from and written back to `Guests!email` — the same field the (optional) RSVP email uses, not a separate column on `Flights`.
 - `/logout` — GET: handled by middleware — clears session cookie and redirects to `/`
 - `/api/auth/login-id` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
 - `/api/auth/pre-login-id` — GET: warms the Sheets phone cache before the user submits their phone number
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
-- `/api/flights/submit` — POST: authenticated, upserts flight details into the `Flights` sheet tab (update if the guest's phone already has a row, append otherwise — never duplicates)
+- `/api/flights/submit` — POST: authenticated, upserts flight details into the `Flights` sheet tab (update if the guest's phone already has a row, append otherwise — never duplicates); also writes the (mandatory) email field back to `Guests!email` via `updateGuestEmail`
 
 **Middleware** (`src/middleware.ts`) handles auth routing:
 - `/logout` — clears session cookie, redirects to `/`
@@ -149,9 +149,10 @@ curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \
   -d '{"email": "", "status": "attending_both", "guestCount": 1, "plusOneNames": "", "requiresParking": false, "requiresAccommodation": false, "dietaryNotes": "", "message": ""}'
 
 # Submit flight details (uses session cookie from above; requires the Flights tab to exist)
+# email is mandatory here — it's also written back to Guests!email (see updateGuestEmail in sheets.ts)
 curl -b cookies.txt -X POST http://localhost:3000/api/flights/submit \
   -H "Content-Type: application/json" \
-  -d '{"arrivalFrom": "Mumbai", "arrivalDate": "2026-12-03", "arrivalTime": "14:30", "arrivalFlightNumber": "SQ423", "departureDate": "2026-12-06", "departureTime": "09:15", "departureFlightNumber": "SQ424", "message": ""}'
+  -d '{"email": "guest@example.com", "arrivalFrom": "Mumbai", "arrivalDate": "2026-12-03", "arrivalTime": "14:30", "arrivalFlightNumber": "SQ423", "departureDate": "2026-12-06", "departureTime": "09:15", "departureFlightNumber": "SQ424", "message": ""}'
 ```
 
 ## PR Workflow
