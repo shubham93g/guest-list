@@ -125,27 +125,25 @@ export default function FlightsForm({ existingFlight }: Props) {
                 suppressHydrationWarning
               />
             </div>
-            <div className="flex gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
-                <input
-                  type="date"
-                  value={arrivalDate}
-                  onChange={(e) => setArrivalDate(e.target.value)}
-                  className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
-                  suppressHydrationWarning
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
-                <input
-                  type="time"
-                  value={arrivalTime}
-                  onChange={(e) => setArrivalTime(e.target.value)}
-                  className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
-                  suppressHydrationWarning
-                />
-              </div>
+            <div>
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
+              <input
+                type="date"
+                value={arrivalDate}
+                onChange={(e) => setArrivalDate(e.target.value)}
+                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                suppressHydrationWarning
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
+              <input
+                type="time"
+                value={arrivalTime}
+                onChange={(e) => setArrivalTime(e.target.value)}
+                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                suppressHydrationWarning
+              />
             </div>
             <div>
               <label className="block text-xs text-white/70 mb-1.5 pl-1">Flight number</label>
@@ -163,27 +161,25 @@ export default function FlightsForm({ existingFlight }: Props) {
           {/* Departure */}
           <div className="flex flex-col gap-3">
             <p className="text-xs uppercase tracking-wide text-white/60 pl-1">Departure</p>
-            <div className="flex gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
-                <input
-                  type="date"
-                  value={departureDate}
-                  onChange={(e) => setDepartureDate(e.target.value)}
-                  className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
-                  suppressHydrationWarning
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
-                <input
-                  type="time"
-                  value={departureTime}
-                  onChange={(e) => setDepartureTime(e.target.value)}
-                  className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
-                  suppressHydrationWarning
-                />
-              </div>
+            <div>
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
+              <input
+                type="date"
+                value={departureDate}
+                onChange={(e) => setDepartureDate(e.target.value)}
+                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                suppressHydrationWarning
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
+              <input
+                type="time"
+                value={departureTime}
+                onChange={(e) => setDepartureTime(e.target.value)}
+                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                suppressHydrationWarning
+              />
             </div>
             <div>
               <label className="block text-xs text-white/70 mb-1.5 pl-1">Flight number</label>
