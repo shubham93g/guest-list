@@ -126,7 +126,7 @@ export default function FlightsForm({ existingFlight }: Props) {
               />
             </div>
             <div className="flex gap-2">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
                 <input
                   type="date"
@@ -136,7 +136,7 @@ export default function FlightsForm({ existingFlight }: Props) {
                   suppressHydrationWarning
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
                 <input
                   type="time"
@@ -164,7 +164,7 @@ export default function FlightsForm({ existingFlight }: Props) {
           <div className="flex flex-col gap-3">
             <p className="text-xs uppercase tracking-wide text-white/60 pl-1">Departure</p>
             <div className="flex gap-2">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <label className="block text-xs text-white/70 mb-1.5 pl-1">Date</label>
                 <input
                   type="date"
@@ -174,7 +174,7 @@ export default function FlightsForm({ existingFlight }: Props) {
                   suppressHydrationWarning
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <label className="block text-xs text-white/70 mb-1.5 pl-1">Time</label>
                 <input
                   type="time"
