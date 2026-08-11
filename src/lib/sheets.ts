@@ -136,6 +136,22 @@ export async function updateGuestRSVP(phone: string, data: RSVPData): Promise<vo
   });
 }
 
+export async function updateGuestEmail(phone: string, email: string): Promise<void> {
+  const phoneToRow = await getPhoneMap();
+  const sheetRow = phoneToRow[normalisePhone(phone)];
+  if (sheetRow === undefined) {
+    throw new Error('Guest not found');
+  }
+
+  const sheets = await getSheetsClient();
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range: `${SHEETS.GUESTS}!D${sheetRow}:D${sheetRow}`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [[email]] },
+  });
+}
+
 // Unlike getPhoneMap, the Flights sheet is not pre-seeded — rows only exist
 // once a guest has submitted, and upsertFlightDetails appends new rows —
 // so this is deliberately NOT cached (unlike getPhoneMap). Always reading

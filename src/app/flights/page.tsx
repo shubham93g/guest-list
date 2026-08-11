@@ -24,7 +24,7 @@ export default async function FlightsPage() {
       <div className="fixed top-0 left-0 w-full -z-10 bg-cover bg-center" style={{ backgroundImage: "url('/hero.jpg')", height: '100lvh' }} />
       <div className={`fixed top-0 left-0 w-full -z-10 ${ui.overlay}`} style={{ height: '100lvh' }} />
       <PersonalizedHeader name={guest.name} />
-      <FlightsForm existingFlight={existingFlight} />
+      <FlightsForm existingFlight={existingFlight} existingEmail={guest.email} />
     </main>
   );
 }

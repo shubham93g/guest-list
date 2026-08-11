@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/session';
-import { findGuestByPhone, upsertFlightDetails } from '@/lib/sheets';
+import { findGuestByPhone, updateGuestEmail, upsertFlightDetails } from '@/lib/sheets';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 const schema = z.object({
+  email: z.string().email().max(200),
   arrivalFrom: z.string().min(1).max(100),
   arrivalDate: z.string().min(1),
   arrivalTime: z.string().min(1),
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Guest not found.' }, { status: 404 });
     }
 
+    await updateGuestEmail(session.phone, parsed.data.email);
     await upsertFlightDetails(guest.name, guest.countryCode, guest.phone, parsed.data);
     return new NextResponse(null, { status: 200 });
   } catch (err) {
