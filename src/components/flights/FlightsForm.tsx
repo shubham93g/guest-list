@@ -152,7 +152,7 @@ export default function FlightsForm({ existingFlight, existingEmail }: Props) {
                 type="date"
                 value={arrivalDate}
                 onChange={(e) => setArrivalDate(e.target.value)}
-                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                className={`w-full h-12 px-3 text-sm appearance-none ${ui.inputBase}`}
                 suppressHydrationWarning
               />
             </div>
@@ -162,7 +162,7 @@ export default function FlightsForm({ existingFlight, existingEmail }: Props) {
                 type="time"
                 value={arrivalTime}
                 onChange={(e) => setArrivalTime(e.target.value)}
-                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                className={`w-full h-12 px-3 text-sm appearance-none ${ui.inputBase}`}
                 suppressHydrationWarning
               />
             </div>
@@ -188,7 +188,7 @@ export default function FlightsForm({ existingFlight, existingEmail }: Props) {
                 type="date"
                 value={departureDate}
                 onChange={(e) => setDepartureDate(e.target.value)}
-                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                className={`w-full h-12 px-3 text-sm appearance-none ${ui.inputBase}`}
                 suppressHydrationWarning
               />
             </div>
@@ -198,7 +198,7 @@ export default function FlightsForm({ existingFlight, existingEmail }: Props) {
                 type="time"
                 value={departureTime}
                 onChange={(e) => setDepartureTime(e.target.value)}
-                className={`w-full h-12 px-3 text-sm ${ui.inputBase}`}
+                className={`w-full h-12 px-3 text-sm appearance-none ${ui.inputBase}`}
                 suppressHydrationWarning
               />
             </div>
