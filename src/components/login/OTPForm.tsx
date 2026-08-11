@@ -2,7 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { inviteHref } from '@/lib/constants';
+import { postLoginHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
@@ -44,7 +44,7 @@ export default function OTPForm({ phone, onBack, otpChannel, mode }: Props) {
         return;
       }
 
-      router.push(inviteHref(mode));
+      router.push(postLoginHref(mode));
     } catch {
       console.error('[OTPForm] login-otp request failed');
       setError('Something went wrong. Please try again.');

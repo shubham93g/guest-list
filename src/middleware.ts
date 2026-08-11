@@ -3,11 +3,12 @@
 // or API route executes), so jwt.ts must stay Edge-compatible (no Node.js-only APIs).
 //
 // Auth routing rules:
-//   /login  + valid session → redirect to /invite (or /invite?mode=reception if mode param present)
-//   /invite + no session    → redirect to /login  (or /login?mode=reception if mode param present)
+//   /login   + valid session → redirect to /invite or /flights, based on mode (see postLoginHref)
+//   /invite  + no session    → redirect to /login  (or /login?mode=reception if mode param present)
+//   /flights + no session    → redirect to /login?mode=flights
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyJWT } from '@/lib/jwt';
-import { SESSION_COOKIE, INVITE_MODE_PARAM, inviteHref, loginHref } from '@/lib/constants';
+import { SESSION_COOKIE, INVITE_MODE_PARAM, FLIGHTS_MODE, loginHref, postLoginHref } from '@/lib/constants';
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
@@ -22,7 +23,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === '/login' && session) {
     const mode = req.nextUrl.searchParams.get(INVITE_MODE_PARAM);
-    return NextResponse.redirect(new URL(inviteHref(mode), req.url));
+    return NextResponse.redirect(new URL(postLoginHref(mode), req.url));
   }
 
   if (pathname === '/invite' && !session) {
@@ -30,9 +31,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(loginHref(mode), req.url));
   }
 
+  if (pathname === '/flights' && !session) {
+    return NextResponse.redirect(new URL(loginHref(FLIGHTS_MODE), req.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/invite', '/login', '/logout'],
+  matcher: ['/invite', '/login', '/logout', '/flights'],
 };

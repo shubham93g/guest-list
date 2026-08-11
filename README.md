@@ -7,6 +7,7 @@ A private wedding website with OTP-gated RSVP, personalized guest invitations, a
 - Public save-the-date landing page — looping hero video, venue details, and FAQ
 - Personalized `/invite` page, unlocked per guest via OTP auth
 - RSVP form with dietary notes, plus-one, and a message field; returning guests see their prior response
+- `/flights` form collects each guest's arrival/departure flight details, so the hotel can be briefed on check-in/check-out timing
 - Multi-channel OTP: SMS or WhatsApp — configurable per deployment without code changes
 - iCal export so guests can add the event to their calendar
 - Guest data lives in Google Sheets — admin-accessible without a separate dashboard
@@ -26,9 +27,9 @@ A private wedding website with OTP-gated RSVP, personalized guest invitations, a
 
 ## Architecture
 
-Three public-facing routes: `/` (landing), `/login` (phone + OTP entry), and `/invite` (personalized RSVP). Auth routing is handled in Edge middleware — a valid JWT redirects away from `/login`, a missing JWT redirects away from `/invite` — keeping route handlers clean.
+Public-facing routes: `/` (landing), `/login` (phone + OTP entry), `/invite` (personalized RSVP), and `/flights` (flight-detail collection for hotel logistics). Auth routing is handled in Edge middleware — a valid JWT redirects away from `/login` to `/invite` or `/flights` depending on the `mode` query param, a missing JWT redirects away from `/invite`/`/flights` back to `/login` — keeping route handlers clean.
 
-The Google Sheets client uses a factory pattern (one auth client per invocation) for serverless safety. A 5-minute in-memory cache sits in front of Sheets reads and is invalidated on every RSVP write, avoiding per-request API calls without introducing a caching layer. Three API routes handle auth and RSVP submission; event details (couple names, date, venue) live in `src/config/wedding.ts` as static config — not in the Sheet.
+The Google Sheets client uses a factory pattern (one auth client per invocation) for serverless safety. Guest lookups sit behind a 10-minute in-memory cache, never invalidated since the phone columns are never modified after admin setup. Flight-detail lookups on `/flights` are deliberately uncached — that sheet only grows via guest submissions (an admin-static assumption doesn't hold there), so every check reads Sheets live to keep the one-row-per-phone guarantee accurate even under near-simultaneous submissions. API routes handle auth, RSVP submission, and flight-detail submission; event details (couple names, date, venue) live in `src/config/wedding.ts` as static config — not in the Sheet.
 
 ## Auth and OTP
 
@@ -44,7 +45,7 @@ Guests log in with their phone number. OTP delivery is controlled by `OTP_CHANNE
 
 ## Security
 
-- **Rate limiting**: in-memory sliding window; per-IP on `login-id` (10/15 min), per-identifier on `login-otp` (5/10 min), per-IP on RSVP submit (10/15 min)
+- **Rate limiting**: in-memory sliding window; per-IP and per-phone on `login-id`, per-identifier on `login-otp` (5/10 min), per-identifier on RSVP and flight-detail submission (10/15 min each)
 - **Anti-enumeration**: `login-id` and `login-otp` return identical error messages for format validation failures and not-found errors
 - **HTTP security headers**: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `HSTS` applied to all routes via `next.config.ts`
 - **CSP** (production only): allowlisted `script-src`, `style-src`, `img-src`, `connect-src`; `frame-ancestors 'none'`

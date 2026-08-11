@@ -25,6 +25,24 @@ export interface Guest extends RSVPData {
   rsvpSubmittedAt: ISOTimestamp | null;
 }
 
+export interface FlightData {
+  arrivalFrom: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  arrivalFlightNumber: string;
+  departureDate: string;
+  departureTime: string;
+  departureFlightNumber: string;
+  message: string;
+}
+
+export interface FlightDetails extends FlightData {
+  name: string;
+  countryCode: string;
+  phone: string;
+  submittedAt: ISOTimestamp | null;
+}
+
 export interface WeddingEvent {
   title: string;
   date: string;
