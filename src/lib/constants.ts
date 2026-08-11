@@ -65,9 +65,14 @@ export function inviteHref(mode?: string | null): string {
 
 // Builds the /login path for a given mode. mode is a general "where should
 // login send the guest" signal — 'reception' toggles the invite display,
-// 'flights' redirects to /flights after auth (see postLoginHref).
+// 'flights' redirects to /flights after auth (see postLoginHref). Callers
+// pass this straight through from the URL (e.g. middleware reading
+// searchParams), so it's validated against the known modes rather than
+// reflected as-is — mirrors the allowlist check inviteHref already does.
 export function loginHref(mode?: string | null): string {
-  return mode ? `/login?${INVITE_MODE_PARAM}=${mode}` : '/login';
+  return mode === RECEPTION_MODE || mode === FLIGHTS_MODE
+    ? `/login?${INVITE_MODE_PARAM}=${mode}`
+    : '/login';
 }
 
 // Where to send a guest after a successful login, based on the mode param
