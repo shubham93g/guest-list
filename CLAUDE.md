@@ -31,27 +31,30 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 - `/` — Public save-the-date hero (Server Component); shows both events
 - `/goyal` — Public save-the-date hero with Goyal family branding; shows both events
 - `/reception` — Public save-the-date hero showing only the reception (Dec 5th) event; RSVP button links to `/login?mode=reception`
-- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine); accepts optional `?mode=reception` query param that is threaded through the login flow and used to redirect to `/invite?mode=reception` after auth
+- `/login` — Phone entry + OTP flow (Server Component wrapper → `LoginPage` Client Component, 2-step state machine); accepts optional `?mode=` query param (`reception` or `flights`) that is threaded through the login flow and determines the post-auth redirect (`postLoginHref` in `constants.ts`) — `reception` redirects to `/invite?mode=reception`, `flights` redirects to `/flights`, anything else redirects to `/invite`
 - `/invite` — Personalized save-the-date + RSVP form (Server Component, protected); accepts optional `?mode=reception` to show a reception-only view (single event section, two RSVP options). Guests with status `attending_both` always see the full form regardless of mode.
+- `/flights` — Flight-details form for hotel check-in/check-out coordination (Server Component, protected); no RSVP-status gating, standalone URL (no link from `/invite`). Reads/writes the `Flights` sheet tab, copying `name`/`country_code`/`phone` from `Guests`.
 - `/logout` — GET: handled by middleware — clears session cookie and redirects to `/`
 - `/api/auth/login-id` — POST: check allowlist → send OTP via Twilio Verify (channel set by `OTP_CHANNEL`); if `OTP_CHANNEL=skip`, issues session immediately
 - `/api/auth/pre-login-id` — GET: warms the Sheets phone cache before the user submits their phone number
 - `/api/auth/login-otp` — POST: verify OTP → set `httpOnly` JWT cookie
 - `/api/rsvp/submit` — POST: authenticated, writes RSVP data back to Google Sheets
+- `/api/flights/submit` — POST: authenticated, upserts flight details into the `Flights` sheet tab (update if the guest's phone already has a row, append otherwise — never duplicates)
 
 **Middleware** (`src/middleware.ts`) handles auth routing:
 - `/logout` — clears session cookie, redirects to `/`
 - `/invite` — redirects to `/login` if no valid JWT
-- `/login` — redirects to `/invite` (or `/invite?mode=reception` if `?mode=reception` is present) if a valid JWT exists
+- `/flights` — redirects to `/login?mode=flights` if no valid JWT
+- `/login` — redirects to `/invite`, `/invite?mode=reception`, or `/flights` (via `postLoginHref`, based on the `mode` param) if a valid JWT exists
 
-**Reception mode toggle (`?mode=reception`):**
-The `mode=reception` URL param is a display-only toggle — no changes to the JWT, session, or Sheets schema. It hides the Indian Wedding (Dec 4th) event section and the `attending_both` RSVP option. `FAQSection` and `RSVPForm` both accept a `mode?: 'reception'` prop. Hero variants are configured in `src/config/heroVariants.ts`.
+**`mode` query param (`reception` | `flights`):**
+`mode` is the general "where should login send the guest, and how should `/invite` render" signal, built via `loginHref(mode)` / `postLoginHref(mode)` in `constants.ts`. `mode=reception` is a display-only toggle on `/invite` — no changes to the JWT, session, or Sheets schema; it hides the Indian Wedding (Dec 4th) event section and the `attending_both` RSVP option (`FAQSection` and `RSVPForm` both accept a `mode?: 'reception'` prop). `mode=flights` has no display effect — it only changes the post-login redirect target to `/flights`. Hero variants are configured in `src/config/heroVariants.ts`.
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. Caches phone→row map (10-minute TTL); not invalidated on RSVP writes (phone column is never modified). |
+| `src/lib/sheets.ts` | All Google Sheets I/O. The only file that calls `googleapis`. Guest data only — no event details. `Guests` phone→row map is cached (10-minute TTL, never invalidated — phone column is never modified). `Flights` phone→row map is deliberately **not** cached — that tab isn't pre-seeded and `upsertFlightDetails` appends rows, so every lookup reads live from Sheets to avoid racing a stale map into a duplicate row on concurrent submissions. Expected `/flights` traffic is low enough that the extra API call per lookup is a non-issue. |
 | `src/lib/event.ts` | Synchronous config reader for event details (couple names, date, venue). Reads from env vars — no Sheets dependency. |
 | `src/lib/auth.ts` | OTP send/verify via Twilio Verify. Re-exports JWT from `jwt.ts`. |
 | `src/lib/jwt.ts` | JWT sign/verify via `jose`. Imported by middleware — must stay Edge-compatible (no Node.js-only imports). |
@@ -59,11 +62,13 @@ The `mode=reception` URL param is a display-only toggle — no changes to the JW
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
 | `src/lib/cdn.ts` | Public Vercel Blob store URLs for the hero background videos (`HERO_VIDEOS`); `hero.jpg` stays in `public/` and is served locally. |
 | `scripts/upload-hero-media.mjs` | Local script: uploads a file to the public Blob store with a random suffix and 1-year `cacheControlMaxAge` — run via `npm run upload-hero-media -- <file...>`. |
-| `src/types/index.ts` | Shared TypeScript types (Guest, EventDetails, RSVPData, SessionPayload). |
+| `src/types/index.ts` | Shared TypeScript types (Guest, EventDetails, RSVPData, SessionPayload, FlightData, FlightDetails). |
 
 ## Google Sheets Structure
 
-One tab only: **`Guests`** (header in row 1, frozen)
+Two tabs, both with a header in row 1, frozen.
+
+### `Guests`
 
 | Col | Name | Notes |
 |-----|------|-------|
@@ -79,6 +84,25 @@ One tab only: **`Guests`** (header in row 1, frozen)
 | J | `requires_accommodation` | `yes` / `no` |
 | K | `dietary_notes` | |
 | L | `message` | Guest message |
+
+### `Flights`
+
+Not pre-seeded by the admin — rows only exist once a guest submits via `/flights`. One row per phone (upsert, never appended twice — see `upsertFlightDetails` in `sheets.ts`).
+
+| Col | Name | Notes |
+|-----|------|-------|
+| A | `name` | Copied from `Guests` on every submit (self-heals if the guest's name is later corrected) |
+| B | `country_code` | Copied from `Guests` |
+| C | `phone` | Copied from `Guests`. Combined with `country_code` for lookups, same convention as `Guests` |
+| D | `arrival_from` | Free text — city/airport the guest is flying from |
+| E | `arrival_date` | `YYYY-MM-DD` |
+| F | `arrival_time` | `HH:mm` |
+| G | `arrival_flight_number` | |
+| H | `departure_date` | `YYYY-MM-DD` |
+| I | `departure_time` | `HH:mm` |
+| J | `departure_flight_number` | |
+| K | `message` | Optional free-text travel notes |
+| L | `submitted_at` | ISO 8601 timestamp |
 
 Event details (couple names, date, venue) are **not** stored in Sheets — they are static env var config read via `src/lib/event.ts`.
 
@@ -123,6 +147,11 @@ curl -c cookies.txt -X POST http://localhost:3000/api/auth/login-id \
 curl -b cookies.txt -X POST http://localhost:3000/api/rsvp/submit \
   -H "Content-Type: application/json" \
   -d '{"email": "", "status": "attending_both", "guestCount": 1, "plusOneNames": "", "requiresParking": false, "requiresAccommodation": false, "dietaryNotes": "", "message": ""}'
+
+# Submit flight details (uses session cookie from above; requires the Flights tab to exist)
+curl -b cookies.txt -X POST http://localhost:3000/api/flights/submit \
+  -H "Content-Type: application/json" \
+  -d '{"arrivalFrom": "Mumbai", "arrivalDate": "2026-12-03", "arrivalTime": "14:30", "arrivalFlightNumber": "SQ423", "departureDate": "2026-12-06", "departureTime": "09:15", "departureFlightNumber": "SQ424", "message": ""}'
 ```
 
 ## PR Workflow
@@ -190,7 +219,7 @@ Always use `-crf 28`. Omitting it preserves the source bitrate, which can be 3�
 ## Important Patterns
 
 - **sheets.ts auth client**: `authClient` is a module-level singleton (persists across warm Vercel invocations so the internal OAuth token cache is reused). `getSheetsClient()` is a thin factory that wraps it per-call.
-- **Column index map**: `GUEST_COLS` in `constants.ts` is the single source of truth for column positions. If a column is added to the Sheet, update only this file.
+- **Column index map**: `GUEST_COLS` (and `FLIGHT_COLS` for the `Flights` tab) in `constants.ts` is the single source of truth for column positions. If a column is added to a Sheet tab, update only this file.
 - **Max party size**: `MAX_GUEST_COUNT` in `constants.ts` is the single source of truth for the guest count cap, enforced in both the RSVP form UI (`RSVPForm.tsx`) and the submit API's zod schema (`api/rsvp/submit/route.ts`).
 - **API responses never expose** internal data: `login-otp` only returns `{ success: true }`, RSVP data is written server-side from the JWT session.
 - **shadcn/ui components** live in `src/components/ui/` (auto-generated by `npx shadcn add`).

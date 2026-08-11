@@ -2,7 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { inviteHref } from '@/lib/constants';
+import { postLoginHref } from '@/lib/constants';
 import { ui } from '@/lib/ui';
 
 interface Props {
@@ -41,7 +41,7 @@ export default function IdentifierForm({ onSuccess, mode }: Props) {
       }
 
       if (data.skipOtp === true) {
-        router.push(inviteHref(mode));
+        router.push(postLoginHref(mode));
         return;
       }
       onSuccess(phone);
