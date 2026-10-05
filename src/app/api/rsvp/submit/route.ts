@@ -7,7 +7,7 @@ import { MAX_GUEST_COUNT, RSVP_STATUS } from '@/lib/constants';
 
 const schema = z.object({
   email: z.string().email().max(200).or(z.literal('')).default(''),
-  status: z.enum([RSVP_STATUS.ATTENDING_BOTH, RSVP_STATUS.ATTENDING_5TH, RSVP_STATUS.DECLINED] as const),
+  status: z.enum([RSVP_STATUS.ATTENDING_BOTH, RSVP_STATUS.ATTENDING_5TH, RSVP_STATUS.ATTENDING_4TH, RSVP_STATUS.DECLINED] as const),
   guestCount: z.number().int().min(1).max(MAX_GUEST_COUNT).default(1),
   plusOneNames: z.string().max(300).default(''),
   requiresParking: z.boolean().default(false),
