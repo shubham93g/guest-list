@@ -53,6 +53,7 @@ export const FLIGHTS_MODE = 'flights' as const;
 export const RSVP_STATUS = {
   ATTENDING_BOTH: 'attending_both',
   ATTENDING_5TH:  'attending_5th',
+  ATTENDING_4TH:  'attending_4th',
   DECLINED:       'declined',
   PENDING:        'pending',
 } as const;
