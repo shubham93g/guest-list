@@ -30,4 +30,14 @@ export const heroVariants: Record<string, HeroContent> = {
     heading: groomCoupleName,
     subheading: '5th December 2026',
   },
+  faq: {
+    tagline: 'The Wedding Of',
+    heading: brideCoupleName,
+    subheading: 'Frequently Asked Questions',
+  },
+  faqReception: {
+    tagline: 'The Wedding Of',
+    heading: groomCoupleName,
+    subheading: 'Frequently Asked Questions',
+  },
 };

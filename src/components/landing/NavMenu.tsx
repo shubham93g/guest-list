@@ -2,14 +2,23 @@
 
 import { useState } from 'react';
 
-const links = [
+export interface NavLink {
+  label: string;
+  href: string;
+}
+
+const defaultLinks: NavLink[] = [
   { label: 'Home', href: '#hero' },
   { label: 'Venue & Date', href: '#venue' },
   { label: 'RSVP', href: '#rsvp' },
   { label: 'FAQ', href: '#faq' },
 ];
 
-export default function NavMenu() {
+interface Props {
+  links?: NavLink[];
+}
+
+export default function NavMenu({ links = defaultLinks }: Props = {}) {
   const [open, setOpen] = useState(false);
 
   return (
