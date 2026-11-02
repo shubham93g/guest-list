@@ -7,7 +7,12 @@ import { HERO_VIDEOS } from '@/lib/cdn';
 const HERO_IMAGE = '/hero.jpg';
 const CROSSFADE_AHEAD = 1; // seconds before end to trigger the crossfade; matches CSS transition duration
 
-export default function ScrollBackground() {
+interface Props {
+  // Section whose scroll position drives the hero image fade-in.
+  revealSectionId?: string;
+}
+
+export default function ScrollBackground({ revealSectionId = 'venue' }: Props = {}) {
   const heroLayerRef = useRef<HTMLDivElement>(null);
   const videoARef = useRef<HTMLVideoElement>(null);
   const videoBRef = useRef<HTMLVideoElement>(null);
@@ -163,16 +168,16 @@ export default function ScrollBackground() {
 
   useEffect(() => {
     const update = () => {
-      const venueEl = document.getElementById('venue');
-      if (!venueEl || !heroLayerRef.current) {
+      const revealEl = document.getElementById(revealSectionId);
+      if (!revealEl || !heroLayerRef.current) {
         return;
       }
 
       const vh = window.innerHeight;
-      const venueTop = venueEl.getBoundingClientRect().top;
+      const revealTop = revealEl.getBoundingClientRect().top;
 
-      // Fade hero image in as venue section scrolls up into view (venueTop: vh → 0).
-      const opacity = Math.max(0, Math.min(1, (vh - venueTop) / vh));
+      // Fade hero image in as the reveal section scrolls up into view (revealTop: vh → 0).
+      const opacity = Math.max(0, Math.min(1, (vh - revealTop) / vh));
       heroLayerRef.current.style.opacity = String(opacity);
 
       // Pause video when scrolled past the first viewport — the fixed hero layer is
@@ -204,7 +209,7 @@ export default function ScrollBackground() {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, []);
+  }, [revealSectionId]);
 
   return (
     // Use 100lvh (large viewport height) instead of inset-0 / bottom:0.
