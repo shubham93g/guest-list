@@ -15,12 +15,13 @@ interface FAQ {
 }
 
 interface FAQGroup {
-  heading: string;
+  // Each entry renders on its own line.
+  heading: string[];
   items: FAQ[];
 }
 
 const indianFaqs: FAQGroup = {
-  heading: `${indianEvent.day}, ${indianEvent.date} · ${indianEvent.title}`,
+  heading: [`${indianEvent.day}, ${indianEvent.date}`, indianEvent.title],
   items: [
     {
       q: 'What time should I arrive?',
@@ -49,7 +50,7 @@ const indianFaqs: FAQGroup = {
 };
 
 const receptionFaqs: FAQGroup = {
-  heading: `${receptionEvent.day}, ${receptionEvent.date} · ${receptionEvent.title}`,
+  heading: [`${receptionEvent.day}, ${receptionEvent.date}`, receptionEvent.title],
   items: [
     {
       q: 'What time should I arrive?',
@@ -84,7 +85,7 @@ const receptionFaqs: FAQGroup = {
 // Built per render because the RSVP link carries the page's mode through to /invite.
 function generalFaqs(mode?: string): FAQGroup {
   return {
-    heading: 'General',
+    heading: ['General'],
     items: [
       {
         q: 'How can I update my RSVP?',
@@ -154,8 +155,12 @@ export default function FAQSection({ mode }: Props = {}) {
 
         <div className="space-y-10">
           {groups.map(({ heading, items }) => (
-            <div key={heading}>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-4 text-center">{heading}</p>
+            <div key={heading.join()}>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-4 text-center space-y-1">
+                {heading.map((line) => (
+                  <span key={line} className="block">{line}</span>
+                ))}
+              </p>
               <div className={ui.glassCard}>
                 {items.map(({ q, a, links }) => (
                   <details key={q} className="group border-b border-white/10 last:border-b-0">
