@@ -16,4 +16,12 @@ export const CAMPAIGNS = {
       attending_5th: 'wedding_reminder_reception',
     },
   },
+  test: {
+    tab: 'WA_TEST_1',
+    language: 'en',
+    templates: {
+      attending_both: 'wedding_reminder_both_v2',
+      attending_5th: 'wedding_reminder_reception',
+    },
+  },
 };
