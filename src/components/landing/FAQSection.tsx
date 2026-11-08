@@ -93,6 +93,12 @@ function generalFaqs(mode?: string): FAQGroup {
         links: [{ href: inviteHref(mode), label: 'Update my RSVP' }],
       },
       {
+        q: "How do I check how many people I've RSVP'd for?",
+        a: `Log in with your phone number to see your RSVP.
+    Under "How many people are attending?", you'll see the number of people you RSVP'd for, including yourself, along with each guest's name. You can change it there too.`,
+        links: [{ href: inviteHref(mode), label: 'View my RSVP' }],
+      },
+      {
         q: 'Where can I buy Indian clothes in Singapore?',
         a: `There are lots of options! Here are a few places to start.
     If you're heading to Little India, keep in mind it gets very crowded on Sundays.
