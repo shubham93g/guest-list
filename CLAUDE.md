@@ -63,11 +63,14 @@ There is no test suite yet. Validate API routes with curl (see Testing section b
 | `src/lib/constants.ts` | Sheet column indices (0-indexed) and cookie/session config. |
 | `src/lib/cdn.ts` | Public Vercel Blob store URLs for the hero background videos (`HERO_VIDEOS`); `hero.jpg` stays in `public/` and is served locally. |
 | `scripts/upload-hero-media.mjs` | Local script: uploads a file to the public Blob store with a random suffix and 1-year `cacheControlMaxAge` — run via `npm run upload-hero-media -- <file...>`. |
+| `scripts/whatsapp-setup.mjs` | Local script: one-off WhatsApp Cloud API number onboarding (status / verify / register) and single test sends — run via `npm run whatsapp-setup -- <command>`. |
+| `scripts/whatsapp-campaigns.mjs` | WhatsApp campaign config: per campaign, its Sheets tab, language, and `rsvp_status` → Meta template map. Add an entry here to run a new campaign. |
+| `scripts/whatsapp-messages.mjs` | Local script: `prepare` / `send` / `retry` a campaign against its tab (see WhatsApp campaign tabs below) — run via `npm run whatsapp-messages -- <command> <campaign> [--dry-run]`. Imports `constants.ts` directly via Node's TypeScript type stripping. |
 | `src/types/index.ts` | Shared TypeScript types (Guest, EventDetails, RSVPData, SessionPayload, FlightData, FlightDetails). |
 
 ## Google Sheets Structure
 
-Two tabs, both with a header in row 1, frozen.
+Two app tabs (plus one tab per WhatsApp campaign, see below), all with a header in row 1, frozen.
 
 ### `Guests`
 
@@ -104,6 +107,25 @@ Not pre-seeded by the admin — rows only exist once a guest submits via `/fligh
 | J | `departure_flight_number` | |
 | K | `message` | Optional free-text travel notes |
 | L | `submitted_at` | ISO 8601 timestamp |
+
+### WhatsApp campaign tabs
+
+One tab per campaign (tab name set in `scripts/whatsapp-campaigns.mjs`, e.g. `WA_reminder_1_month`), created by the first `prepare`. Never read or written by the app — only by `scripts/whatsapp-messages.mjs`. All campaign tabs share the `MESSAGE_COLS` layout in `constants.ts`; every command checks the header row against it and stops if a column was added, removed or moved by hand.
+
+`prepare` is a plain rebuild: it clears the tab and rewrites one row per guest from `Guests` (manual edits included). It refuses to run once any row has a `status`, since wiping send results would let the next `send` message everyone again — delete the tab to start a campaign over.
+
+| Col | Name | Notes |
+|-----|------|-------|
+| A–D | `name`, `country_code`, `phone`, `rsvp_status` | Copied from `Guests` by `prepare` (every guest row, including those without a phone) |
+| E | `template` | Derived from `rsvp_status` via the campaign's template map; edit by hand to send a guest a different template |
+| F | `greeting_name` | Fills the template's `{{1}}`. Set to `name` by `prepare`, then editable |
+| G | `exclude` | Single source of truth for exclusions — any non-empty value skips the guest. `prepare` sets `no phone` (no number in `Guests`), `no template` (`declined` / `pending`) or `unknown rsvp status` (any other status without a template, e.g. `attending_4th`); `yes` = manual |
+| H | `status` | `sent` / `failed`, written by `send`. `sent` = accepted by Meta, not confirmed delivered (no webhook) |
+| I | `message_id` | WhatsApp message id on success |
+| J | `error` | Meta error code + reason on failure |
+| K | `attempted_at` | ISO 8601 timestamp of the last send attempt |
+
+`send` targets rows with a blank `exclude` and `status != sent` — so re-running never double-sends. `retry` targets only `status = failed`.
 
 Event details (couple names, date, venue) are **not** stored in Sheets — they are static env var config read via `src/lib/event.ts`.
 
@@ -221,7 +243,8 @@ Always use `-crf 28`. Omitting it preserves the source bitrate, which can be 3�
 ## Important Patterns
 
 - **sheets.ts auth client**: `authClient` is a module-level singleton (persists across warm Vercel invocations so the internal OAuth token cache is reused). `getSheetsClient()` is a thin factory that wraps it per-call.
-- **Column index map**: `GUEST_COLS` (and `FLIGHT_COLS` for the `Flights` tab) in `constants.ts` is the single source of truth for column positions. If a column is added to a Sheet tab, update only this file.
+- **Manual scripts are read-only on `Guests`**: anything in `scripts/` (or any other local/one-off tooling) may read the `Guests` tab but must **never** write to it — no `update`, `append`, `batchUpdate`, `clear`, or formatting changes. `Guests` is written only by the app's API routes (`updateGuestRSVP` / `updateGuestEmail` in `sheets.ts`). Scripts that need to store data write to their own dedicated tab (e.g. WhatsApp campaign tabs), and should refuse to run if configured to target an app tab — see the guard in `scripts/whatsapp-messages.mjs`.
+- **Column index map**: `GUEST_COLS` (and `FLIGHT_COLS` for the `Flights` tab, `MESSAGE_COLS` for WhatsApp campaign tabs) in `constants.ts` is the single source of truth for column positions. If a column is added to a Sheet tab, update only this file.
 - **Max party size**: `MAX_GUEST_COUNT` in `constants.ts` is the single source of truth for the guest count cap, enforced in both the RSVP form UI (`RSVPForm.tsx`) and the submit API's zod schema (`api/rsvp/submit/route.ts`).
 - **API responses never expose** internal data: `login-otp` only returns `{ success: true }`, RSVP data is written server-side from the JWT session.
 - **shadcn/ui components** live in `src/components/ui/` (auto-generated by `npx shadcn add`).

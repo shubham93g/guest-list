@@ -40,6 +40,26 @@ export const FLIGHT_COLS = {
   SUBMITTED_AT: 11,                // col L
 } as const;
 
+// 0-indexed column positions shared by every WhatsApp campaign tab (one tab
+// per campaign, see scripts/whatsapp-campaigns.mjs) — only used by
+// scripts/whatsapp-messages.mjs, never by the app.
+// `prepare` rebuilds every column from Guests (refusing once any row has a
+// send result); E-G can then be edited by hand; H-K are written by `send`. The script refuses to run if a tab's header row
+// doesn't match this map, so columns can't be shifted by hand edits.
+export const MESSAGE_COLS = {
+  NAME: 0,
+  COUNTRY_CODE: 1,
+  PHONE: 2,
+  RSVP_STATUS: 3,
+  TEMPLATE: 4,       // col E — derived from rsvp_status; edit by hand to send a different template
+  GREETING_NAME: 5,  // col F — fills {{1}}; set to name by prepare, then editable
+  EXCLUDE: 6,        // col G — any value skips this guest; `yes` manually, or `no phone` / `no template` / `unknown rsvp status` set by prepare
+  STATUS: 7,         // col H — `sent` / `failed`
+  MESSAGE_ID: 8,     // col I — WhatsApp message id on success
+  ERROR: 9,          // col J — Meta error on failure
+  ATTEMPTED_AT: 10,  // col K — ISO 8601 timestamp of the last send attempt
+} as const;
+
 // Single source of truth for max party size — enforced in both the RSVP form UI and the submit API's zod schema.
 export const MAX_GUEST_COUNT = 5;
 

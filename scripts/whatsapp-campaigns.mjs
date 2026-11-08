@@ -1,0 +1,18 @@
+// WhatsApp campaigns sent by scripts/whatsapp-messages.mjs.
+//
+// Each campaign is tracked in its own Sheets tab (created on first
+// `prepare`) and maps a guest's rsvp_status to an approved Meta template.
+// Statuses not listed get no message — excluded as `no template` if
+// declined/pending, otherwise as `unknown rsvp status`. Every template currently takes
+// exactly one body variable — {{1}} = greeting_name.
+
+export const CAMPAIGNS = {
+  reminder_1_month: {
+    tab: 'WA_reminder_1_month',
+    language: 'en',
+    templates: {
+      attending_both: 'wedding_reminder_both_v2',
+      attending_5th: 'wedding_reminder_reception',
+    },
+  },
+};
