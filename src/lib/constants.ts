@@ -53,7 +53,7 @@ export const MESSAGE_COLS = {
   RSVP_STATUS: 3,
   TEMPLATE: 4,       // col E — derived from rsvp_status; edit by hand to send a different template
   GREETING_NAME: 5,  // col F — fills {{1}}; set to name by prepare, then editable
-  EXCLUDE: 6,        // col G — any value skips this guest; `yes` manually, or `no phone` / `no template` / `unknown rsvp status` set by prepare
+  EXCLUDE: 6,        // col G — any value skips this guest; `yes` manually, or `no phone` / `campaign not configured` set by prepare
   STATUS: 7,         // col H — `sent` / `failed`
   MESSAGE_ID: 8,     // col I — WhatsApp message id on success
   ERROR: 9,          // col J — Meta error on failure

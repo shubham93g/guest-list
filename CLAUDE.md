@@ -119,7 +119,7 @@ One tab per campaign (tab name set in `scripts/whatsapp-campaigns.mjs`, e.g. `WA
 | A–D | `name`, `country_code`, `phone`, `rsvp_status` | Copied from `Guests` by `prepare` (every guest row, including those without a phone) |
 | E | `template` | Derived from `rsvp_status` via the campaign's template map; edit by hand to send a guest a different template |
 | F | `greeting_name` | Fills the template's `{{1}}`. Set to `name` by `prepare`, then editable |
-| G | `exclude` | Single source of truth for exclusions — any non-empty value skips the guest. `prepare` sets `no phone` (no number in `Guests`), `no template` (`declined` / `pending`) or `unknown rsvp status` (any other status without a template, e.g. `attending_4th`); `yes` = manual |
+| G | `exclude` | Single source of truth for exclusions — any non-empty value skips the guest. `prepare` sets `no phone` (no number in `Guests`) or `campaign not configured` (the guest's `rsvp_status` isn't in the campaign's `templates` map); `yes` = manual. The script never checks status values itself — the campaign config is the single source of truth for who gets a message |
 | H | `status` | `sent` / `failed`, written by `send`. `sent` = accepted by Meta, not confirmed delivered (no webhook) |
 | I | `message_id` | WhatsApp message id on success |
 | J | `error` | Meta error code + reason on failure |

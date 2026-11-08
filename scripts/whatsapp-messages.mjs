@@ -5,8 +5,8 @@
 //
 //   prepare    Rebuild the campaign tab from Guests (creating it if needed):
 //              one row per guest, `template` from their rsvp_status, and
-//              `exclude` set to `no phone` / `no template` where the guest
-//              can't be sent to. Overwrites everything in the tab, including
+//              `exclude` set to `no phone` / `campaign not configured` where
+//              the guest can't be sent to. Overwrites everything in the tab, including
 //              manual edits — so it refuses once the tab has send results.
 //   send       Send to every row with a blank exclude and status != sent.
 //              Re-running only picks up failures and rows not yet attempted.
@@ -25,7 +25,7 @@
 
 import { google } from 'googleapis';
 import { createInterface } from 'node:readline/promises';
-import { GUEST_COLS, MESSAGE_COLS, RSVP_STATUS, SHEETS, SHEET_ID } from '../src/lib/constants.ts';
+import { GUEST_COLS, MESSAGE_COLS, SHEETS, SHEET_ID } from '../src/lib/constants.ts';
 import { CAMPAIGNS } from './whatsapp-campaigns.mjs';
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0';
@@ -47,13 +47,12 @@ const digits = (value) => (value ?? '').replace(/\D/g, '');
 const padRow = (row) => Array.from({ length: COL_COUNT }, (_, i) => row[i] ?? '');
 const rowPhone = (row) => digits(row[MESSAGE_COLS.COUNTRY_CODE]) + digits(row[MESSAGE_COLS.PHONE]);
 // Any non-empty exclude skips the row — `yes` is the manual value; prepare
-// fills these two automatically.
+// fills these two automatically. Which RSVP statuses get a message
+// is decided solely by each campaign's `templates` map — this script never
+// checks status values itself. A missing phone is the one exception, since
+// WhatsApp can't send without one.
 const EXCLUDE_NO_PHONE = 'no phone';
-const EXCLUDE_NO_TEMPLATE = 'no template';
-const EXCLUDE_UNKNOWN_STATUS = 'unknown rsvp status';
-// Statuses that expectedly get no message; any other unmapped status (e.g.
-// attending_4th, or a typo in the sheet) is flagged as unknown instead.
-const NO_MESSAGE_STATUSES = new Set([RSVP_STATUS.DECLINED, RSVP_STATUS.PENDING]);
+const EXCLUDE_NOT_CONFIGURED = 'campaign not configured';
 const isExcluded = (row) => row[MESSAGE_COLS.EXCLUDE].trim() !== '';
 const greetingName = (row) => row[MESSAGE_COLS.GREETING_NAME] || row[MESSAGE_COLS.NAME];
 
@@ -145,7 +144,7 @@ async function prepare(campaign, { dryRun }) {
     if (!name && !digits(countryCode + phone)) {
       continue;
     }
-    const rsvpStatus = guest[GUEST_COLS.RSVP_STATUS] || RSVP_STATUS.PENDING;
+    const rsvpStatus = (guest[GUEST_COLS.RSVP_STATUS] ?? '').trim();
     const row = padRow([]);
     row[MESSAGE_COLS.NAME] = name;
     row[MESSAGE_COLS.COUNTRY_CODE] = countryCode;
@@ -156,7 +155,7 @@ async function prepare(campaign, { dryRun }) {
     if (!rowPhone(row)) {
       row[MESSAGE_COLS.EXCLUDE] = EXCLUDE_NO_PHONE;
     } else if (!row[MESSAGE_COLS.TEMPLATE]) {
-      row[MESSAGE_COLS.EXCLUDE] = NO_MESSAGE_STATUSES.has(rsvpStatus) ? EXCLUDE_NO_TEMPLATE : EXCLUDE_UNKNOWN_STATUS;
+      row[MESSAGE_COLS.EXCLUDE] = EXCLUDE_NOT_CONFIGURED;
     }
     rows.push(row);
   }

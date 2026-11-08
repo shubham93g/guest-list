@@ -2,9 +2,10 @@
 //
 // Each campaign is tracked in its own Sheets tab (created on first
 // `prepare`) and maps a guest's rsvp_status to an approved Meta template.
-// Statuses not listed get no message — excluded as `no template` if
-// declined/pending, otherwise as `unknown rsvp status`. Every template currently takes
-// exactly one body variable — {{1}} = greeting_name.
+// This map is the single source of truth for who gets a message: any status
+// not listed here (including a blank one) is excluded as
+// `campaign not configured`. Every template currently takes exactly one body
+// variable — {{1}} = greeting_name.
 
 export const CAMPAIGNS = {
   reminder_1_month: {

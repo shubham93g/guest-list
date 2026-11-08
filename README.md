@@ -130,8 +130,9 @@ Builds the campaign's tab (e.g. `WA_reminder_1_month`) with one row per guest �
 
 Guests who can't be messaged get their `exclude` filled in automatically:
 - `no phone` — no phone number in `Guests`
-- `no template` — they're `declined` or `pending`
-- `unknown rsvp status` — any other RSVP status this campaign has no template for (e.g. `attending_4th`, or a mistyped status in `Guests`)
+- `campaign not configured` — their RSVP status isn't listed in the campaign's `templates` in `scripts/whatsapp-campaigns.mjs` (e.g. `declined`, `pending`, `attending_4th`, a blank status, or a typo in `Guests`)
+
+The campaign's `templates` map is the only thing that decides which RSVP statuses get a message — to include a status, add it there and re-run `prepare`.
 
 **`prepare` overwrites the whole tab every time**, including any edits you made in step 2. Re-run it freely (e.g. after more RSVPs come in) until you start sending — but make your manual edits *after* your last `prepare`. Once anything has been sent, `prepare` refuses to run, since wiping the send results would let the next `send` message everyone again. To start a campaign over completely, delete its tab and run `prepare`.
 
@@ -139,8 +140,8 @@ Guests who can't be messaged get their `exclude` filled in automatically:
 
 | Column | What to do |
 |---|---|
-| `exclude` | **The single place that decides who's skipped** — any value skips the guest. Type `yes` to skip someone manually. `prepare` fills in `no phone`, `no template` or `unknown rsvp status` automatically (see above) |
-| `template` | Change the template name to send that guest a different template than the automatic one (if the row was excluded for having no template, also clear its `exclude`) |
+| `exclude` | **The single place that decides who's skipped** — any value skips the guest. Type `yes` to skip someone manually. `prepare` fills in `no phone` or `campaign not configured` automatically (see above) |
+| `template` | Change the template name to send that guest a different template than the automatic one (if the row was excluded as `campaign not configured`, also clear its `exclude`) |
 | `greeting_name` | The name used in `{{1}}` — pre-filled with the guest's name; change it (e.g. to a first name) as needed |
 
 Don't add, remove, rename or reorder columns — every command checks the header row and stops if the layout has changed.
