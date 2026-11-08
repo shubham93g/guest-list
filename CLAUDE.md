@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## General Principles
 
 - **Never assume personal details.** Names, locations, dates, and preferences must come from the user — never inferred from context (e.g. username, phone format). When in doubt, ask before making a decision based on an assumption.
+- **Never run WhatsApp commands without explicit approval.** This covers `npm run whatsapp-setup -- ...` and `npm run whatsapp-messages -- ...` (including `--dry-run` and read-only commands like `status`), ad-hoc Graph API calls using the WhatsApp token, and any script that reads or writes the campaign Sheet tabs. These can message real guests, change the business number's state (e.g. `register`, which has a limited attempt quota), or overwrite campaign data. Editing the script files is fine; executing them is not — give the user the command to run and wait for their output. Approval for one command does not extend to the next.
 
 ## Commands
 
