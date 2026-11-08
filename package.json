@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src/",
-    "upload-hero-media": "node --env-file=.env.local scripts/upload-hero-media.mjs"
+    "upload-hero-media": "node --env-file=.env.local scripts/upload-hero-media.mjs",
+    "whatsapp-setup": "node --env-file=.env.local scripts/whatsapp-setup.mjs",
+    "whatsapp-messages": "node --env-file=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/whatsapp-messages.mjs"
   },
   "dependencies": {
     "googleapis": "^173.0.0",
