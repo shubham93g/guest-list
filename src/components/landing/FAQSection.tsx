@@ -25,8 +25,8 @@ const indianFaqs: FAQGroup = {
   items: [
     {
       q: 'What time should I arrive?',
-      a: `Please arrive by 11am and be seated by 11:50am.
-    The ceremony starts at 12pm, and we expect to finish by 3pm.`,
+      a: `Please arrive by 11am and be seated by 11:45am.
+    We expect to finish by 3pm.`,
     },
     {
       q: 'What happens on the day?',
@@ -54,8 +54,8 @@ const receptionFaqs: FAQGroup = {
   items: [
     {
       q: 'What time should I arrive?',
-      a: `Please arrive by 11am for registration and cocktails, and be seated by 11:50am.
-    Lunch starts at 12pm, and we expect to finish by 3pm.`,
+      a: `Please arrive by 11am for registration and cocktails, and be seated by 11:45am.
+    We expect to finish by 3pm.`,
     },
     {
       q: 'What happens on the day?',
@@ -77,7 +77,7 @@ const receptionFaqs: FAQGroup = {
     },
     {
       q: 'How do I get to the Fullerton Ballroom?',
-      a: 'The Ballroom at The Fullerton Hotel Singapore is located on the Basement Level, accessible via the main hotel lifts or the grand staircase from the lobby. You will find the registration and cocktail reception area on Basement Level. From there, the ballroom is a short flight of stairs down. A lift is also available at the end of the reception area for guests who need it. \r\n\r\nIf you have any accessibility needs, feel free to let us know!',
+      a: 'The Ballroom at The Fullerton Hotel Singapore is located on the Basement Level, accessible via the main hotel lifts or the grand staircase from the lobby. You will find the registration and cocktail reception area on Basement Level. From there, the ballroom is a short flight of stairs down.\r\n\r\nIf you have any accessibility needs, feel free to let us know!',
     },
   ],
 };
